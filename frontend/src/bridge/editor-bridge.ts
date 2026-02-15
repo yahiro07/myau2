@@ -18,7 +18,7 @@ type MessageFromApp =
   | { type: "setParameter"; paramKey: string; value: number }
   | { type: "bulkSetParameters"; parameters: Record<string, number> }
   | { type: "hostNoteOn"; noteNumber: number; velocity: number }
-  | { type: "hostNoteOff"; noteNumber: number; velocity: number };
+  | { type: "hostNoteOff"; noteNumber: number };
 
 type MessageReceiver = (msg: MessageFromApp) => void;
 
@@ -142,6 +142,10 @@ function setupEditorBridge() {
         //store.mutations.*はバッチ化で単一の更新にまとめるので連続で多数呼んでよい
         affectParameterToStore(paramKey, value);
       }
+    } else if (msg.type === "hostNoteOn") {
+      logger.log(`hostNoteOn: ${msg.noteNumber}, ${msg.velocity}`);
+    } else if (msg.type === "hostNoteOff") {
+      logger.log(`hostNoteOff: ${msg.noteNumber}`);
     }
     //snap-storeの状態を更新したあと、別タスクでsubscribeのコールバックが呼ばれるので
     //これが終わった後にisReceivingをfalseにする(queueMicrotaskはFIFO順で処理される)

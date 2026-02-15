@@ -18,7 +18,7 @@ private enum MessageFromApp {
   case bulkSetParameters(params: [String: Float])
   //ホストから送られたノートをUI側で受け取るメッセージ
   case hostNoteOn(noteNumber: Int, velocity: Float)
-  case hostNoteOff(noteNumber: Int, velocity: Float)
+  case hostNoteOff(noteNumber: Int)
 }
 
 private func mapMessageFromUI_fromDictionary(_ dict: [String: Any]) -> MessageFromUI? {
@@ -72,11 +72,9 @@ private func mapMessageFromApp_toDictionary(_ msg: MessageFromApp) -> [String: A
       "noteNumber": noteNumber,
       "velocity": encodeFloatForJson(velocity),
     ]
-  case .hostNoteOff(let noteNumber, let velocity):
+  case .hostNoteOff(let noteNumber):
     return [
-      "type": "hostNoteOff",
-      "noteNumber": noteNumber,
-      "velocity": encodeFloatForJson(velocity),
+      "type": "hostNoteOff", "noteNumber": noteNumber,
     ]
   }
 }
@@ -161,12 +159,29 @@ class BasicWebViewHub {
     }
   }
 
+  func handlePortalEvent(_ event: AudioUnitPortalEvent) {
+    switch event {
+    case .hostNoteOn(let noteNumber, let velocity):
+      logger.log("Received Note On from host: \(noteNumber) velocity: \(velocity)")
+      sendMessageToUI(
+        msg: .hostNoteOn(noteNumber: noteNumber, velocity: velocity))
+    case .hostNoteOff(let noteNumber):
+      logger.log("Received Note Off from host: \(noteNumber)")
+      sendMessageToUI(
+        msg: .hostNoteOff(noteNumber: noteNumber))
+    case .hostPlayState(let playState):
+      logger.log("Received Play State from host @whub: \(playState)")
+    case .hostTempo(let tempo):
+      logger.log("Received Tempo from host: \(tempo)")
+    }
+  }
+
   func bindWebViewIo(webViewIo: WebViewIoProtocol) {
     self.webViewIo = webViewIo
 
     portalSubscription?.cancel()
     portalSubscription = self.audioUnitPortal.events.sink { event in
-      logger.log("Received event from AudioUnit @whub: \(event)")
+      self.handlePortalEvent(event)
     }
 
     webViewIoSubscription?.cancel()
