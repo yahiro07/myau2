@@ -25,7 +25,7 @@ type MessageReceiver = (msg: MessageFromApp) => void;
 
 type CoreBridge = {
   sendMessage: (msg: MessageFromUI) => void;
-  assignReceiver: (receiver: MessageReceiver) => void;
+  assignReceiver: (receiver: MessageReceiver) => () => void;
   assertUiLoaded: () => void;
 };
 
@@ -63,6 +63,9 @@ function createCoreBridge(): CoreBridge {
     sendMessage: sendMessageToApp,
     assignReceiver(_receiver) {
       receiver = _receiver;
+      return () => {
+        receiver = undefined;
+      };
     },
     assertUiLoaded() {
       sendMessageToApp({ type: "uiLoaded" });
@@ -80,7 +83,7 @@ function setupEditorBridge() {
   let editTargetSent: ParameterKey | undefined;
 
   //ストアの値を購読して変更があったときに本体に通知する
-  store.subscribe((attrs) => {
+  const unsubscribeStore = store.subscribe((attrs) => {
     if (isReceiving) return;
 
     const { editTarget, ...paramAttrs } = attrs;
@@ -130,7 +133,7 @@ function setupEditorBridge() {
     }
   }
 
-  coreBridge.assignReceiver((msg) => {
+  const unsubscribeCoreBridge = coreBridge.assignReceiver((msg) => {
     //本体からパラメタを受け取ってstoreを更新したときにもsubscribeのコールバックが
     //呼ばれるので、そこで値を送り返さないようにフラグを立てて処理を抑制する
     isReceiving = true;
@@ -159,6 +162,11 @@ function setupEditorBridge() {
   });
 
   coreBridge.assertUiLoaded();
+
+  return () => {
+    unsubscribeStore();
+    unsubscribeCoreBridge();
+  };
 }
 
 export function useEditorBridge() {
