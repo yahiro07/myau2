@@ -94,7 +94,8 @@ final class WebViewCoordinator: NSObject, WebViewIoProtocol {
         name: "putMessageFromUI"
       )
 
-      loadPage(webView)
+      // loadAssetPage(webView)
+      loadLocalhostPage(webView)
       return webView
     }
 
@@ -103,12 +104,18 @@ final class WebViewCoordinator: NSObject, WebViewIoProtocol {
       context.coordinator.callOnBindIfNeeded(onBind)
     }
 
-    func loadPage(_ webView: WKWebView) {
+    private func loadLocalhostPage(_ webView: WKWebView) {
+      guard let url = URL(string: "http://localhost:3000") else { return }
+      logger.log("load url: \(url)")
+      webView.load(URLRequest(url: url))
+    }
+
+    private func loadAssetPage(_ webView: WKWebView) {
       guard
         let url = Bundle.main.url(
           forResource: "index", withExtension: "html", subdirectory: "dist")
       else { return }
-      print("load url: \(url)")
+      logger.log("load url: \(url)")
       webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
     }
 
