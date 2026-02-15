@@ -4,3 +4,7 @@
 SYNTH.aif
 /build/
 buildServer.json
+
+**/.vscode/settings.json
+
+
