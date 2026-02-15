@@ -401,7 +401,7 @@ const MainPanel = () => {
       </div>
       <div className="absolute bottom-0 right-0 p-1">myau2 web ui - 1723</div>
       <div className="absolute bottom-0 left-0 p-1">
-        {st.standaloneFlag ? "standalone mode" : "hosted in DAW"}
+        {st.standaloneFlag && "standalone mode"}
       </div>
     </div>
   );
