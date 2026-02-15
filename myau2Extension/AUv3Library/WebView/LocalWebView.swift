@@ -61,6 +61,7 @@ final class WebViewCoordinator: NSObject, WebViewIoProtocol {
     -> AnyCancellable
   {
     let id = UUID()
+    receivers[id] = receiver
     return AnyCancellable { [weak self] in
       self?.receivers.removeValue(forKey: id)
     }
