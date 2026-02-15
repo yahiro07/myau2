@@ -13,7 +13,8 @@ import { store } from "@/store/store";
 import { flexVertical } from "@/utils/styling-utils";
 import "@/styles/utility-classes.css";
 import "@/styles/page.css";
-import { useEditorBridge } from "@/bridge/editor-bridge";
+import { useEffect } from "react";
+import { editorBridge } from "@/bridge/editor-bridge";
 import { logger } from "@/bridge/logger";
 import { ScreenUiScaler } from "@/components/UiScaler";
 
@@ -407,7 +408,7 @@ const MainPanel = () => {
 };
 
 const App = () => {
-  useEditorBridge();
+  useEffect(editorBridge.setupReceivers, []);
   return (
     <div className="h-dvh flex-c" css={{ background: "#444" }}>
       {1 ? (
