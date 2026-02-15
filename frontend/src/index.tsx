@@ -10,13 +10,14 @@ import {
   VoicingModeOptions,
 } from "@/store/parameters";
 import { store } from "@/store/store";
-import { flexVertical } from "@/utils/styling-utils";
+import { flexCentered, flexVertical } from "@/utils/styling-utils";
 import "@/styles/utility-classes.css";
 import "@/styles/page.css";
 import { useEffect } from "react";
 import { editorBridge } from "@/bridge/editor-bridge";
 import { logger } from "@/bridge/logger";
 import { ScreenUiScaler } from "@/components/UiScaler";
+import { actions } from "@/store/actions";
 
 const cssSectionFrame = css({
   padding: "20px 35px",
@@ -361,11 +362,10 @@ const VoiceControlSection = () => {
   );
 };
 
-const MainPanel = () => {
+const ParametersEditPart = () => {
   const st = store.useSnapshot();
   return (
     <div
-      className="flex-c"
       css={{
         width: "1080px",
         height: "600px",
@@ -378,6 +378,8 @@ const MainPanel = () => {
           fontSize: "20px",
           fontWeight: "bold",
         },
+        position: "relative",
+        ...flexCentered(),
       }}
     >
       <div className="flex-v gap-4">
@@ -407,17 +409,83 @@ const MainPanel = () => {
   );
 };
 
+const KeyboardPart = () => {
+  return (
+    <div
+      css={{
+        width: "1080px",
+        height: "200px",
+        border: "solid 1px #fff4",
+        fontFamily: "Inter, sans-serif",
+        background: "#aaa",
+        color: "#333",
+        fontWeight: "500",
+        h3: {
+          fontSize: "20px",
+          fontWeight: "bold",
+        },
+        ...flexCentered(8),
+        ">button": {
+          width: "60px",
+          height: "60px",
+          background: "#fff",
+          border: "solid 1px #888",
+          cursor: "pointer",
+        },
+      }}
+    >
+      <button
+        type="button"
+        onPointerDown={() => actions.noteOn(60)}
+        onPointerUp={() => actions.noteOff(60)}
+      >
+        C
+      </button>
+      <button
+        type="button"
+        onPointerDown={() => actions.noteOn(62)}
+        onPointerUp={() => actions.noteOff(62)}
+      >
+        D
+      </button>
+      <button
+        type="button"
+        onPointerDown={() => actions.noteOn(64)}
+        onPointerUp={() => actions.noteOff(64)}
+      >
+        E
+      </button>
+    </div>
+  );
+};
+
+const ExtensionView = () => {
+  return (
+    <ScreenUiScaler designWidth={1080} designHeight={600}>
+      <div className="flex-c">
+        <ParametersEditPart />
+      </div>
+    </ScreenUiScaler>
+  );
+};
+
+const StandaloneView = () => {
+  return (
+    <ScreenUiScaler designWidth={1080} designHeight={800}>
+      <div className="flex-vc">
+        <ParametersEditPart />
+        <KeyboardPart />
+      </div>
+    </ScreenUiScaler>
+  );
+};
+
 const App = () => {
   useEffect(editorBridge.setupReceivers, []);
+  const st = store.useSnapshot();
   return (
     <div className="h-dvh flex-c" css={{ background: "#444" }}>
-      {1 ? (
-        <ScreenUiScaler designWidth={1080} designHeight={600}>
-          <MainPanel />
-        </ScreenUiScaler>
-      ) : (
-        <MainPanel />
-      )}
+      {st.standaloneFlag || 1 ? <StandaloneView /> : <ExtensionView />}
     </div>
   );
 };
