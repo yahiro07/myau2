@@ -73,6 +73,10 @@ class AudioUnitHostModel {
       let viewController = await playEngine.initComponent(
         type: type, subType: subType, manufacturer: manufacturer)
 
+      if let au = playEngine.avAudioUnit?.auAudioUnit {
+        au.fullState = ["myau2.hostedInStandaloneApp": true]
+      }
+
       if false {
         if let audioUnit = playEngine.avAudioUnit {
           Task { @MainActor in

@@ -54,7 +54,9 @@ public class GenericAudioUnitViewController: AUViewController {
     }
   }
 
+  //not invoked after init?
   public override func viewDidLoad() {
+    logger.log("viewDidLoad")
     super.viewDidLoad()
     // self.preferredContentSize = CGSize(width: 1080, height: 600)
     configureSwiftUIView()
@@ -88,6 +90,7 @@ public class GenericAudioUnitViewController: AUViewController {
       parameterTree: observableParameterTree, audioUnitPortal: audioUnit.portal,
       presetManager: audioUnit.presetManager)
 
+    // logger.log("now call pluginCore.createView")
     let content = pluginCore.createView(viewAccessibleResources)
     let host = HostingController(rootView: content)
     // host.sizingOptions = .preferredContentSize
@@ -104,6 +107,8 @@ public class GenericAudioUnitViewController: AUViewController {
     host.view.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
     host.view.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
     self.view.bringSubviewToFront(host.view)
+
+    // logger.log("finished configureSwiftUIView")
   }
 
   override public func viewDidAppear() {

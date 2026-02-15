@@ -5,6 +5,7 @@ enum AudioUnitPortalEvent {
   case hostNoteOff(Int)
   case hostTempo(Int)
   case hostPlayState(Bool)
+  case standaloneAppFlag(Bool)
 }
 
 //UI側からAudioUnitの機能を利用するためのインターフェイス
@@ -42,7 +43,7 @@ final class AudioUnitPortalImpl: AudioUnitPortal {
   typealias InputEventFeeder = () -> AudioUnitPortalEvent?
   private var eventFeeder: InputEventFeeder?
 
-  //AudioUnit側でイベントを供給するfeederメソッドをセットする
+  //AudioUnit側でオーディオスレッドから拾い上げたイベントを供給するfeederメソッドをセットする
   //feederメソッドはメインスレッドから呼ばれる想定
   func setEventFeeder(_ feeder: @escaping InputEventFeeder) {
     self.eventFeeder = feeder

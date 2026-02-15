@@ -221,6 +221,10 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
     set {
       guard let state = newValue else { return }
       logger.log("Restoring state data: \(state)")
+      if let flag = state["myau2.hostedInStandaloneApp"] as? Bool {
+        logger.log("received hostedInStandaloneApp flag: \(flag)")
+        return
+      }
       if let data = state["myParams"] as? Data {
         restoreParameterState(from: data)
       }
