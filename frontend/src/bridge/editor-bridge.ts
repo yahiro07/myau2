@@ -18,7 +18,8 @@ type MessageFromApp =
   | { type: "setParameter"; paramKey: string; value: number }
   | { type: "bulkSetParameters"; parameters: Record<string, number> }
   | { type: "hostNoteOn"; noteNumber: number; velocity: number }
-  | { type: "hostNoteOff"; noteNumber: number };
+  | { type: "hostNoteOff"; noteNumber: number }
+  | { type: "standaloneAppFlag" };
 
 type MessageReceiver = (msg: MessageFromApp) => void;
 
@@ -146,6 +147,9 @@ function setupEditorBridge() {
       logger.log(`hostNoteOn: ${msg.noteNumber}, ${msg.velocity}`);
     } else if (msg.type === "hostNoteOff") {
       logger.log(`hostNoteOff: ${msg.noteNumber}`);
+    } else if (msg.type === "standaloneAppFlag") {
+      logger.log("Received standalone app flag from host");
+      store.mutations.setStandaloneFlag(true);
     }
     //snap-storeの状態を更新したあと、別タスクでsubscribeのコールバックが呼ばれるので
     //これが終わった後にisReceivingをfalseにする(queueMicrotaskはFIFO順で処理される)

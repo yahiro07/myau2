@@ -236,6 +236,8 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
       logger.log("Restoring state data: \(state)")
       if let flag = state["myau2.hostedInStandaloneApp"] as? Bool {
         logger.log("received hostedInStandaloneApp flag: \(flag)")
+        // portal.emitEvent(.standaloneAppFlag(true))
+        portal.isHostedInStandaloneApp = true
         return
       }
       if let data = state["myParams"] as? Data {

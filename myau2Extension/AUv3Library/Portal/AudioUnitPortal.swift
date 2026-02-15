@@ -5,7 +5,7 @@ enum AudioUnitPortalEvent {
   case hostNoteOff(Int)
   case hostTempo(Int)
   case hostPlayState(Bool)
-  case standaloneAppFlag(Bool)
+  // case standaloneAppFlag(Bool)
 }
 
 //UI側からAudioUnitの機能を利用するためのインターフェイス
@@ -13,12 +13,15 @@ enum AudioUnitPortalEvent {
 //・ホストから送られたイベントの購読
 //の機能を提供する
 protocol AudioUnitPortal {
+  var isHostedInStandaloneApp: Bool { get }
   func noteOnFromUI(_ noteNumber: Int, velocity: Float)
   func noteOffFromUI(_ noteNumber: Int)
   var events: AnyPublisher<AudioUnitPortalEvent, Never> { get }
 }
 
 final class AudioUnitPortalImpl: AudioUnitPortal {
+  var isHostedInStandaloneApp = false
+
   typealias MidiDestinationFn = ([UInt8]) -> Void
   private var midiDestinationFn: MidiDestinationFn?
 

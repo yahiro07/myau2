@@ -19,6 +19,7 @@ private enum MessageFromApp {
   //ホストから送られたノートをUI側で受け取るメッセージ
   case hostNoteOn(noteNumber: Int, velocity: Float)
   case hostNoteOff(noteNumber: Int)
+  case standaloneAppFlag
 }
 
 private func mapMessageFromUI_fromDictionary(_ dict: [String: Any]) -> MessageFromUI? {
@@ -76,6 +77,10 @@ private func mapMessageFromApp_toDictionary(_ msg: MessageFromApp) -> [String: A
     return [
       "type": "hostNoteOff", "noteNumber": noteNumber,
     ]
+  case .standaloneAppFlag:
+    return [
+      "type": "standaloneAppFlag"
+    ]
   }
 }
 
@@ -99,7 +104,7 @@ class BasicWebViewHub {
     self.presetManager = viewAccessibleResources.presetManager
 
     valueTracker.setReceiver { [weak self] key, value in
-      self?.sendMessageToUI(msg: .setParameter(paramKey: key, value: value))
+      self?.sendMessageToUI(.setParameter(paramKey: key, value: value))
     }
     for (paramKey, paramEntry) in flatParameterTree.entries {
       valueTracker.trackParameterValue(paramKey: paramKey, paramEntry: paramEntry)
@@ -111,7 +116,7 @@ class BasicWebViewHub {
     webViewIoSubscription?.cancel()
   }
 
-  private func sendMessageToUI(msg: MessageFromApp) {
+  private func sendMessageToUI(_ msg: MessageFromApp) {
     if let jsDataDictionary = mapMessageFromApp_toDictionary(msg) {
       webViewIo?.sendRawMessageToUI(data: jsDataDictionary)
     } else {
@@ -124,13 +129,12 @@ class BasicWebViewHub {
   ) {
     switch msg {
     case .uiLoaded:
-      print("⭐️UI Loaded")
       logger.log("received UI loaded")
-      //debug
-      sendMessageToUI(
-        msg: .setParameter(paramKey: "initComplete", value: 1.0))
+      if audioUnitPortal.isHostedInStandaloneApp {
+        sendMessageToUI(.standaloneAppFlag)
+      }
       let params = flatParameterTree.entries.mapValues { $0.value }
-      sendMessageToUI(msg: .bulkSetParameters(params: params))
+      sendMessageToUI(.bulkSetParameters(params: params))
 
     case .beginParameterEdit(let paramKey):
       if let paramEntry = flatParameterTree.entries[paramKey] {
@@ -163,18 +167,14 @@ class BasicWebViewHub {
     switch event {
     case .hostNoteOn(let noteNumber, let velocity):
       logger.log("Received Note On from host: \(noteNumber) velocity: \(velocity)")
-      sendMessageToUI(
-        msg: .hostNoteOn(noteNumber: noteNumber, velocity: velocity))
+      sendMessageToUI(.hostNoteOn(noteNumber: noteNumber, velocity: velocity))
     case .hostNoteOff(let noteNumber):
       logger.log("Received Note Off from host: \(noteNumber)")
-      sendMessageToUI(
-        msg: .hostNoteOff(noteNumber: noteNumber))
+      sendMessageToUI(.hostNoteOff(noteNumber: noteNumber))
     case .hostPlayState(let playState):
       logger.log("Received Play State from host @whub: \(playState)")
     case .hostTempo(let tempo):
       logger.log("Received Tempo from host: \(tempo)")
-    case .standaloneAppFlag(let isStandalone):
-      logger.log("Received Standalone App Flag from host @whub: \(isStandalone)")
     }
   }
 

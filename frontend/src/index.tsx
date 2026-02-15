@@ -361,6 +361,7 @@ const VoiceControlSection = () => {
 };
 
 const MainPanel = () => {
+  const st = store.useSnapshot();
   return (
     <div
       className="flex-c"
@@ -398,6 +399,9 @@ const MainPanel = () => {
         </div>
       </div>
       <div className="absolute bottom-0 right-0 p-1">myau2 web ui - 1723</div>
+      <div className="absolute bottom-0 left-0 p-1">
+        {st.standaloneFlag ? "standalone mode" : "hosted in DAW"}
+      </div>
     </div>
   );
 };
