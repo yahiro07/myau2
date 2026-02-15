@@ -1,0 +1,47 @@
+#pragma once
+
+// this is pure enum, not depending on Apple's NS_ENUM
+// intended to make the DSP code portable
+enum ParameterAddress : int {
+  osc1On = 0,
+  osc1Wave,
+  osc1Octave,
+  osc1PwMix,
+  osc1Volume,
+  //
+  osc2On,
+  osc2Wave,
+  osc2Octave,
+  osc2Detune,
+  osc2Volume,
+  //
+  filterOn,
+  filterType,
+  filterCutoff,
+  filterPeak,
+  filterEnvMod,
+  //
+  ampOn,
+  ampAttack,
+  ampDecay,
+  ampSustain,
+  ampRelease,
+  //
+  lfoOn,
+  lfoWave,
+  lfoRate,
+  lfoDepth,
+  lfoTarget,
+  //
+  egOn,
+  egAttack,
+  egDecay,
+  egAmount,
+  egTarget,
+  //
+  glide,
+  voicingMode,
+  masterVolume,
+  //
+  numParameters
+};
