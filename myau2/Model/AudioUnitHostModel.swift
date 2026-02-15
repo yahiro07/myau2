@@ -61,6 +61,7 @@ class AudioUnitHostModel {
       || type.fourCharCode == kAudioUnitType_MusicDevice
       || type.fourCharCode == kAudioUnitType_Generator
     self.isFreeRunning = isFreeRunning
+    logger.log("isFreeRunning: \(isFreeRunning)")
 
     auValString = "\(type) \(subType) \(manufacturer)"
 
@@ -146,13 +147,6 @@ class AudioUnitHostModel {
       self, name: instanceInvalidationNotifcation, object: nil)
   }
 
-  func startPlaying() {
-    playEngine.startPlaying()
-  }
-
-  func stopPlaying() {
-    playEngine.stopPlaying()
-  }
   func noteOn(index: UInt8) {
     self.playEngine.sendMessage(message: [0x90, index, 0x7F])
   }
