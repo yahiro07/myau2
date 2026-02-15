@@ -147,8 +147,7 @@ public class GenericAudioUnitViewController: AUViewController {
       timeInterval: 1.0 / 60.0,
       repeats: true
     ) { [weak self] _ in
-      let portal = self?.audioUnit?.portal
-      portal?.drainEventsOnMainThread(maxCount: 32)
+      self?.audioUnit?.drainRealtimeEventsOnMainThread(maxCount: 32)
     }
     RunLoop.main.add(eventTimer!, forMode: .common)
 

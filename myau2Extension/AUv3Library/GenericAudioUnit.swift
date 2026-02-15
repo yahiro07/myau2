@@ -40,13 +40,6 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
     portal.setMidiDestinationFn({ [weak self] (bytes: [UInt8]) in
       self?.pushScheduledMidiEvent(bytes)
     })
-    portal.setEventFeeder({ [weak self] in
-      var rawEvent = LowLevelPortalEvent()
-      guard self?.processHelper?.popLowLevelPortalEvent(&rawEvent) == true else {
-        return nil
-      }
-      return mapPortalEventFromRaw(rawEvent)
-    })
   }
 
   public override func supportedViewConfigurations(
@@ -55,6 +48,26 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
     return IndexSet(integersIn: 0..<availableViewConfigurations.count)
   }
 
+  private func pullRTAudioPortalEventOne() -> AudioUnitPortalEvent? {
+    var rawEvent = LowLevelPortalEvent()
+    guard processHelper?.popLowLevelPortalEvent(&rawEvent) == true else {
+      return nil
+    }
+    return mapPortalEventFromRaw(rawEvent)
+  }
+
+  //メインスレッドでタイマを使ってポーリングしてイベントを流す
+  //オーディオスレッド上で拾い上げたMIDIノートのイベントをメインスレッド上でUIに流す
+  //AudioUnitViewController側で一定周期でループを回してこれを呼ぶ想定
+  func drainRealtimeEventsOnMainThread(maxCount: Int = 64) {
+    var count = 0
+    while count < maxCount, let event = pullRTAudioPortalEventOne() {
+      portal.emitEvent(event)
+      count += 1
+    }
+  }
+
+  //push MIDI note sent from internal UI
   private func pushScheduledMidiEvent(_ bytes: [UInt8]) {
     guard let midiBlock = scheduleMIDIEventBlock else { return }
     midiBlock(

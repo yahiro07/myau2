@@ -173,6 +173,8 @@ class BasicWebViewHub {
       logger.log("Received Play State from host @whub: \(playState)")
     case .hostTempo(let tempo):
       logger.log("Received Tempo from host: \(tempo)")
+    case .standaloneAppFlag(let isStandalone):
+      logger.log("Received Standalone App Flag from host @whub: \(isStandalone)")
     }
   }
 
