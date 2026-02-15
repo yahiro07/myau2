@@ -52,7 +52,7 @@ func testWriteFileToAppGroupContainer() {
   let fileName = "test.txt"
   let content = "Hello, App Group! 0440"
   do {
-    let fileURL = try SharedContainer.userPresetFileURL(presetName: fileName)
+    let fileURL = try SharedContainer0.userPresetFileURL(presetName: fileName)
     logger.log("Writing to: \(fileURL.path) dir=\(fileURL.hasDirectoryPath)")
     try content.write(to: fileURL, atomically: true, encoding: .utf8)
     logger.log("File written.")
@@ -64,7 +64,7 @@ func testWriteFileToAppGroupContainer() {
 func testReadFileFromAppGroupContainer() {
   let fileName = "test.txt"
   do {
-    let fileURL = try SharedContainer.userPresetFileURL(presetName: fileName)
+    let fileURL = try SharedContainer0.userPresetFileURL(presetName: fileName)
     let content = try String(contentsOf: fileURL, encoding: .utf8)
     logger.log("File content: \(content)")
   } catch {
@@ -72,7 +72,7 @@ func testReadFileFromAppGroupContainer() {
   }
 }
 
-enum SharedContainer {
+enum SharedContainer0 {
   static let appGroupId = "group.synth2511.myau2"
 
   static func baseURL() throws -> URL {

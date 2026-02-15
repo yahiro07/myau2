@@ -188,13 +188,14 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
     }
   }
 
+  //TODO:安全性が低いので改善したい, idをキーとした辞書にする
   func parameterStateData() -> Data {
     var values: [Float] = parameterTree!.allParameters.map {
       $0.value
     }
     return Data(bytes: &values, count: values.count * MemoryLayout<Float>.size)
   }
-
+  //TODO:安全性が低いので改善したい, idをキーとした辞書にする
   func restoreParameterState(from data: Data) {
     let count = data.count / MemoryLayout<Float>.size
     data.withUnsafeBytes { ptr in
