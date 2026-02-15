@@ -31,14 +31,14 @@ const globalThisTyped = globalThis as unknown as {
 };
 
 export function createCoreBridge(): CoreBridge {
+  const webkit = globalThisTyped.webkit;
+  if (!webkit) {
+    console.warn("incompatible environment");
+  }
+
   function sendMessage(msg: MessageFromUI) {
     try {
-      const wk = globalThisTyped.webkit;
-      if (!wk) {
-        console.warn("No webkit messageHandlers found");
-        return;
-      }
-      wk.messageHandlers.putMessageFromUI.postMessage(msg);
+      webkit?.messageHandlers.putMessageFromUI.postMessage(msg);
     } catch (e) {
       console.log(e);
     }

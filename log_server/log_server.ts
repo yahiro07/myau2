@@ -143,17 +143,28 @@ async function setupUdpServerForDsp() {
 
 function setupHttpServerForUi() {
   Deno.serve({ port: configs.httpPortForUi }, async (req) => {
+    const headers = {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    };
+
+    if (req.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers });
+    }
+
     if (req.method === "POST") {
       const body = await req.text();
       const msg = body.toString();
       loggerCore.log(msg);
-      return new Response("ok");
+      return new Response("ok", { headers });
     }
-    return new Response("log server");
+    return new Response("log server", { headers });
   });
 }
 
 function start() {
+  console.log("log server 2030");
   void setupUdpServerForApp();
   void setupUdpServerForDsp();
   setupHttpServerForUi();

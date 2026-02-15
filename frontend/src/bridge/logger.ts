@@ -4,17 +4,18 @@
 
 let postFailed = false;
 
-function loggingViaLocalHttp(msg: string) {
+async function loggingViaLocalHttp(msg: string) {
   if (!postFailed) {
-    fetch("http://localhost:9003", { method: "POST", body: msg }).then(
-      (res) => {
-        //最初のログ送信で失敗したらそれ以降はログを送らない
-        if (!res.ok) {
-          console.log(`failed to post local http log: ${res.status}`);
-          postFailed = true;
-        }
-      },
-    );
+    try {
+      await fetch("http://localhost:9003", {
+        method: "POST",
+        body: msg,
+      });
+    } catch (_) {
+      //初回のログ送信で失敗したらそれ以降はログを送らない
+      console.log(`failed to post local http log`);
+      postFailed = true;
+    }
   }
 }
 
@@ -39,7 +40,7 @@ export const logger = {
     console.log(msg);
     if (1) {
       const timedMessage = `(@t:${Date.now()}, @k:ui) ${msg}`;
-      loggingViaLocalHttp(timedMessage);
+      void loggingViaLocalHttp(timedMessage);
     }
   },
   timedLog(msg: string) {
