@@ -238,7 +238,6 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
         logger.log("received hostedInStandaloneApp flag: \(flag)")
         // portal.emitEvent(.standaloneAppFlag(true))
         portal.isHostedInStandaloneApp = true
-        return
       }
       if let data = state["myParams"] as? Data {
         restoreParameterState(from: data)

@@ -74,9 +74,7 @@ class AudioUnitHostModel {
       let viewController = await playEngine.initComponent(
         type: type, subType: subType, manufacturer: manufacturer)
 
-      if let au = playEngine.avAudioUnit?.auAudioUnit {
-        au.fullState = ["myau2.hostedInStandaloneApp": true]
-      }
+      self.restoreState()
 
       if false {
         if let audioUnit = playEngine.avAudioUnit {
@@ -152,5 +150,21 @@ class AudioUnitHostModel {
   }
   func noteOff(index: UInt8) {
     self.playEngine.sendMessage(message: [0x80, index, 0x00])
+  }
+
+  func saveState() {
+    guard let au = playEngine.avAudioUnit?.auAudioUnit else { return }
+    let state = au.fullState
+    UserDefaults.standard.set(state, forKey: "SavedAUState")
+    logger.log("saved state: \(String(describing: state))")
+  }
+
+  func restoreState() {
+    guard let au = playEngine.avAudioUnit?.auAudioUnit else { return }
+    var state = UserDefaults.standard.dictionary(forKey: "SavedAUState") ?? au.fullState ?? [:]
+    logger.log("restore state: \(state)")
+    //set a flag to let the AU know it's being hosted in a standalone app
+    state["myau2.hostedInStandaloneApp"] = true
+    au.fullState = state
   }
 }
