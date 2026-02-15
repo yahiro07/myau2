@@ -4,25 +4,106 @@ const configs = {
   httpPortForUi: 9003,
 };
 
+//log format example, @t is timestamp, @k is category
+//messages are shown with a little delay and sorted by timestamp
+//since http messages from UI are received asynchronously, their order might not be strictly chronological
+
+//basic message
+//(@t:1771144458.8012319, @k:app) hello world
+
+//mute/unmute all logs
+//(@t:1771144458.8012319, @mute)
+//(@t:1771144458.8012319, @unmute)
+
+type LogItem = {
+  timestamp: number;
+  category?: string;
+  message?: string;
+  command?: "mute" | "unmute";
+  subOrdering: number;
+};
+
+let subOrderingCounter = 0;
+
+function parseLogText(msg: string): LogItem {
+  const headPart = msg.match(/\((.*?)\)\s/)?.[0];
+  if (headPart) {
+    const msgBody = msg.replace(headPart, "").trim();
+    const kvs = Object.fromEntries(
+      headPart
+        .slice(1, -2)
+        .split(",")
+        .map((part) => part.trim().split(":"))
+        .map(([k, v]) => [k, v]),
+    );
+    const timestamp = parseFloat(kvs["@t"]) ?? Date.now();
+    const category = kvs["@k"];
+    const command = kvs["@mute"]
+      ? "mute"
+      : kvs["@unmute"]
+        ? "unmute"
+        : undefined;
+    return {
+      timestamp,
+      category,
+      message: msgBody,
+      command,
+      subOrdering: subOrderingCounter++,
+    };
+  } else {
+    const timestamp = Date.now();
+    return { timestamp, message: msg, subOrdering: subOrderingCounter++ };
+  }
+}
+
 function createLoggerCore() {
+  const logItems: LogItem[] = [];
+  let timerId: number | undefined;
   let isMuted = false;
 
-  function handleMetaOp(msg: string) {
-    if (msg.startsWith("@mute")) {
+  function consumeLogItem(logItem: LogItem) {
+    if (logItem.command === "mute") {
       isMuted = true;
-    } else if (msg.startsWith("@unmute")) {
+    } else if (logItem.command === "unmute") {
       isMuted = false;
+    } else if (logItem.message) {
+      if (!isMuted) {
+        const secPart = logItem.timestamp % 1000;
+        console.log(
+          `${secPart.toFixed(3)} ${logItem.category ?? "unknown"} ${logItem.message}`,
+        );
+      }
     }
   }
 
-  return {
-    log(prefix: string, msg: string) {
-      if (msg.startsWith("@")) {
-        handleMetaOp(msg);
-        return;
+  function consumeLogItems() {
+    logItems.sort(
+      (a, b) => a.timestamp - b.timestamp || a.subOrdering - b.subOrdering,
+    );
+    const curr = Date.now();
+    while (logItems.length > 0) {
+      const item = logItems[0];
+      if (item.timestamp <= curr) {
+        logItems.shift();
+        consumeLogItem(item);
+      } else {
+        break;
       }
-      if (isMuted) return;
-      console.log(`${prefix ?? prefix + " "}${msg}`);
+    }
+  }
+
+  function pushLogItem(logItem: LogItem) {
+    logItems.push(logItem);
+    if (timerId) {
+      clearTimeout(timerId);
+    }
+    setTimeout(consumeLogItems, 100);
+  }
+
+  return {
+    log(msg: string) {
+      const logItem = parseLogText(msg);
+      pushLogItem(logItem);
     },
   };
 }
@@ -34,9 +115,9 @@ async function setupUdpServerForApp() {
     // hostname: "127.0.0.1",
     transport: "udp",
   });
-  for await (const [data, addr] of udp) {
+  for await (const [data, _addr] of udp) {
     const msg = new TextDecoder().decode(data);
-    loggerCore.log("[app]", msg);
+    loggerCore.log(msg);
   }
 }
 
@@ -46,9 +127,9 @@ async function setupUdpServerForDsp() {
     // hostname: "127.0.0.1",
     transport: "udp",
   });
-  for await (const [data, addr] of udp) {
+  for await (const [data, _addr] of udp) {
     const msg = new TextDecoder().decode(data);
-    loggerCore.log("[dsp]", msg);
+    loggerCore.log(msg);
   }
 }
 
@@ -57,7 +138,7 @@ function setupHttpServerForUi() {
     if (req.method === "POST") {
       const body = await req.text();
       const msg = body.toString();
-      loggerCore.log("[ui]", msg);
+      loggerCore.log(msg);
       return new Response("ok");
     }
     return new Response("log server");

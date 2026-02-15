@@ -38,7 +38,8 @@ export const logger = {
       .join(" ");
     console.log(msg);
     if (1) {
-      loggingViaLocalHttp(msg);
+      const timedMessage = `(@t:${Date.now()}, @k:ui) ${msg}`;
+      loggingViaLocalHttp(timedMessage);
     }
   },
   timedLog(msg: string) {
