@@ -23,6 +23,13 @@ type LogItem = {
   subOrdering: number;
 };
 
+const categoryPresets: Record<string, { icon: string }> = {
+  host: { icon: "🟣" },
+  ext: { icon: "🔸" },
+  ui: { icon: "🔹" },
+  dsp: { icon: "🔺" },
+};
+
 let subOrderingCounter = 0;
 
 function parseLogText(msg: string): LogItem {
@@ -69,8 +76,9 @@ function createLoggerCore() {
     } else if (logItem.message) {
       if (!isMuted) {
         const secPart = logItem.timestamp % 1000;
+        const icon = categoryPresets[logItem.category ?? ""]?.icon ?? "";
         console.log(
-          `${secPart.toFixed(3)} ${logItem.category ?? "unknown"} ${logItem.message}`,
+          `${secPart.toFixed(3)} [${icon}${logItem.category ?? "unknown"}] ${logItem.message}`,
         );
       }
     }
