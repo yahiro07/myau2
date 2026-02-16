@@ -1,5 +1,6 @@
 import { PresetFilesIO } from "@/preset-manager/preset-manager-core-port-types";
 
+//data is stored in app data folder as a single JSON file.
 type SharedKvsAdapter = {
   initialize(): Promise<void>;
   read(key: string): string | undefined;
@@ -13,6 +14,7 @@ export function createSharedKvsAdapter(
   const localCache: Record<string, string> = {};
   const filePath = "shared_kvs.json";
 
+  //debounce writes to avoid excessive file IO when multiple writes happen in a short time.
   let timerId: number | undefined;
   function scheduleWriteToFile() {
     if (timerId) return;
