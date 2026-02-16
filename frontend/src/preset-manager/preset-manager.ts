@@ -13,13 +13,7 @@ export function createPresetManager(coreBridge: CoreBridge) {
   const presetFilesIO = createOnMemoryPresetFilesIO();
   const presetManagerCore = createPresetManagerCore(presetFilesIO);
 
-  //現在のシンセ本体実装のパラメタバージョンを設定, 1,2,3,...のような値を想定, 本体から読み込む
-  let latestParametersVersion = 0;
-
   return {
-    setLatestParametersVersion(version: number) {
-      latestParametersVersion = version;
-    },
     async loadPresetList() {
       try {
         const factoryItems = await factoryPresetProvider.listPresetItems();
@@ -69,7 +63,7 @@ export function createPresetManager(coreBridge: CoreBridge) {
         );
         const presetData: PresetData = {
           presetName: presetName ?? presetKey,
-          parametersVersion: latestParametersVersion,
+          parametersVersion: store.state.latestParametersVersion,
           parameters,
         };
         const newItem = await presetManagerCore.savePreset(

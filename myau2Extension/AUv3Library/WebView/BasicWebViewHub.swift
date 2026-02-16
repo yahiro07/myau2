@@ -22,6 +22,7 @@ private enum MessageFromApp {
   case hostNoteOn(noteNumber: Int, velocity: Float)
   case hostNoteOff(noteNumber: Int)
   case standaloneAppFlag
+  case latestParametersVersion(version: Int)
 }
 
 private func mapMessageFromUI_fromDictionary(_ dict: [String: Any]) -> MessageFromUI? {
@@ -83,6 +84,11 @@ private func mapMessageFromApp_toDictionary(_ msg: MessageFromApp) -> [String: A
     return [
       "type": "standaloneAppFlag"
     ]
+  case .latestParametersVersion(let version):
+    return [
+      "type": "latestParametersVersion",
+      "version": version,
+    ]
   }
 }
 
@@ -138,6 +144,8 @@ class BasicWebViewHub {
       if audioUnitPortal.isHostedInStandaloneApp {
         sendMessageToUI(.standaloneAppFlag)
       }
+      let latestParamVer = parameterMigrator?.latestParametersVersion ?? 0
+      sendMessageToUI(.latestParametersVersion(version: latestParamVer))
       // self.debugDumpCurrentParameters()
       let params = flatParameterTree.entries.mapValues { $0.value }
       sendMessageToUI(.bulkSendParameters(params: params))

@@ -1,5 +1,5 @@
 import { createStore } from "snap-store";
-import { PresetListItem } from "@/preset-manager/preset-manager-core";
+import { PresetListItem } from "@/preset-manager/preset-data-types";
 import {
   defaultSynthParameters,
   ParameterKey,
@@ -10,6 +10,7 @@ export type StoreState = SynthParametersSuit & {
   standaloneFlag: boolean;
   editTarget: ParameterKey | null;
   presetItems: PresetListItem[];
+  latestParametersVersion: number;
 };
 
 export const store = createStore<StoreState>({
@@ -17,4 +18,5 @@ export const store = createStore<StoreState>({
   standaloneFlag: false,
   editTarget: null,
   presetItems: [],
+  latestParametersVersion: 0,
 });

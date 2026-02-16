@@ -18,7 +18,8 @@ export type MessageFromApp =
   | { type: "bulkSendParameters"; parameters: Record<string, number> }
   | { type: "hostNoteOn"; noteNumber: number; velocity: number }
   | { type: "hostNoteOff"; noteNumber: number }
-  | { type: "standaloneAppFlag" };
+  | { type: "standaloneAppFlag" }
+  | { type: "latestParametersVersion"; version: number };
 
 type MessageReceiver = (msg: MessageFromApp) => void;
 

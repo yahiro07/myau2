@@ -91,6 +91,9 @@ export function createEditorBridge(coreBridge: CoreBridge): EditorBridge {
       } else if (msg.type === "standaloneAppFlag") {
         logger.log("Received standalone app flag from host");
         store.mutations.setStandaloneFlag(true);
+      } else if (msg.type === "latestParametersVersion") {
+        logger.log(`Received latest parameters version: ${msg.version}`);
+        store.mutations.setLatestParametersVersion(msg.version);
       }
       //snap-storeの状態を更新したあと、別タスクでsubscribeのコールバックが呼ばれるので
       //これが終わった後にisReceivingをfalseにする(queueMicrotaskはFIFO順で処理される)
