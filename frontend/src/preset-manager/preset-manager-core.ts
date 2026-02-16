@@ -107,7 +107,7 @@ function createPresetListStorage(
 
   const internal = {
     async loadEvents(): Promise<PresetListEvent[]> {
-      const content = await presetFilesIO.readFile("appData", eventsFilePath, {
+      const content = await presetFilesIO.readFile(eventsFilePath, {
         skipIfNotExist: true,
       });
       if (content === "") {
@@ -187,7 +187,7 @@ export function createPresetManagerCore(
     },
     async loadPreset(presetKey) {
       const relativeFilePath = mapPresetKeyToRelativeFilePath(presetKey);
-      const content = await presetFilesIO.readFile("appData", relativeFilePath);
+      const content = await presetFilesIO.readFile(relativeFilePath);
       return JSON.parse(content) as PresetData;
     },
     async deletePreset(presetKey) {
