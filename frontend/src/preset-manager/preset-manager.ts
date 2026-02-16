@@ -2,7 +2,7 @@ import { parametersConverter } from "@/bridge/converter";
 import { CoreBridge } from "@/bridge/core-bridge";
 import { createFactoryPresetProvider } from "@/preset-manager/factory-preset-provider";
 import { PresetData } from "@/preset-manager/preset-data-types";
-import { createSharedKvsAdapter } from "@/preset-manager/shared-kvs-adapter";
+import { createStateKvsAdapter } from "@/preset-manager/state-kvs-adapter";
 import { defaultSynthParameters } from "@/store/parameters";
 import { store } from "@/store/store";
 import { filterObjectMembers } from "@/utils/general-utils";
@@ -13,7 +13,7 @@ export function createPresetManager(coreBridge: CoreBridge) {
   const factoryPresetProvider = createFactoryPresetProvider();
   const presetFilesIO = createOnMemoryPresetFilesIO();
   const presetManagerCore = createPresetManagerCore(presetFilesIO);
-  const sharedKvs = createSharedKvsAdapter(presetFilesIO);
+  const stateKvs = createStateKvsAdapter(coreBridge);
 
   return {
     async loadPresetList() {
@@ -21,8 +21,8 @@ export function createPresetManager(coreBridge: CoreBridge) {
         const factoryItems = await factoryPresetProvider.listPresetItems();
         const userItems = await presetManagerCore.listPresetItems();
         store.mutations.setPresetItems([...factoryItems, ...userItems]);
-        await sharedKvs.initialize();
-        const lastLoadedPresetKey = sharedKvs.read("lastLoadedPresetKey");
+        await stateKvs.initialize();
+        const lastLoadedPresetKey = stateKvs.read("lastLoadedPresetKey");
         if (lastLoadedPresetKey) {
           store.mutations.setLastLoadedPresetKey(lastLoadedPresetKey);
         }
@@ -58,7 +58,7 @@ export function createPresetManager(coreBridge: CoreBridge) {
           });
           if (presetKey !== store.state.lastLoadedPresetKey) {
             store.mutations.setLastLoadedPresetKey(presetKey);
-            sharedKvs.write("lastLoadedPresetKey", presetKey);
+            stateKvs.write("lastLoadedPresetKey", presetKey);
           }
         }
       } catch (e) {
@@ -87,7 +87,7 @@ export function createPresetManager(coreBridge: CoreBridge) {
         ]);
         if (presetKey !== store.state.lastLoadedPresetKey) {
           store.mutations.setLastLoadedPresetKey(presetKey);
-          sharedKvs.write("lastLoadedPresetKey", presetKey);
+          stateKvs.write("lastLoadedPresetKey", presetKey);
         }
       } catch (e) {
         console.error(`Failed to save preset: ${presetKey}`, e);
