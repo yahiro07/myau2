@@ -52,6 +52,16 @@ private func mapMessageFromUI_fromDictionary(_ dict: [String: Any]) -> MessageFr
     {
       return .setParameter(paramKey: paramKey, value: Float(value))
     }
+  case "loadFullParameters":
+    if let parametersVersion = dict["parametersVersion"] as? Int,
+      let parametersDict = dict["parameters"] as? [String: Float]
+    {
+      var parameters: [String: Float] = [:]
+      for (key, value) in parametersDict {
+        parameters[key] = value
+      }
+      return .loadFullParameters(parametersVersion: parametersVersion, parameters: parameters)
+    }
   case "noteOnRequest":
     if let noteNumber = dict["noteNumber"] as? Int {
       return .noteOnRequest(noteNumber: noteNumber)
@@ -60,7 +70,28 @@ private func mapMessageFromUI_fromDictionary(_ dict: [String: Any]) -> MessageFr
     if let noteNumber = dict["noteNumber"] as? Int {
       return .noteOffRequest(noteNumber: noteNumber)
     }
-
+  //
+  case "rpcReadFileRequest":
+    if let rpcId = dict["rpcId"] as? Int,
+      let path = dict["path"] as? String,
+      let skipIfNotExists = dict["skipIfNotExists"] as? Bool
+    {
+      return .rpcReadFileRequest(rpcId: rpcId, path: path, skipIfNotExists: skipIfNotExists)
+    }
+  case "rpcWriteFileRequest":
+    if let rpcId = dict["rpcId"] as? Int,
+      let path = dict["path"] as? String,
+      let content = dict["content"] as? String,
+      let append = dict["append"] as? Bool
+    {
+      return .rpcWriteFileRequest(rpcId: rpcId, path: path, content: content, append: append)
+    }
+  case "rpcDeleteFileRequest":
+    if let rpcId = dict["rpcId"] as? Int,
+      let path = dict["path"] as? String
+    {
+      return .rpcDeleteFileRequest(rpcId: rpcId, path: path)
+    }
   default:
     return nil
   }
@@ -96,6 +127,26 @@ private func mapMessageFromApp_toDictionary(_ msg: MessageFromApp) -> [String: A
     return [
       "type": "latestParametersVersion",
       "version": version,
+    ]
+  //
+  case .rpcReadFileResponse(let rpcId, let success, let content):
+    return [
+      "type": "rpcReadFileResponse",
+      "rpcId": rpcId,
+      "success": success,
+      "content": content,
+    ]
+  case .rpcWriteFileResponse(let rpcId, let success):
+    return [
+      "type": "rpcWriteFileResponse",
+      "rpcId": rpcId,
+      "success": success,
+    ]
+  case .rpcDeleteFileResponse(let rpcId, let success):
+    return [
+      "type": "rpcDeleteFileResponse",
+      "rpcId": rpcId,
+      "success": success,
     ]
   }
 }
@@ -187,6 +238,31 @@ class BasicWebViewHub {
     case .noteOffRequest(let noteNumber):
       logger.log("Note Off Request from UI: \(noteNumber)")
       audioUnitPortal.noteOffFromUI(noteNumber)
+    //
+    case .rpcReadFileRequest(let rpcId, let path, let skipIfNotExists):
+      do {
+        let content = try presetFilesIO.readFile(path: path, skipIfNotExist: skipIfNotExists)
+        sendMessageToUI(.rpcReadFileResponse(rpcId: rpcId, success: true, content: content))
+      } catch {
+        logger.log("RPC readFile error: \(error)")
+        sendMessageToUI(.rpcReadFileResponse(rpcId: rpcId, success: false, content: ""))
+      }
+    case .rpcWriteFileRequest(let rpcId, let path, let content, let append):
+      do {
+        try presetFilesIO.writeFile(path: path, content: content, append: append)
+        sendMessageToUI(.rpcWriteFileResponse(rpcId: rpcId, success: true))
+      } catch {
+        logger.log("RPC writeFile error: \(error)")
+        sendMessageToUI(.rpcWriteFileResponse(rpcId: rpcId, success: false))
+      }
+    case .rpcDeleteFileRequest(let rpcId, let path):
+      do {
+        try presetFilesIO.deleteFile(path: path)
+        sendMessageToUI(.rpcDeleteFileResponse(rpcId: rpcId, success: true))
+      } catch {
+        logger.log("RPC deleteFile error: \(error)")
+        sendMessageToUI(.rpcDeleteFileResponse(rpcId: rpcId, success: false))
+      }
     }
   }
 
