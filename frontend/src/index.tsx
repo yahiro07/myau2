@@ -14,10 +14,10 @@ import { flexCentered, flexVertical } from "@/utils/styling-utils";
 import "@/styles/utility-classes.css";
 import "@/styles/page.css";
 import { useEffect } from "react";
-import { editorBridge } from "@/bridge/editor-bridge";
 import { logger } from "@/bridge/logger";
 import { ScreenUiScaler } from "@/components/UiScaler";
 import { actions } from "@/store/actions";
+import { agents } from "@/store/agents";
 
 const cssSectionFrame = css({
   padding: "20px 35px",
@@ -481,7 +481,7 @@ const StandaloneView = () => {
 };
 
 const App = () => {
-  useEffect(editorBridge.setupReceivers, []);
+  useEffect(agents.editorBridge.setupReceivers, []);
   const st = store.useSnapshot();
   return (
     <div className="h-dvh flex-c" css={{ background: "#444" }}>

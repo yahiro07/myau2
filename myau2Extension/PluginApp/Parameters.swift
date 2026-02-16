@@ -67,7 +67,8 @@ class ParametersMigratorImpl: ParametersMigrator {
     return 1
   }
 
-  func migrateParametersIfNeeded(paramVer: Int, rawParameters: [String: Float]) {
-
+  func migrateParametersIfNeeded(paramVer: Int, rawParameters: inout [String: Float]) {
+    logger.log("Checking if parameter migration is needed. paramVer: \(paramVer)")
+    // rawParameters["osc1PwMix"] = 0.75
   }
 }

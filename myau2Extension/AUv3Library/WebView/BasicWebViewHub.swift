@@ -7,6 +7,8 @@ private enum MessageFromUI {
   case beginParameterEdit(paramKey: String)
   case endParameterEdit(paramKey: String)
   case setParameter(paramKey: String, value: Float)
+  //UIからパラメタセットを受け取り,必要ならマイグレーションを適用してparameterTreeに反映する
+  case loadFullParameters(parameters: [String: Float])
   //UIに含まれる鍵盤などからのプラグイン本体に送るノートオンオフ要求
   case noteOnRequest(noteNumber: Int)
   case noteOffRequest(noteNumber: Int)
@@ -15,7 +17,7 @@ private enum MessageFromUI {
 private enum MessageFromApp {
   //ホストやプラグイン本体で変更されたパラメタをUIに送信
   case setParameter(paramKey: String, value: Float)
-  case bulkSetParameters(params: [String: Float])
+  case bulkSendParameters(params: [String: Float])
   //ホストから送られたノートをUI側で受け取るメッセージ
   case hostNoteOn(noteNumber: Int, velocity: Float)
   case hostNoteOff(noteNumber: Int)
@@ -64,9 +66,9 @@ private func mapMessageFromApp_toDictionary(_ msg: MessageFromApp) -> [String: A
       "paramKey": paramKey,
       "value": encodeFloatForJson(value),
     ]
-  case .bulkSetParameters(let params):
+  case .bulkSendParameters(let params):
     let encodedParams: [String: Any] = params.mapValues { encodeFloatForJson($0) }
-    return ["type": "bulkSetParameters", "parameters": encodedParams]
+    return ["type": "bulkSendParameters", "parameters": encodedParams]
   case .hostNoteOn(let noteNumber, let velocity):
     return [
       "type": "hostNoteOn",
@@ -91,6 +93,7 @@ class BasicWebViewHub {
   private lazy var valueTracker: ObservableValueTracker = ObservableValueTracker()
   private var audioUnitPortal: AudioUnitPortal
   private var presetManager: PresetManager
+  private var parameterMigrator: ParametersMigrator?
 
   private var portalSubscription: AnyCancellable?
   private var webViewIoSubscription: AnyCancellable?
@@ -102,6 +105,7 @@ class BasicWebViewHub {
       parameterTree: viewAccessibleResources.parameterTree)
     self.audioUnitPortal = viewAccessibleResources.audioUnitPortal
     self.presetManager = viewAccessibleResources.presetManager
+    self.parameterMigrator = viewAccessibleResources.parametersMigrator
 
     valueTracker.setReceiver { [weak self] key, value in
       self?.sendMessageToUI(.setParameter(paramKey: key, value: value))
@@ -134,7 +138,7 @@ class BasicWebViewHub {
         sendMessageToUI(.standaloneAppFlag)
       }
       let params = flatParameterTree.entries.mapValues { $0.value }
-      sendMessageToUI(.bulkSetParameters(params: params))
+      sendMessageToUI(.bulkSendParameters(params: params))
 
     case .beginParameterEdit(let paramKey):
       if let paramEntry = flatParameterTree.entries[paramKey] {
@@ -153,6 +157,18 @@ class BasicWebViewHub {
         paramEntry.value = value
       } else {
         logger.log("Unknown parameter key from UI: \(paramKey)")
+      }
+    case .loadFullParameters(var parameters):
+      logger.log("Received full parameters from UI: \(parameters)")
+      self.parameterMigrator?.migrateParametersIfNeeded(
+        paramVer: 0, rawParameters: &parameters)
+      for (paramKey, value) in parameters {
+        if let paramEntry = flatParameterTree.entries[paramKey] {
+          if paramEntry.value != value {
+            //ここでセットした値はUIにも送り返される
+            paramEntry.value = value
+          }
+        }
       }
     case .noteOnRequest(let noteNumber):
       logger.log("Note On Request from UI: \(noteNumber)")

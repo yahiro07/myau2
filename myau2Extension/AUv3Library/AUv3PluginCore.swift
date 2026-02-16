@@ -1,14 +1,15 @@
 import SwiftUI
 
+protocol ParametersMigrator {
+  var latestParametersVersion: Int { get }
+  func migrateParametersIfNeeded(paramVer: Int, rawParameters: inout [String: Float])
+}
+
 struct ViewAccessibleResources {
   let parameterTree: ObservableAUParameterGroup
   let audioUnitPortal: AudioUnitPortal
   let presetManager: PresetManager
-}
-
-protocol ParametersMigrator {
-  var latestParametersVersion: Int { get }
-  func migrateParametersIfNeeded(paramVer: Int, rawParameters: [String: Float])
+  let parametersMigrator: ParametersMigrator?
 }
 
 protocol AUv3PluginCore: AnyObject {

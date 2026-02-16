@@ -188,47 +188,36 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
     }
   }
 
-  //TODO:安全性が低いので改善したい, idをキーとした辞書にする
-  func parameterStateData() -> Data {
-    var values: [Float] = parameterTree!.allParameters.map {
-      $0.value
+  func parameterStateData() -> (parametersVersion: Int, parameters: [String: Float]) {
+    let parametersVersion = self.pluginCore?.parametersMigrator?.latestParametersVersion ?? 0
+    var rawParameters: [String: Float] = [:]
+    parameterTree?.allParameters.forEach { param in
+      rawParameters[param.identifier] = param.value
     }
-    return Data(bytes: &values, count: values.count * MemoryLayout<Float>.size)
+    return (parametersVersion, rawParameters)
   }
-  //TODO:安全性が低いので改善したい, idをキーとした辞書にする
-  func restoreParameterState(from data: Data) {
-    let count = data.count / MemoryLayout<Float>.size
-    data.withUnsafeBytes { ptr in
-      let buffer = ptr.bindMemory(to: Float.self)
-      for i in 0..<count {
-        parameterTree!.allParameters[i].value = buffer[i]
+
+  func restoreParameterState(
+    _ parametersVersion: Int, _ parameters: [String: Float]
+  ) {
+    var modParameters = parameters
+    self.pluginCore?.parametersMigrator?.migrateParametersIfNeeded(
+      paramVer: parametersVersion, rawParameters: &modParameters)
+    parameterTree?.allParameters.forEach { param in
+      if let value = modParameters[param.identifier] {
+        logger.log("Restoring Param: \(param.address) \(param.identifier) to \(value)")
+        param.value = value
       }
     }
   }
-
-  //debug
-  // override public var fullState: [String: Any]? {
-  //   get {
-  //     udpLogger.log("Saving state")
-  //     var state = super.fullState ?? [:]
-  //     state["foo"] = "bar buzz"
-  //     return state
-  //   }
-  //   set {
-  //     udpLogger.log("Restoring state")
-  //     guard let state = newValue else { return }
-  //     if let data = state["foo"] as? String {
-  //       udpLogger.log("Restoring foo: \(data)")
-  //     }
-  //     super.fullState = state
-  //   }
-  // }
 
   public override var fullState: [String: Any]? {
     get {
       logger.log("Saving state")
       var state = super.fullState ?? [:]
-      state["myParams"] = parameterStateData()
+      let (parametersVersion, parameters) = parameterStateData()
+      state["parametersVersion"] = parametersVersion
+      state["parameters"] = parameters
       return state
     }
 
@@ -240,8 +229,10 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
         // portal.emitEvent(.standaloneAppFlag(true))
         portal.isHostedInStandaloneApp = true
       }
-      if let data = state["myParams"] as? Data {
-        restoreParameterState(from: data)
+      if let parametersVersion = state["parametersVersion"] as? Int,
+        let parameters = state["parameters"] as? [String: Float]
+      {
+        restoreParameterState(parametersVersion, parameters)
       }
       super.fullState = state
     }
