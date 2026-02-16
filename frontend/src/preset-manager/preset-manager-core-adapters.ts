@@ -1,4 +1,4 @@
-import { CoreBridge } from "@/bridge/core-bridge";
+import { CoreBridge, MessageFromUI } from "@/bridge/core-bridge";
 import { PresetFilesIO } from "@/preset-manager/preset-manager-core-port-types";
 
 export function createPluginAppPresetFilesIO(
@@ -28,60 +28,50 @@ export function createPluginAppPresetFilesIO(
     }
   });
 
+  function executeRpc(
+    msg: MessageFromUI & { rpcId: number },
+  ): Promise<{ success: boolean; content?: string }> {
+    coreBridge.sendMessage(msg);
+    return new Promise((resolve) => {
+      pendingRpcResolvers[msg.rpcId] = resolve;
+    });
+  }
+
   return {
     async readFile(path, options) {
-      const rpcId = rpcIdCounter++;
-      coreBridge.sendMessage({
+      const res = await executeRpc({
         type: "rpcReadFileRequest",
-        rpcId,
+        rpcId: rpcIdCounter++,
         path,
         skipIfNotExists: options?.skipIfNotExist ?? false,
       });
-      return new Promise<string>((resolve, reject) => {
-        pendingRpcResolvers[rpcId] = ({ success, content }) => {
-          if (success && content !== undefined) {
-            resolve(content);
-          } else {
-            reject(new Error(`Failed to read file: ${path}`));
-          }
-        };
-      });
+      if (res.success && res.content !== undefined) {
+        return res.content;
+      } else {
+        throw new Error(`Failed to read file: ${path}`);
+      }
     },
     async writeFile(path, content, options) {
-      const rpcId = rpcIdCounter++;
-      coreBridge.sendMessage({
+      const res = await executeRpc({
         type: "rpcWriteFileRequest",
-        rpcId,
+        rpcId: rpcIdCounter++,
         path,
         content,
         append: options?.append ?? false,
       });
-      return new Promise<void>((resolve, reject) => {
-        pendingRpcResolvers[rpcId] = ({ success }) => {
-          if (success) {
-            resolve();
-          } else {
-            reject(new Error(`Failed to write file: ${path}`));
-          }
-        };
-      });
+      if (!res.success) {
+        throw new Error(`Failed to write file: ${path}`);
+      }
     },
     async deleteFile(path) {
-      const rpcId = rpcIdCounter++;
-      coreBridge.sendMessage({
+      const res = await executeRpc({
         type: "rpcDeleteFileRequest",
-        rpcId,
+        rpcId: rpcIdCounter++,
         path,
       });
-      return new Promise<void>((resolve, reject) => {
-        pendingRpcResolvers[rpcId] = ({ success }) => {
-          if (success) {
-            resolve();
-          } else {
-            reject(new Error(`Failed to delete file: ${path}`));
-          }
-        };
-      });
+      if (!res.success) {
+        throw new Error(`Failed to delete file: ${path}`);
+      }
     },
   };
 }
