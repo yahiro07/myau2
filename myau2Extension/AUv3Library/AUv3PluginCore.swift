@@ -8,7 +8,7 @@ protocol ParametersMigrator {
 struct ViewAccessibleResources {
   let parameterTree: ObservableAUParameterGroup
   let audioUnitPortal: AudioUnitPortal
-  let presetManager: PresetManager
+  let presetFilesIO: PresetFilesIO
   let parametersMigrator: ParametersMigrator?
 }
 

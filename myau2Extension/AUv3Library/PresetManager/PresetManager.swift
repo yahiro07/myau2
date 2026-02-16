@@ -157,7 +157,7 @@ class FactoryPresetStorage {
   }
 }
 
-class SharedContainer {
+class SharedContainer1 {
   static let appGroupId = "group.synth2511.myau2"
 
   static func baseURL() throws -> URL {
@@ -208,7 +208,7 @@ class UserPresetStorage {
       var presetItems: [PresetItem] = []
       for file in files {
         let fileName = file.lastPathComponent
-        let fileURL = try SharedContainer.userPresetFileURL(fileName)
+        let fileURL = try SharedContainer1.userPresetFileURL(fileName)
         let content = try String(contentsOf: fileURL, encoding: .utf8)
         let presetName = Helper.deserializeExtractPresetName(content)
         if let presetName {
@@ -227,7 +227,7 @@ class UserPresetStorage {
   func loadPresetFile(_ id: String) -> PresetData? {
     let fileName = Helper.getPresetJsonFileName(id)
     do {
-      let fileURL = try SharedContainer.userPresetFileURL(fileName)
+      let fileURL = try SharedContainer1.userPresetFileURL(fileName)
       let content = try String(contentsOf: fileURL, encoding: .utf8)
       logger.log("File content: \(content)")
       return Helper.deserializePresetData(content)
@@ -241,7 +241,7 @@ class UserPresetStorage {
     let fileName = Helper.getPresetJsonFileName(id)
     let serializedData = Helper.serializePresetData(presetData)
     do {
-      let fileURL = try SharedContainer.userPresetFileURL(fileName)
+      let fileURL = try SharedContainer1.userPresetFileURL(fileName)
       try serializedData.write(to: fileURL, atomically: true, encoding: .utf8)
     } catch {
       logger.log("Error saving preset file: \(error)")
@@ -251,7 +251,7 @@ class UserPresetStorage {
   func deletePresetFile(_ id: String) {
     let fileName = Helper.getPresetJsonFileName(id)
     do {
-      let fileURL = try SharedContainer.userPresetFileURL(fileName)
+      let fileURL = try SharedContainer1.userPresetFileURL(fileName)
       try FileManager.default.removeItem(at: fileURL)
     } catch {
       logger.log("Error deleting preset file: \(error)")

@@ -12,6 +12,7 @@ public class GenericAudioUnitViewController: AUViewController {
   // private var observation: NSKeyValueObservation?
 
   private let audioUnitPortal: AudioUnitPortalImpl = AudioUnitPortalImpl()
+  private let presetFilesIO: PresetFilesIOImpl = PresetFilesIOImpl()
 
   deinit {
   }
@@ -93,7 +94,7 @@ public class GenericAudioUnitViewController: AUViewController {
     let parameterMigrator = pluginCore.parametersMigrator
     let viewAccessibleResources = ViewAccessibleResources(
       parameterTree: observableParameterTree, audioUnitPortal: self.audioUnitPortal,
-      presetManager: audioUnit.presetManager, parametersMigrator: parameterMigrator)
+      presetFilesIO: self.presetFilesIO, parametersMigrator: parameterMigrator)
 
     // logger.log("now call pluginCore.createView")
     let content = pluginCore.createView(viewAccessibleResources)
