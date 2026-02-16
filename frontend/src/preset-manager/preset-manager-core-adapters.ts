@@ -1,11 +1,5 @@
-import { Store } from "snap-store";
-import { parametersConverter } from "@/bridge/converter";
 import { CoreBridge } from "@/bridge/core-bridge";
-import {
-  PresetFilesIO,
-  PresetParametersIO,
-} from "@/preset-manager/preset-manager-core-port-types";
-import { filterObjectMembers } from "@/utils/general-utils";
+import { PresetFilesIO } from "@/preset-manager/preset-manager-core-port-types";
 
 export function createPluginAppPresetFilesIO(
   _coreBridge: CoreBridge,
@@ -43,34 +37,6 @@ export function createOnMemoryPresetFilesIO(): PresetFilesIO {
     },
     async deleteFile(path) {
       delete fileItems[path];
-    },
-  };
-}
-
-export function createStorePresetParametersIO<T extends object>(
-  coreBridge: CoreBridge,
-  store: Store<T>,
-  defaultSynthParameters: T,
-): PresetParametersIO {
-  return {
-    getParameters() {
-      const params = filterObjectMembers(store.state, defaultSynthParameters);
-      return parametersConverter.mapStoreParametersToFloatParameters(
-        params,
-        defaultSynthParameters,
-      );
-    },
-    setParameters(rawParameters) {
-      const storeParameters =
-        parametersConverter.mapFloatParametersToStoreParameters(
-          rawParameters,
-          defaultSynthParameters,
-        );
-      store.mutations.assigns(storeParameters);
-      coreBridge.sendMessage({
-        type: "bulkSendParameters",
-        parameters: rawParameters,
-      });
     },
   };
 }

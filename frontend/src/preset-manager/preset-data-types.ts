@@ -1,7 +1,7 @@
 export type PresetData = {
   presetName: string;
   parametersVersion: number;
-  parameters: Record<string, number>;
+  parameters: Record<string, number | boolean>;
 };
 
 export type PresetKind = "factory" | "user";

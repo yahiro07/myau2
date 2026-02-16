@@ -1,12 +1,7 @@
 import { PresetData, PresetListItem } from "@/preset-manager/preset-data-types";
-import {
-  PresetFilesIO,
-  PresetParametersIO,
-} from "@/preset-manager/preset-manager-core-port-types";
+import { PresetFilesIO } from "@/preset-manager/preset-manager-core-port-types";
 
 type PresetManagerCore = {
-  //現在のシンセ本体実装のパラメタバージョンを設定, 1,2,3,...のような値を想定
-  setLatestParametersVersion(version: number): void;
   listPresetItems(): Promise<PresetListItem[]>;
   //presetKeyはユニークなキーで、ファイル名として使用される
   //例
@@ -14,8 +9,11 @@ type PresetManagerCore = {
   //{presetKey:"EAF2B1FC-6B32-40E0-AE5D-2A39F27B0B79", presetName: "bass 1"} GUIDでプリセットを識別,同じ名前のプリセットの存在を許容する場合
   //{presetKey:"bank1_slot1", presetName: "bass 1"} 固定数バンク/固定数スロットで任意のバンク/スロットに名前をつけたプリセットを保存する場合
   //{presetKey:"bank1_slot1"} 固定数バンク/固定数スロットで名前をつけず管理する場合
-  savePreset(presetKey: string, presetName?: string): Promise<PresetListItem>;
-  loadPreset(presetKey: string): Promise<void>;
+  savePreset(
+    presetKey: string,
+    presetData: PresetData,
+  ): Promise<PresetListItem>;
+  loadPreset(presetKey: string): Promise<PresetData>;
   deletePreset(presetKey: string): Promise<void>;
 };
 
@@ -165,26 +163,14 @@ function createPresetListStorage(
 
 export function createPresetManagerCore(
   presetFilesIO: PresetFilesIO,
-  parametersIO: PresetParametersIO,
 ): PresetManagerCore {
-  let latestParametersVersion = 0;
-
   const presetListStorage = createPresetListStorage(presetFilesIO);
   return {
-    setLatestParametersVersion(version) {
-      latestParametersVersion = version;
-    },
     async listPresetItems() {
       return await presetListStorage.listItems();
     },
-    async savePreset(presetKey, presetName) {
+    async savePreset(presetKey, presetData) {
       const relativeFilePath = mapPresetKeyToRelativeFilePath(presetKey);
-      const presetData: PresetData = {
-        // presetKey,
-        presetName: presetName ?? "",
-        parametersVersion: latestParametersVersion,
-        parameters: parametersIO.getParameters(),
-      };
       const presetListItem: PresetListItem = {
         presetKey,
         presetName: presetData.presetName,
@@ -202,14 +188,7 @@ export function createPresetManagerCore(
     async loadPreset(presetKey) {
       const relativeFilePath = mapPresetKeyToRelativeFilePath(presetKey);
       const content = await presetFilesIO.readFile("appData", relativeFilePath);
-      const presetData = JSON.parse(content) as PresetData;
-      if (presetData.parametersVersion !== latestParametersVersion) {
-        //apply parameters migration if needed
-        console.warn(
-          `Preset version mismatch: preset=${presetData.parametersVersion}, current=${latestParametersVersion}`,
-        );
-      }
-      parametersIO.setParameters(presetData.parameters);
+      return JSON.parse(content) as PresetData;
     },
     async deletePreset(presetKey) {
       const relativeFilePath = mapPresetKeyToRelativeFilePath(presetKey);
