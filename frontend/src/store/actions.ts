@@ -1,10 +1,10 @@
-import { editorBridge } from "@/bridge/editor-bridge";
+import { agents } from "./agents";
 
 export const actions = {
   noteOn(noteNumber: number) {
-    editorBridge.requestNoteOn(noteNumber);
+    agents.editorBridge.requestNoteOn(noteNumber);
   },
   noteOff(noteNumber: number) {
-    editorBridge.requestNoteOff(noteNumber);
+    agents.editorBridge.requestNoteOff(noteNumber);
   },
 };
