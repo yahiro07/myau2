@@ -1,4 +1,4 @@
-type FileIO = {
+export type PresetFilesIO = {
   //pathはアプリが持つデータフォルダのルートからの相対パスを想定
   readFile(path: string): Promise<string>;
   writeFile(
@@ -8,7 +8,7 @@ type FileIO = {
   ): Promise<void>;
 };
 
-type ParametersIO = {
+export type PresetParametersIO = {
   getParameters(): Record<string, number>;
   setParameters(parameters: Record<string, number>): void;
 };
@@ -20,7 +20,7 @@ type PresetData = {
   parameters: Record<string, number>;
 };
 
-type PresetListItem = {
+export type PresetListItem = {
   presetKey: string;
   presetName: string;
   createAt: number;
@@ -29,6 +29,7 @@ type PresetListItem = {
 type PresetManagerCore = {
   //現在のシンセ本体実装のパラメタバージョンを設定, 1,2,3,...のような値を想定
   setLatestParametersVersion(version: number): void;
+  listPresetItems(): Promise<PresetListItem[]>;
   //presetKeyはユニークなキーで、ファイル名として使用される
   //例
   //{presetKey:"bass1"} 名前でプリセットを識別し、同じ名前のプリセットを許容しない場合 (presetKeyはファイル名として使われるので、ファイル名として使用可能な文字セットに制限する)
@@ -37,7 +38,6 @@ type PresetManagerCore = {
   //{presetKey:"bank1_slot1"} 固定数バンク/固定数スロットで名前をつけず管理する場合
   savePreset(presetKey: string, presetName?: string): Promise<void>;
   loadPreset(presetKey: string): Promise<void>;
-  listPresetItems(): Promise<PresetListItem[]>;
 };
 
 function mapPresetKeyToRelativeFilePath(presetKey: string): string {
@@ -106,19 +106,21 @@ function digestPresetListEvents(events: PresetListEvent[]): PresetListItem[] {
   return items;
 }
 
-function createPresetListStorage(fileIO: FileIO): PresetListStorage {
+function createPresetListStorage(
+  presetFilesIO: PresetFilesIO,
+): PresetListStorage {
   const eventsFilePath = "user_presets/events.ndjson";
 
   const internal = {
     async loadEvents(): Promise<PresetListEvent[]> {
-      const content = await fileIO.readFile(eventsFilePath);
+      const content = await presetFilesIO.readFile(eventsFilePath);
       const lines = content.split("\n");
       return lines.map((line) => JSON.parse(line) as PresetListEvent);
     },
     async pushEvent(event: PresetListEvent) {
       const ndJsonLine = `${JSON.stringify(event)}\n`;
       const writeOptions = { append: true };
-      await fileIO.writeFile(eventsFilePath, ndJsonLine, writeOptions);
+      await presetFilesIO.writeFile(eventsFilePath, ndJsonLine, writeOptions);
     },
   };
 
@@ -145,15 +147,18 @@ function createPresetListStorage(fileIO: FileIO): PresetListStorage {
 }
 
 export function createPresetManagerCore(
-  fileIO: FileIO,
-  parametersIO: ParametersIO,
+  presetFilesIO: PresetFilesIO,
+  parametersIO: PresetParametersIO,
 ): PresetManagerCore {
   let latestParametersVersion = 0;
 
-  const presetListStorage = createPresetListStorage(fileIO);
+  const presetListStorage = createPresetListStorage(presetFilesIO);
   return {
     setLatestParametersVersion(version) {
       latestParametersVersion = version;
+    },
+    async listPresetItems() {
+      return presetListStorage.listItems();
     },
     async savePreset(presetKey, presetName) {
       const relativeFilePath = mapPresetKeyToRelativeFilePath(presetKey);
@@ -163,19 +168,19 @@ export function createPresetManagerCore(
         parametersVersion: latestParametersVersion,
         parameters: parametersIO.getParameters(),
       };
-      return fileIO.writeFile(relativeFilePath, JSON.stringify(presetData));
+      return presetFilesIO.writeFile(
+        relativeFilePath,
+        JSON.stringify(presetData),
+      );
     },
     async loadPreset(presetKey) {
       const relativeFilePath = mapPresetKeyToRelativeFilePath(presetKey);
-      const content = await fileIO.readFile(relativeFilePath);
+      const content = await presetFilesIO.readFile(relativeFilePath);
       const presetData = JSON.parse(content) as PresetData;
       if (presetData.parametersVersion !== latestParametersVersion) {
         //apply parameters migration if needed
       }
       parametersIO.setParameters(presetData.parameters);
-    },
-    async listPresetItems() {
-      return presetListStorage.listItems();
     },
   };
 }

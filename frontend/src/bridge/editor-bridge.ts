@@ -1,4 +1,3 @@
-import { createCoreBridge } from "@/bridge/core-bridge";
 import { logger } from "@/bridge/logger";
 import {
   defaultSynthParameters,
@@ -6,6 +5,7 @@ import {
   SynthParametersSuit,
 } from "@/store/parameters";
 import { store } from "@/store/store";
+import { CoreBridge } from "./core-bridge";
 
 type EditorBridge = {
   requestNoteOn(noteNumber: number): void;
@@ -13,9 +13,7 @@ type EditorBridge = {
   setupReceivers(): () => void;
 };
 
-function createEditorBridge(): EditorBridge {
-  const coreBridge = createCoreBridge();
-
+export function createEditorBridge(coreBridge: CoreBridge): EditorBridge {
   function setupReceivers() {
     let isReceiving = false;
     const parameterKeys = new Set(Object.keys(defaultSynthParameters));
@@ -81,7 +79,7 @@ function createEditorBridge(): EditorBridge {
       if (msg.type === "setParameter") {
         const { paramKey, value } = msg;
         affectParameterToStore(paramKey, value);
-      } else if (msg.type === "bulkSetParameters") {
+      } else if (msg.type === "bulkSendParameters") {
         for (const [paramKey, value] of Object.entries(msg.parameters)) {
           //store.mutations.*はバッチ化で単一の更新にまとめるので連続で多数呼んでよい
           affectParameterToStore(paramKey, value);
@@ -121,4 +119,3 @@ function createEditorBridge(): EditorBridge {
     setupReceivers,
   };
 }
-export const editorBridge = createEditorBridge();

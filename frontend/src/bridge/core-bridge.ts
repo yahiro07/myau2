@@ -1,23 +1,24 @@
 import { logger } from "@/bridge/logger";
+import { removeArrayItem } from "@/utils/array-utils";
 
 export type MessageFromUI =
   | { type: "uiLoaded" }
   | { type: "beginParameterEdit"; paramKey: string }
   | { type: "endParameterEdit"; paramKey: string }
   | { type: "setParameter"; paramKey: string; value: number }
-  | { type: "bulkSetParameters"; parameters: Record<string, number> }
+  | { type: "bulkSendParameters"; parameters: Record<string, number> }
   | { type: "noteOnRequest" | "noteOffRequest"; noteNumber: number };
 
 export type MessageFromApp =
   | { type: "setParameter"; paramKey: string; value: number }
-  | { type: "bulkSetParameters"; parameters: Record<string, number> }
+  | { type: "bulkSendParameters"; parameters: Record<string, number> }
   | { type: "hostNoteOn"; noteNumber: number; velocity: number }
   | { type: "hostNoteOff"; noteNumber: number }
   | { type: "standaloneAppFlag" };
 
 type MessageReceiver = (msg: MessageFromApp) => void;
 
-type CoreBridge = {
+export type CoreBridge = {
   sendMessage: (msg: MessageFromUI) => void;
   assignReceiver: (receiver: MessageReceiver) => () => void;
 };
@@ -45,15 +46,19 @@ export function createCoreBridge(): CoreBridge {
     }
   }
 
-  function assignReceiver(_receiver: MessageReceiver) {
-    let receiver = _receiver as MessageReceiver | undefined;
-    globalThisTyped.putMessageFromApp = (msg: MessageFromApp) => {
+  const receivers: MessageReceiver[] = [];
+
+  function assignReceiver(receiver: MessageReceiver) {
+    globalThisTyped.putMessageFromApp ??= (msg: MessageFromApp) => {
       logger.log(`command received ${JSON.stringify(msg)}`);
-      receiver?.(msg);
+      receivers.forEach((fn) => {
+        fn(msg);
+      });
     };
+    receivers.push(receiver);
 
     return () => {
-      receiver = undefined;
+      removeArrayItem(receivers, receiver);
     };
   }
 
