@@ -35,7 +35,15 @@ type MessageFromUI_FilesIO =
       content: string;
       append: boolean;
     }
-  | { type: "rpcDeleteFileRequest"; rpcId: number; path: string };
+  | { type: "rpcDeleteFileRequest"; rpcId: number; path: string }
+  | { type: "rpcReadKvStorageItem"; key: string; rpcId: number }
+  | {
+      type: "rpcWriteKvStorageItem";
+      key: string;
+      rpcId: number;
+      value: string;
+    }
+  | { type: "rpcDeleteKvStorageItem"; key: string; rpcId: number };
 
 type MessageFromApp_FilesIO =
   | {
@@ -45,7 +53,26 @@ type MessageFromApp_FilesIO =
       content: string;
     }
   | { type: "rpcWriteFileResponse"; rpcId: number; success: boolean }
-  | { type: "rpcDeleteFileResponse"; rpcId: number; success: boolean };
+  | { type: "rpcDeleteFileResponse"; rpcId: number; success: boolean }
+  | {
+      type: "rpcReadKvStorageItemResponse";
+      key: string;
+      rpcId: number;
+      success: boolean;
+      value: string;
+    }
+  | {
+      type: "rpcWriteKvStorageItemResponse";
+      key: string;
+      rpcId: number;
+      success: boolean;
+    }
+  | {
+      type: "rpcDeleteKvStorageItemResponse";
+      key: string;
+      rpcId: number;
+      success: boolean;
+    };
 
 export type MessageFromUI = MessageFromUI_Base | MessageFromUI_FilesIO;
 
