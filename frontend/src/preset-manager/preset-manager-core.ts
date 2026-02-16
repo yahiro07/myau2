@@ -1,11 +1,23 @@
+export type PresetFilesIORealm = "appAssets" | "appData";
+
 export type PresetFilesIO = {
   //pathはアプリが持つデータフォルダのルートからの相対パスを想定
-  readFile(path: string): Promise<string>;
+  //read/write/deleteの各処理でファイルが存在しない場合やIOエラーが発生した場合は例外を投げる
+  readFile(
+    //realm:appAssetsはアプリに同梱されたアセットのフォルダ
+    //realm:appDataはアプリ固有のストレージのフォルダ
+    realm: PresetFilesIORealm,
+    path: string,
+    //skipIfNotExistオプションがtrueの場合は、ファイルが存在しないときに例外を投げずに空文字を返す
+    options?: { skipIfNotExist?: boolean },
+  ): Promise<string>;
+  //write/deleteではrealm:appDataのみが対象のため引数には含めない
   writeFile(
     path: string,
     content: string,
     options?: { append?: boolean },
   ): Promise<void>;
+  deleteFile(path: string): Promise<void>;
 };
 
 export type PresetParametersIO = {
@@ -36,8 +48,9 @@ type PresetManagerCore = {
   //{presetKey:"EAF2B1FC-6B32-40E0-AE5D-2A39F27B0B79", presetName: "bass 1"} GUIDでプリセットを識別,同じ名前のプリセットの存在を許容する場合
   //{presetKey:"bank1_slot1", presetName: "bass 1"} 固定数バンク/固定数スロットで任意のバンク/スロットに名前をつけたプリセットを保存する場合
   //{presetKey:"bank1_slot1"} 固定数バンク/固定数スロットで名前をつけず管理する場合
-  savePreset(presetKey: string, presetName?: string): Promise<void>;
+  savePreset(presetKey: string, presetName?: string): Promise<PresetListItem>;
   loadPreset(presetKey: string): Promise<void>;
+  deletePreset(presetKey: string): Promise<void>;
 };
 
 function mapPresetKeyToRelativeFilePath(presetKey: string): string {
@@ -76,6 +89,13 @@ function digestPresetListEvents(events: PresetListEvent[]): PresetListItem[] {
   const items: PresetListItem[] = [];
   for (const event of events) {
     if (event.type === "add") {
+      // 既存のアイテムがあれば削除（上書き扱い）
+      const existingIndex = items.findIndex(
+        (item) => item.presetKey === event.presetKey,
+      );
+      if (existingIndex !== -1) {
+        items.splice(existingIndex, 1);
+      }
       items.push({
         presetKey: event.presetKey,
         presetName: event.presetName,
@@ -90,20 +110,29 @@ function digestPresetListEvents(events: PresetListEvent[]): PresetListItem[] {
       const sourceItem = items.find(
         (item) => item.presetKey === event.presetKey,
       );
-      const destItemIndex = items.findIndex(
-        (item) => item.presetKey === event.destPresetKey,
-      );
-      if (sourceItem && destItemIndex !== -1) {
-        if (event.placeAt === "before") {
-          items.splice(destItemIndex, 0, sourceItem);
-        } else {
-          items.splice(destItemIndex + 1, 0, sourceItem);
-        }
+      if (sourceItem) {
         removeArrayItem(items, sourceItem);
+        const destItemIndex = items.findIndex(
+          (item) => item.presetKey === event.destPresetKey,
+        );
+        if (destItemIndex !== -1) {
+          const insertIndex =
+            event.placeAt === "before" ? destItemIndex : destItemIndex + 1;
+          items.splice(insertIndex, 0, sourceItem);
+        }
       }
     }
   }
   return items;
+}
+
+function createCompactedEvents(items: PresetListItem[]): PresetListEvent[] {
+  return items.map((item) => ({
+    type: "add",
+    presetKey: item.presetKey,
+    presetName: item.presetName,
+    createAt: item.createAt,
+  }));
 }
 
 function createPresetListStorage(
@@ -113,9 +142,21 @@ function createPresetListStorage(
 
   const internal = {
     async loadEvents(): Promise<PresetListEvent[]> {
-      const content = await presetFilesIO.readFile(eventsFilePath);
-      const lines = content.split("\n");
+      const content = await presetFilesIO.readFile("appData", eventsFilePath, {
+        skipIfNotExist: true,
+      });
+      if (content === "") {
+        //初回起動でファイルがない場合
+        return [];
+      }
+      const lines = content.split("\n").filter((line) => line.trim());
       return lines.map((line) => JSON.parse(line) as PresetListEvent);
+    },
+    async saveCompactedEvents(events: PresetListEvent[]) {
+      const ndJsonContent = events
+        .map((event) => `${JSON.stringify(event)}\n`)
+        .join("");
+      await presetFilesIO.writeFile(eventsFilePath, ndJsonContent);
     },
     async pushEvent(event: PresetListEvent) {
       const ndJsonLine = `${JSON.stringify(event)}\n`;
@@ -127,7 +168,16 @@ function createPresetListStorage(
   return {
     async listItems() {
       const events = await internal.loadEvents();
-      return digestPresetListEvents(events);
+      const items = digestPresetListEvents(events);
+      //変更操作のイベントが一定数を超えていたら、変更処理を消化して保存し直す
+      const numModificationEvents = events.filter(
+        (ev) => ev.type !== "add",
+      ).length;
+      if (numModificationEvents > 40) {
+        const compactedEvents = createCompactedEvents(items);
+        await internal.saveCompactedEvents(compactedEvents);
+      }
+      return items;
     },
     async addItem(item) {
       await internal.pushEvent({ type: "add", ...item });
@@ -158,7 +208,7 @@ export function createPresetManagerCore(
       latestParametersVersion = version;
     },
     async listPresetItems() {
-      return presetListStorage.listItems();
+      return await presetListStorage.listItems();
     },
     async savePreset(presetKey, presetName) {
       const relativeFilePath = mapPresetKeyToRelativeFilePath(presetKey);
@@ -168,19 +218,35 @@ export function createPresetManagerCore(
         parametersVersion: latestParametersVersion,
         parameters: parametersIO.getParameters(),
       };
-      return presetFilesIO.writeFile(
+      const presetListItem: PresetListItem = {
+        presetKey,
+        presetName: presetData.presetName,
+        //既存のプリセットと同じキーで保存する場合、古い作成日時は無視して新しい日時で書き込む
+        createAt: Date.now(),
+      };
+      await presetListStorage.addItem(presetListItem);
+      await presetFilesIO.writeFile(
         relativeFilePath,
         JSON.stringify(presetData),
       );
+      return presetListItem;
     },
     async loadPreset(presetKey) {
       const relativeFilePath = mapPresetKeyToRelativeFilePath(presetKey);
-      const content = await presetFilesIO.readFile(relativeFilePath);
+      const content = await presetFilesIO.readFile("appData", relativeFilePath);
       const presetData = JSON.parse(content) as PresetData;
       if (presetData.parametersVersion !== latestParametersVersion) {
         //apply parameters migration if needed
+        console.warn(
+          `Preset version mismatch: preset=${presetData.parametersVersion}, current=${latestParametersVersion}`,
+        );
       }
       parametersIO.setParameters(presetData.parameters);
+    },
+    async deletePreset(presetKey) {
+      const relativeFilePath = mapPresetKeyToRelativeFilePath(presetKey);
+      await presetListStorage.deleteItem(presetKey);
+      await presetFilesIO.deleteFile(relativeFilePath);
     },
   };
 }

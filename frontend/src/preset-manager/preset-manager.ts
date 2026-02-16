@@ -24,14 +24,36 @@ export function createPresetManager(coreBridge: CoreBridge) {
   presetManagerCore.setLatestParametersVersion(1);
   return {
     async loadPresetList() {
-      const items = await presetManagerCore.listPresetItems();
-      store.mutations.setPresetItems(items);
+      try {
+        const items = await presetManagerCore.listPresetItems();
+        store.mutations.setPresetItems(items);
+      } catch (e) {
+        console.error("Failed to load preset list", e);
+        //TODO: show error to user
+      }
     },
     async loadPreset(presetKey: string) {
-      await presetManagerCore.loadPreset(presetKey);
+      try {
+        await presetManagerCore.loadPreset(presetKey);
+      } catch (e) {
+        console.error(`Failed to load preset: ${presetKey}`, e);
+        //TODO: show error to user
+      }
     },
     async savePreset(presetKey: string, presetName?: string) {
-      await presetManagerCore.savePreset(presetKey, presetName);
+      try {
+        const newItem = await presetManagerCore.savePreset(
+          presetKey,
+          presetName,
+        );
+        store.mutations.setPresetItems((prev) => [
+          ...prev.filter((item) => item.presetKey !== presetKey),
+          newItem,
+        ]);
+      } catch (e) {
+        console.error(`Failed to save preset: ${presetKey}`, e);
+        //TODO: show error to user
+      }
     },
   };
 }

@@ -14,6 +14,9 @@ export function createPluginAppPresetFilesIO(
     async writeFile() {
       throw new Error("Not implemented");
     },
+    async deleteFile() {
+      throw new Error("Not implemented");
+    },
   };
 }
 
@@ -34,6 +37,9 @@ export function createOnMemoryPresetFilesIO(): PresetFilesIO {
         fileItems[path] ??= "";
         fileItems[path] += content;
       }
+    },
+    async deleteFile(path) {
+      delete fileItems[path];
     },
   };
 }
