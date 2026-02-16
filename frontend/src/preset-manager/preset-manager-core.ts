@@ -1,42 +1,8 @@
-export type PresetFilesIORealm = "appAssets" | "appData";
-
-export type PresetFilesIO = {
-  //pathはアプリが持つデータフォルダのルートからの相対パスを想定
-  //read/write/deleteの各処理でファイルが存在しない場合やIOエラーが発生した場合は例外を投げる
-  readFile(
-    //realm:appAssetsはアプリに同梱されたアセットのフォルダ
-    //realm:appDataはアプリ固有のストレージのフォルダ
-    realm: PresetFilesIORealm,
-    path: string,
-    //skipIfNotExistオプションがtrueの場合は、ファイルが存在しないときに例外を投げずに空文字を返す
-    options?: { skipIfNotExist?: boolean },
-  ): Promise<string>;
-  //write/deleteではrealm:appDataのみが対象のため引数には含めない
-  writeFile(
-    path: string,
-    content: string,
-    options?: { append?: boolean },
-  ): Promise<void>;
-  deleteFile(path: string): Promise<void>;
-};
-
-export type PresetParametersIO = {
-  getParameters(): Record<string, number>;
-  setParameters(parameters: Record<string, number>): void;
-};
-
-type PresetData = {
-  presetKey: string;
-  presetName: string;
-  parametersVersion: number;
-  parameters: Record<string, number>;
-};
-
-export type PresetListItem = {
-  presetKey: string;
-  presetName: string;
-  createAt: number;
-};
+import { PresetData, PresetListItem } from "@/preset-manager/preset-data-types";
+import {
+  PresetFilesIO,
+  PresetParametersIO,
+} from "@/preset-manager/preset-manager-core-port-types";
 
 type PresetManagerCore = {
   //現在のシンセ本体実装のパラメタバージョンを設定, 1,2,3,...のような値を想定
@@ -100,6 +66,7 @@ function digestPresetListEvents(events: PresetListEvent[]): PresetListItem[] {
         presetKey: event.presetKey,
         presetName: event.presetName,
         createAt: event.createAt,
+        presetKind: "user",
       });
     } else if (event.type === "delete") {
       const item = items.find((item) => item.presetKey === event.presetKey);
@@ -213,7 +180,7 @@ export function createPresetManagerCore(
     async savePreset(presetKey, presetName) {
       const relativeFilePath = mapPresetKeyToRelativeFilePath(presetKey);
       const presetData: PresetData = {
-        presetKey,
+        // presetKey,
         presetName: presetName ?? "",
         parametersVersion: latestParametersVersion,
         parameters: parametersIO.getParameters(),
@@ -223,6 +190,7 @@ export function createPresetManagerCore(
         presetName: presetData.presetName,
         //既存のプリセットと同じキーで保存する場合、古い作成日時は無視して新しい日時で書き込む
         createAt: Date.now(),
+        presetKind: "user",
       };
       await presetListStorage.addItem(presetListItem);
       await presetFilesIO.writeFile(

@@ -1,8 +1,11 @@
 import { Store } from "snap-store";
 import { parametersConverter } from "@/bridge/converter";
 import { CoreBridge } from "@/bridge/core-bridge";
+import {
+  PresetFilesIO,
+  PresetParametersIO,
+} from "@/preset-manager/preset-manager-core-port-types";
 import { filterObjectMembers } from "@/utils/general-utils";
-import { PresetFilesIO, PresetParametersIO } from "./preset-manager-core";
 
 export function createPluginAppPresetFilesIO(
   _coreBridge: CoreBridge,

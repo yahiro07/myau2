@@ -4,11 +4,11 @@ import {
   SynthParametersSuit,
 } from "@/store/parameters";
 import { store } from "@/store/store";
+import { createPresetManagerCore } from "./preset-manager-core";
 import {
   createOnMemoryPresetFilesIO,
   createStorePresetParametersIO,
-} from "./adapters";
-import { createPresetManagerCore } from "./preset-manager-core";
+} from "./preset-manager-core-adapters";
 
 export function createPresetManager(coreBridge: CoreBridge) {
   const parametersIO = createStorePresetParametersIO<SynthParametersSuit>(
