@@ -22,6 +22,8 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
 
   let presetManager: PresetManagerImpl = PresetManagerImpl()
 
+  let stateKvs = StateKvs()
+
   private(set) var isHostedInStandaloneApp: Bool = false
   private(set) var currentPresetParametersVersion: Int = 0
 
@@ -220,7 +222,8 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
   public override var fullState: [String: Any]? {
     get {
       logger.log("Saving state")
-      var state = super.fullState ?? [:]
+      var state: [String: Any] = [:]
+      state["kvsItems"] = stateKvs.items
       let (parametersVersion, parameters) = emitParametersState()
       state["parametersVersion"] = parametersVersion
       state["parameters"] = parameters
@@ -238,6 +241,9 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
         let parameters = state["parameters"] as? [String: Float]
       {
         applyParametersState(parametersVersion, parameters)
+      }
+      if let kvsItems = state["kvsItems"] as? [String: String] {
+        stateKvs.setItems(kvsItems)
       }
       //skipping super.fullState to avoid overwriting our custom restoration results.
       // super.fullState = state

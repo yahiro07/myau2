@@ -10,6 +10,7 @@ struct ViewAccessibleResources {
   let audioUnitPortal: AudioUnitPortal
   let presetFilesIO: PresetFilesIO
   let parametersMigrator: ParametersMigrator?
+  let stateKvs: StateKvs
 }
 
 protocol AUv3PluginCore: AnyObject {

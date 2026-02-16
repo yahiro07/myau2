@@ -94,7 +94,8 @@ public class GenericAudioUnitViewController: AUViewController {
     let parameterMigrator = pluginCore.parametersMigrator
     let viewAccessibleResources = ViewAccessibleResources(
       parameterTree: observableParameterTree, audioUnitPortal: self.audioUnitPortal,
-      presetFilesIO: self.presetFilesIO, parametersMigrator: parameterMigrator)
+      presetFilesIO: self.presetFilesIO, parametersMigrator: parameterMigrator,
+      stateKvs: audioUnit.stateKvs)
 
     // logger.log("now call pluginCore.createView")
     let content = pluginCore.createView(viewAccessibleResources)

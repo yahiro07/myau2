@@ -16,6 +16,9 @@ private enum MessageFromUI {
   case rpcReadFileRequest(rpcId: Int, path: String, skipIfNotExists: Bool)
   case rpcWriteFileRequest(rpcId: Int, path: String, content: String, append: Bool)
   case rpcDeleteFileRequest(rpcId: Int, path: String)
+  case rpcLoadStateKvsItems(rpcId: Int)
+  case writeStateKvsItem(key: String, value: String)
+  case deleteStateKvsItem(key: String)
 }
 
 private enum MessageFromApp {
@@ -31,6 +34,7 @@ private enum MessageFromApp {
   case rpcReadFileResponse(rpcId: Int, success: Bool, content: String)
   case rpcWriteFileResponse(rpcId: Int, success: Bool)
   case rpcDeleteFileResponse(rpcId: Int, success: Bool)
+  case rpcLoadStateKvsItemsResponse(rpcId: Int, items: [String: String])
 }
 
 private func mapMessageFromUI_fromDictionary(_ dict: [String: Any]) -> MessageFromUI? {
@@ -92,6 +96,20 @@ private func mapMessageFromUI_fromDictionary(_ dict: [String: Any]) -> MessageFr
     {
       return .rpcDeleteFileRequest(rpcId: rpcId, path: path)
     }
+  case "rpcLoadStateKvsItems":
+    if let rpcId = dict["rpcId"] as? Int {
+      return .rpcLoadStateKvsItems(rpcId: rpcId)
+    }
+  case "writeStateKvsItem":
+    if let key = dict["key"] as? String,
+      let value = dict["value"] as? String
+    {
+      return .writeStateKvsItem(key: key, value: value)
+    }
+  case "deleteStateKvsItem":
+    if let key = dict["key"] as? String {
+      return .deleteStateKvsItem(key: key)
+    }
   default:
     return nil
   }
@@ -148,6 +166,12 @@ private func mapMessageFromApp_toDictionary(_ msg: MessageFromApp) -> [String: A
       "rpcId": rpcId,
       "success": success,
     ]
+  case .rpcLoadStateKvsItemsResponse(let rpcId, let items):
+    return [
+      "type": "rpcLoadStateKvsItemsResponse",
+      "rpcId": rpcId,
+      "items": items,
+    ]
   }
 }
 
@@ -157,6 +181,7 @@ class BasicWebViewHub {
   private let audioUnitPortal: AudioUnitPortal
   private let presetFilesIO: PresetFilesIO
   private let parameterMigrator: ParametersMigrator?
+  private let stateKvs: StateKvs
 
   private var webViewIo: WebViewIoProtocol?
 
@@ -173,6 +198,7 @@ class BasicWebViewHub {
     self.audioUnitPortal = viewAccessibleResources.audioUnitPortal
     self.presetFilesIO = viewAccessibleResources.presetFilesIO
     self.parameterMigrator = viewAccessibleResources.parametersMigrator
+    self.stateKvs = viewAccessibleResources.stateKvs
   }
 
   deinit {
@@ -263,6 +289,13 @@ class BasicWebViewHub {
         logger.log("RPC deleteFile error: \(error)")
         sendMessageToUI(.rpcDeleteFileResponse(rpcId: rpcId, success: false))
       }
+    case .rpcLoadStateKvsItems(let rpcId):
+      let items = audioUnitPortal.isHostedInStandaloneApp ? [:] : stateKvs.items
+      sendMessageToUI(.rpcLoadStateKvsItemsResponse(rpcId: rpcId, items: items))
+    case .writeStateKvsItem(let key, let value):
+      stateKvs.write(key, value)
+    case .deleteStateKvsItem(let key):
+      stateKvs.delete(key)
     }
   }
 
