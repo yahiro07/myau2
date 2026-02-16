@@ -12,6 +12,10 @@ private enum MessageFromUI {
   //UIに含まれる鍵盤などからのプラグイン本体に送るノートオンオフ要求
   case noteOnRequest(noteNumber: Int)
   case noteOffRequest(noteNumber: Int)
+  //
+  case rpcReadFileRequest(rpcId: Int, path: String, skipIfNotExists: Bool)
+  case rpcWriteFileRequest(rpcId: Int, path: String, content: String, append: Bool)
+  case rpcDeleteFileRequest(rpcId: Int, path: String)
 }
 
 private enum MessageFromApp {
@@ -23,6 +27,10 @@ private enum MessageFromApp {
   case hostNoteOff(noteNumber: Int)
   case standaloneAppFlag
   case latestParametersVersion(version: Int)
+  //
+  case rpcReadFileResponse(rpcId: Int, success: Bool, content: String)
+  case rpcWriteFileResponse(rpcId: Int, success: Bool)
+  case rpcDeleteFileResponse(rpcId: Int, success: Bool)
 }
 
 private func mapMessageFromUI_fromDictionary(_ dict: [String: Any]) -> MessageFromUI? {
@@ -94,13 +102,14 @@ private func mapMessageFromApp_toDictionary(_ msg: MessageFromApp) -> [String: A
 
 @MainActor
 class BasicWebViewHub {
-  private var webViewIo: WebViewIoProtocol?
-  private var flatParameterTree: FlatObservableParameters
-  private lazy var valueTracker: ObservableValueTracker = ObservableValueTracker()
-  private var audioUnitPortal: AudioUnitPortal
-  private var presetManager: PresetManager
-  private var parameterMigrator: ParametersMigrator?
+  private let flatParameterTree: FlatObservableParameters
+  private let audioUnitPortal: AudioUnitPortal
+  private let presetFilesIO: PresetFilesIO
+  private let parameterMigrator: ParametersMigrator?
 
+  private var webViewIo: WebViewIoProtocol?
+
+  private lazy var valueTracker: ObservableValueTracker = ObservableValueTracker()
   private var portalSubscription: AnyCancellable?
   private var webViewIoSubscription: AnyCancellable?
 
@@ -111,7 +120,7 @@ class BasicWebViewHub {
     self.flatParameterTree = FlatObservableParameters(
       parameterTree: viewAccessibleResources.parameterTree)
     self.audioUnitPortal = viewAccessibleResources.audioUnitPortal
-    self.presetManager = viewAccessibleResources.presetManager
+    self.presetFilesIO = viewAccessibleResources.presetFilesIO
     self.parameterMigrator = viewAccessibleResources.parametersMigrator
   }
 

@@ -1,7 +1,7 @@
 import { logger } from "@/bridge/logger";
 import { removeArrayItem } from "@/utils/array-utils";
 
-export type MessageFromUI =
+type MessageFromUI_Base =
   | { type: "uiLoaded" }
   | { type: "beginParameterEdit"; paramKey: string }
   | { type: "endParameterEdit"; paramKey: string }
@@ -13,13 +13,43 @@ export type MessageFromUI =
     }
   | { type: "noteOnRequest" | "noteOffRequest"; noteNumber: number };
 
-export type MessageFromApp =
+type MassagesFromApp_Base =
   | { type: "setParameter"; paramKey: string; value: number }
   | { type: "bulkSendParameters"; parameters: Record<string, number> }
   | { type: "hostNoteOn"; noteNumber: number; velocity: number }
   | { type: "hostNoteOff"; noteNumber: number }
   | { type: "standaloneAppFlag" }
   | { type: "latestParametersVersion"; version: number };
+
+type MessageFromUI_FilesIO =
+  | {
+      type: "rpcReadFileRequest";
+      rpcId: number;
+      path: string;
+      skipIfNotExists: boolean;
+    }
+  | {
+      type: "rpcWriteFileRequest";
+      rpcId: number;
+      path: string;
+      content: string;
+      append: boolean;
+    }
+  | { type: "rpcDeleteFileRequest"; rpcId: number; path: string };
+
+type MessageFromApp_FilesIO =
+  | {
+      type: "rpcReadFileResponse";
+      rpcId: number;
+      success: boolean;
+      content: string;
+    }
+  | { type: "rpcWriteFileResponse"; rpcId: number; success: boolean }
+  | { type: "rpcDeleteFileResponse"; rpcId: number; success: boolean };
+
+export type MessageFromUI = MessageFromUI_Base | MessageFromUI_FilesIO;
+
+export type MessageFromApp = MassagesFromApp_Base | MessageFromApp_FilesIO;
 
 type MessageReceiver = (msg: MessageFromApp) => void;
 

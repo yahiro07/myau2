@@ -2,17 +2,86 @@ import { CoreBridge } from "@/bridge/core-bridge";
 import { PresetFilesIO } from "@/preset-manager/preset-manager-core-port-types";
 
 export function createPluginAppPresetFilesIO(
-  _coreBridge: CoreBridge,
+  coreBridge: CoreBridge,
 ): PresetFilesIO {
+  let rpcIdCounter = 0;
+
+  const pendingRpcResolvers: Record<
+    number,
+    (result: { success: boolean; content?: string }) => void
+  > = {};
+
+  coreBridge.assignReceiver((message) => {
+    if (
+      message.type === "rpcReadFileResponse" ||
+      message.type === "rpcWriteFileResponse" ||
+      message.type === "rpcDeleteFileResponse"
+    ) {
+      const { rpcId, success } = message;
+      const content =
+        message.type === "rpcReadFileResponse" ? message.content : undefined;
+      const resolver = pendingRpcResolvers[rpcId];
+      if (resolver) {
+        resolver({ success, content });
+        delete pendingRpcResolvers[rpcId];
+      }
+    }
+  });
+
   return {
-    async readFile() {
-      throw new Error("Not implemented");
+    async readFile(path, options) {
+      const rpcId = rpcIdCounter++;
+      coreBridge.sendMessage({
+        type: "rpcReadFileRequest",
+        rpcId,
+        path,
+        skipIfNotExists: options?.skipIfNotExist ?? false,
+      });
+      return new Promise<string>((resolve, reject) => {
+        pendingRpcResolvers[rpcId] = ({ success, content }) => {
+          if (success && content !== undefined) {
+            resolve(content);
+          } else {
+            reject(new Error(`Failed to read file: ${path}`));
+          }
+        };
+      });
     },
-    async writeFile() {
-      throw new Error("Not implemented");
+    async writeFile(path, content, options) {
+      const rpcId = rpcIdCounter++;
+      coreBridge.sendMessage({
+        type: "rpcWriteFileRequest",
+        rpcId,
+        path,
+        content,
+        append: options?.append ?? false,
+      });
+      return new Promise<void>((resolve, reject) => {
+        pendingRpcResolvers[rpcId] = ({ success }) => {
+          if (success) {
+            resolve();
+          } else {
+            reject(new Error(`Failed to write file: ${path}`));
+          }
+        };
+      });
     },
-    async deleteFile() {
-      throw new Error("Not implemented");
+    async deleteFile(path) {
+      const rpcId = rpcIdCounter++;
+      coreBridge.sendMessage({
+        type: "rpcDeleteFileRequest",
+        rpcId,
+        path,
+      });
+      return new Promise<void>((resolve, reject) => {
+        pendingRpcResolvers[rpcId] = ({ success }) => {
+          if (success) {
+            resolve();
+          } else {
+            reject(new Error(`Failed to delete file: ${path}`));
+          }
+        };
+      });
     },
   };
 }
