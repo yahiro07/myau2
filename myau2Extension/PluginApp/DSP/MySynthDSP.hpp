@@ -89,8 +89,13 @@ class MySynthDSP : public DSPCore {
 private:
   float mPhase = 0.0;
   SynthesizerStateBus bus;
+  int parametersVersion = 0;
 
 public:
+  void setParametersVersion(int version) override {
+    parametersVersion = version;
+  }
+
   void setParameter(int address, float value) override {
     applySynthesisParameter(bus.synthesisParameters, address, value);
   }

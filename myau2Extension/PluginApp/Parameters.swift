@@ -61,3 +61,13 @@ let myPluginParameterSpecs = ParameterTreeSpec {
     PB.Unary(.masterVolume, "masterVolume", "Master Volume", 0.8)
   }
 }
+
+class ParametersMigratorImpl: ParametersMigrator {
+  var latestParametersVersion: Int {
+    return 1
+  }
+
+  func migrateParametersIfNeeded(paramVer: Int, rawParameters: [String: Float]) {
+
+  }
+}

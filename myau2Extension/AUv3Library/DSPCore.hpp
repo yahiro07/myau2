@@ -7,6 +7,7 @@ public:
 
   virtual ~DSPCore() = default;
 
+  virtual void setParametersVersion(int version) = 0;
   // virtual void initialize(double sampleRate, int channelCount) = 0;
   virtual void setParameter(int address, float value) = 0;
   virtual void noteOn(int noteNumber, float velocity) = 0;

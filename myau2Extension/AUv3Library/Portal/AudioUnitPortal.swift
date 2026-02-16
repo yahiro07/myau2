@@ -20,6 +20,8 @@ protocol AudioUnitPortal {
 }
 
 final class AudioUnitPortalImpl: AudioUnitPortal {
+  var parametersVersion: Int = 0
+
   var isHostedInStandaloneApp = false
 
   typealias MidiDestinationFn = ([UInt8]) -> Void

@@ -3,6 +3,8 @@ import SwiftUI
 class MyPluginCore: AUv3PluginCore {
   private var mySynthDSP = MySynthDSP()
 
+  var parametersMigrator: ParametersMigrator? = ParametersMigratorImpl()
+
   func buildParameters() -> AUParameterTree {
     myPluginParameterSpecs.createAUParameterTree()
   }
@@ -16,4 +18,5 @@ class MyPluginCore: AUv3PluginCore {
   ) -> AnyView {
     return AnyView(MyPluginContentView(viewAccessibleResources))
   }
+
 }
