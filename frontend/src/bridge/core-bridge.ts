@@ -5,6 +5,7 @@ export type MessageFromUI =
   | { type: "beginParameterEdit"; paramKey: string }
   | { type: "endParameterEdit"; paramKey: string }
   | { type: "setParameter"; paramKey: string; value: number }
+  | { type: "bulkSetParameters"; parameters: Record<string, number> }
   | { type: "noteOnRequest" | "noteOffRequest"; noteNumber: number };
 
 export type MessageFromApp =
