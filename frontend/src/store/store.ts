@@ -11,6 +11,7 @@ export type StoreState = SynthParametersSuit & {
   editTarget: ParameterKey | null;
   presetItems: PresetListItem[];
   latestParametersVersion: number;
+  lastLoadedPresetKey: string | null;
 };
 
 export const store = createStore<StoreState>({
@@ -19,4 +20,5 @@ export const store = createStore<StoreState>({
   editTarget: null,
   presetItems: [],
   latestParametersVersion: 0,
+  lastLoadedPresetKey: null,
 });

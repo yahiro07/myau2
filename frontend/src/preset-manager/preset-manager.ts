@@ -1,6 +1,7 @@
 import { parametersConverter } from "@/bridge/converter";
 import { CoreBridge } from "@/bridge/core-bridge";
 import { createFactoryPresetProvider } from "@/preset-manager/factory-preset-provider";
+import { createKvStorageAdapter } from "@/preset-manager/kv-storage-adapter";
 import { PresetData } from "@/preset-manager/preset-data-types";
 import { defaultSynthParameters } from "@/store/parameters";
 import { store } from "@/store/store";
@@ -12,6 +13,7 @@ export function createPresetManager(coreBridge: CoreBridge) {
   const factoryPresetProvider = createFactoryPresetProvider();
   const presetFilesIO = createOnMemoryPresetFilesIO();
   const presetManagerCore = createPresetManagerCore(presetFilesIO);
+  const kvsAdapter = createKvStorageAdapter(coreBridge);
 
   return {
     async loadPresetList() {
@@ -19,6 +21,10 @@ export function createPresetManager(coreBridge: CoreBridge) {
         const factoryItems = await factoryPresetProvider.listPresetItems();
         const userItems = await presetManagerCore.listPresetItems();
         store.mutations.setPresetItems([...factoryItems, ...userItems]);
+        const lastLoadedPresetKey = await kvsAdapter.readItem(
+          "lastLoadedPresetKey",
+        );
+        store.mutations.setLastLoadedPresetKey(lastLoadedPresetKey);
       } catch (e) {
         console.error("Failed to load preset list", e);
         //TODO: show error to user
@@ -49,6 +55,10 @@ export function createPresetManager(coreBridge: CoreBridge) {
             parametersVersion: presetData.parametersVersion,
             parameters: rawParameters,
           });
+          if (presetKey !== store.state.lastLoadedPresetKey) {
+            store.mutations.setLastLoadedPresetKey(presetKey);
+            await kvsAdapter.writeItem("lastLoadedPresetKey", presetKey);
+          }
         }
       } catch (e) {
         console.error(`Failed to load preset: ${presetKey}`, e);
@@ -74,6 +84,10 @@ export function createPresetManager(coreBridge: CoreBridge) {
           ...prev.filter((item) => item.presetKey !== presetKey),
           newItem,
         ]);
+        if (presetKey !== store.state.lastLoadedPresetKey) {
+          store.mutations.setLastLoadedPresetKey(presetKey);
+          await kvsAdapter.writeItem("lastLoadedPresetKey", presetKey);
+        }
       } catch (e) {
         console.error(`Failed to save preset: ${presetKey}`, e);
         //TODO: show error to user
