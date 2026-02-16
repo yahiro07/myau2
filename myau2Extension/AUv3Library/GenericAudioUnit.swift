@@ -208,7 +208,7 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
     parameterTree?.allParameters.forEach { param in
       if let value = modParameters[param.identifier] {
         if param.address < 5 || 30 <= param.address {
-          logger.log("SetParam @restoreState \(param.address) \(param.identifier) \(value)")
+          logger.log("SetParam @applyParametersState \(param.address) \(param.identifier) \(value)")
         }
         param.value = value
       }

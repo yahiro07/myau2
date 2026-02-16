@@ -8,6 +8,7 @@ export type MessageFromUI =
   | { type: "setParameter"; paramKey: string; value: number }
   | {
       type: "loadFullParameters";
+      parametersVersion: number;
       parameters: Record<string, number>;
     }
   | { type: "noteOnRequest" | "noteOffRequest"; noteNumber: number };

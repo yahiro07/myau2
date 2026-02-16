@@ -52,6 +52,7 @@ export function createPresetManager(coreBridge: CoreBridge) {
           //これを受け取ってストアに値をセットする
           coreBridge.sendMessage({
             type: "loadFullParameters",
+            parametersVersion: presetData.parametersVersion,
             parameters: rawParameters,
           });
         }

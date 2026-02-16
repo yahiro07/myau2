@@ -8,7 +8,7 @@ private enum MessageFromUI {
   case endParameterEdit(paramKey: String)
   case setParameter(paramKey: String, value: Float)
   //UIからパラメタセットを受け取り,必要ならマイグレーションを適用してparameterTreeに反映する,プリセットロード用
-  case loadFullParameters(parameters: [String: Float])
+  case loadFullParameters(parametersVersion: Int, parameters: [String: Float])
   //UIに含まれる鍵盤などからのプラグイン本体に送るノートオンオフ要求
   case noteOnRequest(noteNumber: Int)
   case noteOffRequest(noteNumber: Int)
@@ -161,18 +161,9 @@ class BasicWebViewHub {
       } else {
         logger.log("Unknown parameter key from UI: \(paramKey)")
       }
-    case .loadFullParameters(var parameters):
+    case .loadFullParameters(let parametersVersion, let parameters):
       logger.log("Received full parameters from UI: \(parameters)")
-      self.parameterMigrator?.migrateParametersIfNeeded(
-        paramVer: 0, rawParameters: &parameters)
-      for (paramKey, value) in parameters {
-        if let paramEntry = flatParameterTree.entries[paramKey] {
-          // if paramEntry.value != value {
-          //ここでセットした値はUIにも送り返される
-          paramEntry.value = value
-          // }
-        }
-      }
+      audioUnitPortal.applyParametersState(parametersVersion, parameters)
     case .noteOnRequest(let noteNumber):
       logger.log("Note On Request from UI: \(noteNumber)")
       audioUnitPortal.noteOnFromUI(noteNumber, velocity: 1.0)

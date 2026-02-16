@@ -17,6 +17,9 @@ protocol AudioUnitPortal {
   func noteOnFromUI(_ noteNumber: Int, velocity: Float)
   func noteOffFromUI(_ noteNumber: Int)
   var events: AnyPublisher<AudioUnitPortalEvent, Never> { get }
+  func applyParametersState(
+    _ parametersVersion: Int, _ parameters: [String: Float]
+  )
 }
 
 final class AudioUnitPortalImpl: AudioUnitPortal {
