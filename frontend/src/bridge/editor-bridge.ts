@@ -75,7 +75,7 @@ export function createEditorBridge(coreBridge: CoreBridge): EditorBridge {
       //本体からパラメタを受け取ってstoreを更新したときにもsubscribeのコールバックが
       //呼ばれるので、そこで値を送り返さないようにフラグを立てて処理を抑制する
       isReceiving = true;
-      logger.log("message from app", { msg });
+      // logger.log("message from app", { msg });
       if (msg.type === "setParameter") {
         const { paramKey, value } = msg;
         affectParameterToStore(paramKey, value);

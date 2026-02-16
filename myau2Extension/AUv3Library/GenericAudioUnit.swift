@@ -76,6 +76,7 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
   }
 
   func setupPluginCore(_ pluginCore: AUv3PluginCore) {
+    logger.log("setupPluginCore")
     self.pluginCore = pluginCore
     let dspCore = pluginCore.getDSPCore()
     kernel.setDSPCore(&dspCore.pointee)
@@ -140,17 +141,22 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
   }
 
   public func setupParameterTree(_ parameterTree: AUParameterTree) {
+    logger.log("setupParameterTree")
     self.parameterTree = parameterTree
 
     let maxAddress = parameterTree.allParameters.map { $0.address }.max() ?? 0
     let capacity64 = maxAddress &+ 1
     let capacity = UInt32(min(capacity64, UInt64(UInt32.max)))
+    logger.log(
+      "Setting parameter capacity to \(capacity) based on max parameter address \(maxAddress)")
     kernel.setParameterCapacity(capacity)
 
     // Set the Parameter default values before setting up the parameter callbacks
     for param in parameterTree.allParameters {
-      if param.address == 0 || param.address == 1 {
-        logger.log("Param Default: \(param.address) \(param.identifier) to \(param.value)")
+      if param.address < 5 || 30 <= param.address {
+        logger.log(
+          "route parameterTree default value to kernel: \(param.address) \(param.identifier) \(param.value)"
+        )
       }
 
       kernel.setParameter(param.address, param.value)
@@ -162,9 +168,13 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
   private func setupParameterCallbacks() {
     // implementorValueObserver is called when a parameter changes value.
     parameterTree?.implementorValueObserver = { [weak self] param, value -> Void in
-      // logger.log("Param Change: \(param.address) \(param.identifier) to \(value)")
-      if param.address == 0 || param.address == 1 {
-        logger.log("Param Change: \(param.address) \(param.identifier) to \(value)")
+      // logger.log(
+      //   "notified ParamChanged @implementorValueObserver: \(param.address) \(param.identifier) to \(value)"
+      // )
+      if param.address < 5 || 30 <= param.address {
+        logger.log(
+          "notified ParamChanged @implementorValueObserver: \(param.address) \(param.identifier) to \(value)"
+        )
       }
       self?.kernel.setParameter(param.address, value)
     }
@@ -172,8 +182,9 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
     // implementorValueProvider is called when the value needs to be refreshed.
     parameterTree?.implementorValueProvider = { [weak self] param in
       let value = self!.kernel.getParameter(param.address)
-      if param.address == 0 || param.address == 1 {
-        logger.log("Param Get: \(param.address) \(param.identifier) is \(value)")
+      if param.address < 5 || 30 <= param.address {
+        logger.log(
+          "ParamGet @implementorValueProvider: \(param.address) \(param.identifier) is \(value)")
       }
 
       return value
@@ -205,7 +216,9 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
       paramVer: parametersVersion, rawParameters: &modParameters)
     parameterTree?.allParameters.forEach { param in
       if let value = modParameters[param.identifier] {
-        logger.log("Restoring Param: \(param.address) \(param.identifier) to \(value)")
+        if param.address < 5 || 30 <= param.address {
+          logger.log("SetParam @restoreState \(param.address) \(param.identifier) \(value)")
+        }
         param.value = value
       }
     }
@@ -221,7 +234,7 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
       return state
     }
 
-    set {
+    set(newValue) {
       guard let state = newValue else { return }
       logger.log("Restoring state data: \(state)")
       if let flag = state["myau2.hostedInStandaloneApp"] as? Bool {
@@ -234,7 +247,8 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
       {
         restoreParameterState(parametersVersion, parameters)
       }
-      super.fullState = state
+      //skipping super.fullState to avoid overwriting our custom restoration results.
+      // super.fullState = state
     }
   }
 

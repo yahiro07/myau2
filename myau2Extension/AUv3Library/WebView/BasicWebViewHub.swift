@@ -7,7 +7,7 @@ private enum MessageFromUI {
   case beginParameterEdit(paramKey: String)
   case endParameterEdit(paramKey: String)
   case setParameter(paramKey: String, value: Float)
-  //UIからパラメタセットを受け取り,必要ならマイグレーションを適用してparameterTreeに反映する
+  //UIからパラメタセットを受け取り,必要ならマイグレーションを適用してparameterTreeに反映する,プリセットロード用
   case loadFullParameters(parameters: [String: Float])
   //UIに含まれる鍵盤などからのプラグイン本体に送るノートオンオフ要求
   case noteOnRequest(noteNumber: Int)
@@ -101,18 +101,12 @@ class BasicWebViewHub {
   init(
     _ viewAccessibleResources: ViewAccessibleResources
   ) {
+    logger.log("BasicWebViewHub init")
     self.flatParameterTree = FlatObservableParameters(
       parameterTree: viewAccessibleResources.parameterTree)
     self.audioUnitPortal = viewAccessibleResources.audioUnitPortal
     self.presetManager = viewAccessibleResources.presetManager
     self.parameterMigrator = viewAccessibleResources.parametersMigrator
-
-    valueTracker.setReceiver { [weak self] key, value in
-      self?.sendMessageToUI(.setParameter(paramKey: key, value: value))
-    }
-    for (paramKey, paramEntry) in flatParameterTree.entries {
-      valueTracker.trackParameterValue(paramKey: paramKey, paramEntry: paramEntry)
-    }
   }
 
   deinit {
@@ -128,6 +122,13 @@ class BasicWebViewHub {
     }
   }
 
+  private func debugDumpCurrentParameters() {
+    logger.log("Current Parameters in debugDumpCurrentParameters:")
+    for (paramKey, paramEntry) in flatParameterTree.entries {
+      logger.log("\(paramKey): \(paramEntry.value)")
+    }
+  }
+
   private func handleMessageFromUI(
     msg: MessageFromUI,
   ) {
@@ -137,8 +138,10 @@ class BasicWebViewHub {
       if audioUnitPortal.isHostedInStandaloneApp {
         sendMessageToUI(.standaloneAppFlag)
       }
+      // self.debugDumpCurrentParameters()
       let params = flatParameterTree.entries.mapValues { $0.value }
       sendMessageToUI(.bulkSendParameters(params: params))
+      startAUStateListeners()
 
     case .beginParameterEdit(let paramKey):
       if let paramEntry = flatParameterTree.entries[paramKey] {
@@ -164,10 +167,10 @@ class BasicWebViewHub {
         paramVer: 0, rawParameters: &parameters)
       for (paramKey, value) in parameters {
         if let paramEntry = flatParameterTree.entries[paramKey] {
-          if paramEntry.value != value {
-            //ここでセットした値はUIにも送り返される
-            paramEntry.value = value
-          }
+          // if paramEntry.value != value {
+          //ここでセットした値はUIにも送り返される
+          paramEntry.value = value
+          // }
         }
       }
     case .noteOnRequest(let noteNumber):
@@ -194,13 +197,22 @@ class BasicWebViewHub {
     }
   }
 
-  func bindWebViewIo(webViewIo: WebViewIoProtocol) {
-    self.webViewIo = webViewIo
+  func startAUStateListeners() {
+    valueTracker.setReceiver { [weak self] key, value in
+      self?.sendMessageToUI(.setParameter(paramKey: key, value: value))
+    }
+    for (paramKey, paramEntry) in flatParameterTree.entries {
+      valueTracker.trackParameterValue(paramKey: paramKey, paramEntry: paramEntry)
+    }
 
     portalSubscription?.cancel()
     portalSubscription = self.audioUnitPortal.events.sink { event in
       self.handlePortalEvent(event)
     }
+  }
+
+  func bindWebViewIo(webViewIo: WebViewIoProtocol) {
+    self.webViewIo = webViewIo
 
     webViewIoSubscription?.cancel()
     webViewIoSubscription = webViewIo.subscribeRawMessageFromUI { [weak self] jsDataDictionary in
@@ -211,6 +223,5 @@ class BasicWebViewHub {
         logger.log("Unknown or invalid message from UI \(jsDataDictionary)")
       }
     }
-
   }
 }

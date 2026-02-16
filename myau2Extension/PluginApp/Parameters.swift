@@ -11,11 +11,11 @@ let lfoDestinationValues = [
 ]
 
 struct DefaultValues {
-  // static let osc1Wave = "Saw"
-  // static let osc1Volume: Float = 1
+  static let osc1Wave = "Saw"
+  static let osc1Volume: Float = 1
   //debug
-  static let osc1Wave = "Sine"
-  static let osc1Volume: Float = 0.1
+  // static let osc1Wave = "Sine"
+  // static let osc1Volume: Float = 0.1
 }
 
 let myPluginParameterSpecs = ParameterTreeSpec {
@@ -69,6 +69,9 @@ class ParametersMigratorImpl: ParametersMigrator {
 
   func migrateParametersIfNeeded(paramVer: Int, rawParameters: inout [String: Float]) {
     logger.log("Checking if parameter migration is needed. paramVer: \(paramVer)")
+    //debug
     // rawParameters["osc1PwMix"] = 0.75
+    // rawParameters["glide"] = 0.9
+    // rawParameters["egTarget"] = 3.0
   }
 }
