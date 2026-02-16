@@ -246,6 +246,8 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
         let parameters = state["parameters"] as? [String: Float]
       {
         restoreParameterState(parametersVersion, parameters)
+        portal.parametersVersion = parametersVersion
+        kernel.setParametersVersion(Int32(parametersVersion))
       }
       //skipping super.fullState to avoid overwriting our custom restoration results.
       // super.fullState = state

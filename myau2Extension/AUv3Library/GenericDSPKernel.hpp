@@ -36,6 +36,12 @@ public:
 
   void setDSPCore(DSPCore *core) { mDSPCore = core; }
 
+  void setParametersVersion(int version) {
+    if (mDSPCore) {
+      mDSPCore->setParametersVersion(version);
+    }
+  }
+
   // MARK: - Bypass
   bool isBypassed() { return mBypassed; }
 
