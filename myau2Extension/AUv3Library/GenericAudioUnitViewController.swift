@@ -11,6 +11,8 @@ public class GenericAudioUnitViewController: AUViewController {
   private var hostingController: HostingController<AnyView>?
   // private var observation: NSKeyValueObservation?
 
+  private let audioUnitPortal: AudioUnitPortalImpl = AudioUnitPortalImpl()
+
   deinit {
   }
 
@@ -28,6 +30,8 @@ public class GenericAudioUnitViewController: AUViewController {
       self.audioUnit = audioUnit
 
       audioUnit.setupPluginCore(pluginCore)
+
+      self.audioUnitPortal.setAudioUnit(audioUnit)
 
       defer {
         // Configure the SwiftUI view after creating the AU, instead of in viewDidLoad,
@@ -88,7 +92,7 @@ public class GenericAudioUnitViewController: AUViewController {
 
     let parameterMigrator = pluginCore.parametersMigrator
     let viewAccessibleResources = ViewAccessibleResources(
-      parameterTree: observableParameterTree, audioUnitPortal: audioUnit.portal,
+      parameterTree: observableParameterTree, audioUnitPortal: self.audioUnitPortal,
       presetManager: audioUnit.presetManager, parametersMigrator: parameterMigrator)
 
     // logger.log("now call pluginCore.createView")
@@ -148,7 +152,7 @@ public class GenericAudioUnitViewController: AUViewController {
       timeInterval: 1.0 / 60.0,
       repeats: true
     ) { [weak self] _ in
-      self?.audioUnit?.drainRealtimeEventsOnMainThread(maxCount: 32)
+      self?.audioUnitPortal.drainEventsOnMainThread(maxCount: 32)
     }
     RunLoop.main.add(eventTimer!, forMode: .common)
 

@@ -20,8 +20,10 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
 
   private(set) var pluginCore: AUv3PluginCore?
 
-  let portal: AudioUnitPortalImpl = AudioUnitPortalImpl()
   let presetManager: PresetManagerImpl = PresetManagerImpl()
+
+  private(set) var isHostedInStandaloneApp: Bool = false
+  private(set) var currentPresetParametersVersion: Int = 0
 
   @objc override init(
     componentDescription: AudioComponentDescription, options: AudioComponentInstantiationOptions,
@@ -37,9 +39,9 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
     _outputBusses = AUAudioUnitBusArray(
       audioUnit: self, busType: AUAudioUnitBusType.output, busses: [outputBus!])
     processHelper = GenericAUProcessHelper(&kernel)
-    portal.setMidiDestinationFn({ [weak self] (bytes: [UInt8]) in
-      self?.pushScheduledMidiEvent(bytes)
-    })
+    // portal.setMidiDestinationFn({ [weak self] (bytes: [UInt8]) in
+    //   self?.pushScheduledMidiEvent(bytes)
+    // })
   }
 
   public override func supportedViewConfigurations(
@@ -48,7 +50,7 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
     return IndexSet(integersIn: 0..<availableViewConfigurations.count)
   }
 
-  private func pullRTAudioPortalEventOne() -> AudioUnitPortalEvent? {
+  func pullRTAudioPortalEventOne() -> AudioUnitPortalEvent? {
     var rawEvent = LowLevelPortalEvent()
     guard processHelper?.popLowLevelPortalEvent(&rawEvent) == true else {
       return nil
@@ -56,19 +58,8 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
     return mapPortalEventFromRaw(rawEvent)
   }
 
-  //メインスレッドでタイマを使ってポーリングしてイベントを流す
-  //オーディオスレッド上で拾い上げたMIDIノートのイベントをメインスレッド上でUIに流す
-  //AudioUnitViewController側で一定周期でループを回してこれを呼ぶ想定
-  func drainRealtimeEventsOnMainThread(maxCount: Int = 64) {
-    var count = 0
-    while count < maxCount, let event = pullRTAudioPortalEventOne() {
-      portal.emitEvent(event)
-      count += 1
-    }
-  }
-
   //push MIDI note sent from internal UI
-  private func pushScheduledMidiEvent(_ bytes: [UInt8]) {
+  func pushScheduledMidiEvent(_ bytes: [UInt8]) {
     guard let midiBlock = scheduleMIDIEventBlock else { return }
     midiBlock(
       AUEventSampleTimeImmediate, 0, Int(bytes.count), bytes
@@ -199,7 +190,7 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
     }
   }
 
-  func parameterStateData() -> (parametersVersion: Int, parameters: [String: Float]) {
+  func emitParametersState() -> (parametersVersion: Int, parameters: [String: Float]) {
     let parametersVersion = self.pluginCore?.parametersMigrator?.latestParametersVersion ?? 0
     var rawParameters: [String: Float] = [:]
     parameterTree?.allParameters.forEach { param in
@@ -208,7 +199,7 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
     return (parametersVersion, rawParameters)
   }
 
-  func restoreParameterState(
+  func applyParametersState(
     _ parametersVersion: Int, _ parameters: [String: Float]
   ) {
     var modParameters = parameters
@@ -222,13 +213,15 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
         param.value = value
       }
     }
+    self.currentPresetParametersVersion = parametersVersion
+    kernel.setParametersVersion(Int32(parametersVersion))
   }
 
   public override var fullState: [String: Any]? {
     get {
       logger.log("Saving state")
       var state = super.fullState ?? [:]
-      let (parametersVersion, parameters) = parameterStateData()
+      let (parametersVersion, parameters) = emitParametersState()
       state["parametersVersion"] = parametersVersion
       state["parameters"] = parameters
       return state
@@ -239,15 +232,12 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
       logger.log("Restoring state data: \(state)")
       if let flag = state["myau2.hostedInStandaloneApp"] as? Bool {
         logger.log("received hostedInStandaloneApp flag: \(flag)")
-        // portal.emitEvent(.standaloneAppFlag(true))
-        portal.isHostedInStandaloneApp = true
+        self.isHostedInStandaloneApp = true
       }
       if let parametersVersion = state["parametersVersion"] as? Int,
         let parameters = state["parameters"] as? [String: Float]
       {
-        restoreParameterState(parametersVersion, parameters)
-        portal.parametersVersion = parametersVersion
-        kernel.setParametersVersion(Int32(parametersVersion))
+        applyParametersState(parametersVersion, parameters)
       }
       //skipping super.fullState to avoid overwriting our custom restoration results.
       // super.fullState = state

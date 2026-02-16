@@ -5,7 +5,7 @@ enum AudioUnitPortalEvent {
   case hostNoteOff(Int)
   case hostTempo(Int)
   case hostPlayState(Bool)
-  // case standaloneAppFlag(Bool)
+  case parametersVersionChanged(Int)
 }
 
 //UI側からAudioUnitの機能を利用するためのインターフェイス
@@ -20,32 +20,55 @@ protocol AudioUnitPortal {
 }
 
 final class AudioUnitPortalImpl: AudioUnitPortal {
-  var parametersVersion: Int = 0
+  private var audioUnit: GenericAudioUnit?
 
-  var isHostedInStandaloneApp = false
+  private(set) var parametersVersion: Int = 0
 
-  typealias MidiDestinationFn = ([UInt8]) -> Void
-  private var midiDestinationFn: MidiDestinationFn?
+  func setAudioUnit(_ audioUnit: GenericAudioUnit) {
+    self.audioUnit = audioUnit
+  }
 
-  func setMidiDestinationFn(_ midiDestinationFn: @escaping MidiDestinationFn) {
-    self.midiDestinationFn = midiDestinationFn
+  var isHostedInStandaloneApp: Bool {
+    return audioUnit?.isHostedInStandaloneApp ?? false
   }
 
   func noteOnFromUI(_ noteNumber: Int, velocity: Float) {
     let byteVelocity = UInt8(max(0, min(127, Int(velocity * 127))))
-    midiDestinationFn?([0x90, UInt8(noteNumber), byteVelocity])
+    audioUnit?.pushScheduledMidiEvent([0x90, UInt8(noteNumber), byteVelocity])
   }
 
   func noteOffFromUI(_ noteNumber: Int) {
-    midiDestinationFn?([0x80, UInt8(noteNumber), 0])
+    audioUnit?.pushScheduledMidiEvent([0x80, UInt8(noteNumber), 0])
   }
 
   private let subject = PassthroughSubject<AudioUnitPortalEvent, Never>()
+
   var events: AnyPublisher<AudioUnitPortalEvent, Never> {
     subject.eraseToAnyPublisher()
   }
 
   func emitEvent(_ event: AudioUnitPortalEvent) {
     subject.send(event)
+  }
+
+  func applyParametersState(
+    _ parametersVersion: Int, _ parameters: [String: Float]
+  ) {
+    audioUnit?.applyParametersState(parametersVersion, parameters)
+  }
+
+  //メインスレッドでタイマを使ってポーリングしてイベントを流す
+  //オーディオスレッド上で拾い上げたMIDIノートのイベントをメインスレッド上でUIに流す
+  //AudioUnitViewController側で一定周期でループを回してこれを呼ぶ想定
+  func drainEventsOnMainThread(maxCount: Int = 64) {
+    var count = 0
+    while count < maxCount, let event = audioUnit?.pullRTAudioPortalEventOne() {
+      self.emitEvent(event)
+      count += 1
+    }
+    if audioUnit?.currentPresetParametersVersion != parametersVersion {
+      parametersVersion = audioUnit?.currentPresetParametersVersion ?? 0
+      self.emitEvent(.parametersVersionChanged(parametersVersion))
+    }
   }
 }

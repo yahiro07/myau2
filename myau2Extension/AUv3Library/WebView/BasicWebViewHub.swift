@@ -194,6 +194,8 @@ class BasicWebViewHub {
       logger.log("Received Play State from host @whub: \(playState)")
     case .hostTempo(let tempo):
       logger.log("Received Tempo from host: \(tempo)")
+    case .parametersVersionChanged(let parametersVersion):
+      logger.log("Received parameters version changed event: \(parametersVersion)")
     }
   }
 
