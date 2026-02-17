@@ -37,7 +37,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		3C4159942F3EF3710082A3AF /* dist */ = {isa = PBXFileReference; lastKnownFileType = folder; name = dist; path = frontend/dist; sourceTree = "<group>"; };
 		3C5948E02F41083E0028A5EC /* presets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = presets; sourceTree = "<group>"; };
 		3C594B2D2F448AB10028A5EC /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; name = www; path = frontend/www; sourceTree = "<group>"; };
 		3CF376FB2F39F4EA001F5073 /* myau2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myau2.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -96,7 +95,6 @@
 			children = (
 				3C594B2D2F448AB10028A5EC /* www */,
 				3C5948E02F41083E0028A5EC /* presets */,
-				3C4159942F3EF3710082A3AF /* dist */,
 				3CF376FD2F39F4EA001F5073 /* myau2 */,
 				3CF377252F39F4EB001F5073 /* myau2Extension */,
 				3CF376FC2F39F4EA001F5073 /* Products */,
