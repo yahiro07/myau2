@@ -7,4 +7,10 @@ export const actions = {
   noteOff(noteNumber: number) {
     agents.editorBridge.requestNoteOff(noteNumber);
   },
+  saveCurrentPresetToSlot(slot: number) {
+    agents.presetManager.savePreset(`preset${slot}`);
+  },
+  loadPresetFromSlot(slot: number) {
+    agents.presetManager.loadPreset(`preset${slot}`);
+  },
 };

@@ -434,27 +434,49 @@ const KeyboardPart = () => {
         },
       }}
     >
-      <button
-        type="button"
-        onPointerDown={() => actions.noteOn(60)}
-        onPointerUp={() => actions.noteOff(60)}
-      >
-        C
-      </button>
-      <button
-        type="button"
-        onPointerDown={() => actions.noteOn(62)}
-        onPointerUp={() => actions.noteOff(62)}
-      >
-        D
-      </button>
-      <button
-        type="button"
-        onPointerDown={() => actions.noteOn(64)}
-        onPointerUp={() => actions.noteOff(64)}
-      >
-        E
-      </button>
+      <div className="flex-ha gap-2">
+        <button
+          type="button"
+          onPointerDown={() => actions.noteOn(60)}
+          onPointerUp={() => actions.noteOff(60)}
+        >
+          C
+        </button>
+        <button
+          type="button"
+          onPointerDown={() => actions.noteOn(62)}
+          onPointerUp={() => actions.noteOff(62)}
+        >
+          D
+        </button>
+        <button
+          type="button"
+          onPointerDown={() => actions.noteOn(64)}
+          onPointerUp={() => actions.noteOff(64)}
+        >
+          E
+        </button>
+      </div>
+      <div className="flex-ha ga-2">
+        <button type="button" onClick={() => actions.loadPresetFromSlot(1)}>
+          load preset 1
+        </button>
+        <button
+          type="button"
+          onClick={() => actions.saveCurrentPresetToSlot(1)}
+        >
+          save preset 1
+        </button>
+        <button type="button" onClick={() => actions.loadPresetFromSlot(2)}>
+          load preset 2
+        </button>
+        <button
+          type="button"
+          onClick={() => actions.saveCurrentPresetToSlot(2)}
+        >
+          save preset 2
+        </button>
+      </div>
     </div>
   );
 };
@@ -481,7 +503,8 @@ const StandaloneView = () => {
 };
 
 const App = () => {
-  useEffect(agents.editorBridge.setupReceivers, []);
+  useEffect(agents.setup, []);
+  useEffect(() => void agents.initialLoad(), []);
   const st = store.useSnapshot();
   return (
     <div className="h-dvh flex-c" css={{ background: "#444" }}>
@@ -497,7 +520,6 @@ async function start() {
     document.body.innerHTML = "no root element found";
     return;
   }
-  await agents.initialize();
   reactDOM.createRoot(rootDiv).render(<App />);
 }
 
