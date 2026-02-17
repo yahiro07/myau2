@@ -414,6 +414,7 @@ const ParametersEditPart = () => {
 };
 
 const KeyboardPart = () => {
+  const st = store.useSnapshot();
   return (
     <div
       css={{
@@ -521,6 +522,7 @@ const KeyboardPart = () => {
         >
           shared kvs get
         </button>
+        <div>lpk: {st.lastLoadedPresetKey}</div>
       </div>
     </div>
   );
