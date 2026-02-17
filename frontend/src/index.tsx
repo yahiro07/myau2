@@ -10,11 +10,7 @@ import {
   VoicingModeOptions,
 } from "@/store/parameters";
 import { store } from "@/store/store";
-import {
-  flexCentered,
-  flexVertical,
-  flexVerticalCentered,
-} from "@/utils/styling-utils";
+import { flexCentered, flexVertical } from "@/utils/styling-utils";
 import "@/styles/utility-classes.css";
 import "@/styles/page.css";
 import { useEffect } from "react";
@@ -430,7 +426,6 @@ const KeyboardPart = () => {
           fontSize: "20px",
           fontWeight: "bold",
         },
-        ...flexVerticalCentered(10),
         button: {
           width: "80px",
           height: "60px",
@@ -439,100 +434,117 @@ const KeyboardPart = () => {
           cursor: "pointer",
         },
       }}
+      className="flex-c gap-10"
     >
-      <div className="flex-ha gap-10">
-        <div className="flex-ha gap-2">
-          <button
-            type="button"
-            onPointerDown={() => actions.noteOn(60)}
-            onPointerUp={() => actions.noteOff(60)}
-          >
-            C
-          </button>
-          <button
-            type="button"
-            onPointerDown={() => actions.noteOn(62)}
-            onPointerUp={() => actions.noteOff(62)}
-          >
-            D
-          </button>
-          <button
-            type="button"
-            onPointerDown={() => actions.noteOn(64)}
-            onPointerUp={() => actions.noteOff(64)}
-          >
-            E
-          </button>
+      <div className="flex-v gap-4">
+        <div className="flex-ha gap-10">
+          <div className="flex-ha gap-2">
+            <button
+              type="button"
+              onPointerDown={() => actions.noteOn(60)}
+              onPointerUp={() => actions.noteOff(60)}
+            >
+              C
+            </button>
+            <button
+              type="button"
+              onPointerDown={() => actions.noteOn(62)}
+              onPointerUp={() => actions.noteOff(62)}
+            >
+              D
+            </button>
+            <button
+              type="button"
+              onPointerDown={() => actions.noteOn(64)}
+              onPointerUp={() => actions.noteOff(64)}
+            >
+              E
+            </button>
+          </div>
+          <div className="flex-ha gap-2">
+            <button type="button" onClick={() => actions.loadPresetFromSlot(1)}>
+              load preset 1
+            </button>
+            <button
+              type="button"
+              onClick={() => actions.saveCurrentPresetToSlot(1)}
+            >
+              save preset 1
+            </button>
+            <button type="button" onClick={() => actions.loadPresetFromSlot(2)}>
+              load preset 2
+            </button>
+            <button
+              type="button"
+              onClick={() => actions.saveCurrentPresetToSlot(2)}
+            >
+              save preset 2
+            </button>
+          </div>
         </div>
         <div className="flex-ha gap-2">
-          <button type="button" onClick={() => actions.loadPresetFromSlot(1)}>
-            load preset 1
+          <button
+            type="button"
+            onClick={() => {
+              agents.stateKvs.write("testKey", "hello world");
+              logger.log("state kvs write: testKey = hello world");
+            }}
+          >
+            state kvs set
           </button>
           <button
             type="button"
-            onClick={() => actions.saveCurrentPresetToSlot(1)}
+            onClick={() => {
+              const value = agents.stateKvs.read("testKey");
+              logger.log(`state kvs read: ${value}`);
+            }}
           >
-            save preset 1
+            state kvs get
           </button>
-          <button type="button" onClick={() => actions.loadPresetFromSlot(2)}>
-            load preset 2
+
+          <button
+            type="button"
+            onClick={() => {
+              agents.sharedKvs.write("testKey1", "hello world1");
+              logger.log("shared kvs write: testKey1 = hello world1");
+            }}
+          >
+            shared kvs set
           </button>
           <button
             type="button"
-            onClick={() => actions.saveCurrentPresetToSlot(2)}
+            onClick={() => {
+              const value = agents.sharedKvs.read("testKey1");
+              logger.log(`shared kvs read: ${value}`);
+            }}
           >
-            save preset 2
+            shared kvs get
+          </button>
+          <div>lpk: {st.lastLoadedPresetKey}</div>
+          <button
+            type="button"
+            onClick={async () => {
+              const json = await fetchAssetsJson("/presets/meta.json");
+              console.log({ json });
+            }}
+          >
+            debug fetch json
           </button>
         </div>
       </div>
-      <div className="flex-ha gap-2">
-        <button
-          type="button"
-          onClick={() => {
-            agents.stateKvs.write("testKey", "hello world");
-            logger.log("state kvs write: testKey = hello world");
-          }}
-        >
-          state kvs set
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            const value = agents.stateKvs.read("testKey");
-            logger.log(`state kvs read: ${value}`);
-          }}
-        >
-          state kvs get
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            agents.sharedKvs.write("testKey1", "hello world1");
-            logger.log("shared kvs write: testKey1 = hello world1");
-          }}
-        >
-          shared kvs set
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            const value = agents.sharedKvs.read("testKey1");
-            logger.log(`shared kvs read: ${value}`);
-          }}
-        >
-          shared kvs get
-        </button>
-        <div>lpk: {st.lastLoadedPresetKey}</div>
-        <button
-          type="button"
-          onClick={async () => {
-            const json = await fetchAssetsJson("/presets/meta.json");
-            console.log({ json });
-          }}
-        >
-          debug fetch json
-        </button>
+      <div>
+        {st.presetItems.map((item) => (
+          <div
+            key={item.presetKey}
+            css={{
+              border: "solid 1px #888",
+            }}
+            onClick={() => agents.presetManager.loadPreset(item.presetKey)}
+          >
+            {item.presetKey} {item.presetName} ({item.presetKind})
+            {item.presetKey === st.lastLoadedPresetKey && "<- loaded"}
+          </div>
+        ))}
       </div>
     </div>
   );

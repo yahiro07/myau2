@@ -39,9 +39,8 @@ export function createFactoryPresetProvider(): FactoryPresetProvider {
       }
     },
     async loadPreset(presetKey) {
-      return await fetchAssetsJson<PresetData>(
-        `./factory_presets/${presetKey}.json`,
-      );
+      logger.log(`Loading factory preset: ${presetKey}`);
+      return await fetchAssetsJson<PresetData>(`/presets/${presetKey}.json`);
     },
   };
 }

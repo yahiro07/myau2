@@ -22,7 +22,7 @@ export function createPresetManager(
     async loadPresetList() {
       try {
         logger.log("loadPresetList");
-        if (0) {
+        if (1) {
           const factoryItems = await factoryPresetProvider.listPresetItems();
           const userItems = await presetManagerCore.listPresetItems();
           store.mutations.setPresetItems([...factoryItems, ...userItems]);
