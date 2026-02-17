@@ -524,7 +524,7 @@ const KeyboardPart = () => {
           <button
             type="button"
             onClick={async () => {
-              const json = await fetchAssetsJson("/presets/meta.json");
+              const json = await fetchAssetsJson("./presets/meta.json");
               console.log({ json });
             }}
           >
