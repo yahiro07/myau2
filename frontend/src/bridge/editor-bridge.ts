@@ -8,13 +8,13 @@ import { store } from "@/store/store";
 import { CoreBridge } from "./core-bridge";
 
 type EditorBridge = {
+  setup(): () => void;
   requestNoteOn(noteNumber: number): void;
   requestNoteOff(noteNumber: number): void;
-  setupReceivers(): () => void;
 };
 
 export function createEditorBridge(coreBridge: CoreBridge): EditorBridge {
-  function setupReceivers() {
+  function setupReceiver() {
     logger.log("Setting up editor bridge receivers");
     let isReceiving = false;
     const parameterKeys = new Set(Object.keys(defaultSynthParameters));
@@ -118,8 +118,8 @@ export function createEditorBridge(coreBridge: CoreBridge): EditorBridge {
   }
 
   return {
+    setup: setupReceiver,
     requestNoteOn,
     requestNoteOff,
-    setupReceivers,
   };
 }

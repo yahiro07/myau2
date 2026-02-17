@@ -2,7 +2,8 @@ import { CoreBridge, MessageFromUI } from "@/bridge/core-bridge";
 
 //the data is stored in AudioUnit extension's state object
 export type StateKvsAdapter = {
-  initialize(): Promise<void>;
+  setup(): () => void;
+  initialLoad(): Promise<void>;
   read(key: string): string | undefined;
   write(key: string, value: string): void;
   delete(key: string): void;
@@ -16,16 +17,18 @@ function createStateKvsItemsFetcher(coreBridge: CoreBridge) {
     (result: { items?: Record<string, string> }) => void
   > = {};
 
-  coreBridge.assignReceiver((message) => {
-    if (message.type === "rpcLoadStateKvsItemsResponse") {
-      const { rpcId, items } = message;
-      const resolver = pendingRpcResolvers[rpcId];
-      if (resolver) {
-        resolver({ items });
-        delete pendingRpcResolvers[rpcId];
+  function setupReceiver() {
+    return coreBridge.assignReceiver((message) => {
+      if (message.type === "rpcLoadStateKvsItemsResponse") {
+        const { rpcId, items } = message;
+        const resolver = pendingRpcResolvers[rpcId];
+        if (resolver) {
+          resolver({ items });
+          delete pendingRpcResolvers[rpcId];
+        }
       }
-    }
-  });
+    });
+  }
 
   function executeRpc(
     msg: MessageFromUI & { rpcId: number },
@@ -37,6 +40,7 @@ function createStateKvsItemsFetcher(coreBridge: CoreBridge) {
   }
 
   return {
+    setupReceiver,
     async fetchStateKvsItems() {
       const res = await executeRpc({
         type: "rpcLoadStateKvsItems",
@@ -52,7 +56,8 @@ export function createStateKvsAdapter(coreBridge: CoreBridge): StateKvsAdapter {
   const initialItemsFetcher = createStateKvsItemsFetcher(coreBridge);
 
   return {
-    async initialize() {
+    setup: initialItemsFetcher.setupReceiver,
+    async initialLoad() {
       const items = await initialItemsFetcher.fetchStateKvsItems();
       Object.assign(localCache, items);
     },

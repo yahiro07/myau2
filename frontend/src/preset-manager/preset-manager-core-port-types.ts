@@ -1,6 +1,7 @@
 export type PresetFilesIORealm = "appAssets" | "appData";
 
 export type PresetFilesIO = {
+  setup(): () => void;
   //pathはアプリが持つデータフォルダのルートからの相対パスを想定
   //read/write/deleteの各処理でファイルが存在しない場合やIOエラーが発生した場合は例外を投げる
   readFile(

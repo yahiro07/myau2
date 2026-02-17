@@ -8,10 +8,10 @@ import { createStateKvsAdapter } from "@/preset-manager/state-kvs-adapter";
 
 function createAgents() {
   const coreBridge = createCoreBridge();
+  const editorBridge = createEditorBridge(coreBridge);
   const stateKvs = createStateKvsAdapter(coreBridge);
   const presetFilesIO = createPluginAppPresetFilesIO(coreBridge);
   const sharedKvs = createSharedKvsAdapter(presetFilesIO);
-  const editorBridge = createEditorBridge(coreBridge);
   const presetManager = createPresetManager(
     coreBridge,
     stateKvs,
@@ -23,12 +23,26 @@ function createAgents() {
     sharedKvs,
     editorBridge,
     presetManager,
-    async initialize() {
-      logger.log("Initializing agents...");
-      await stateKvs.initialize();
-      await sharedKvs.initialize();
+    setup() {
+      logger.log("initializing agents");
+      const finalizers = [
+        editorBridge.setup(),
+        stateKvs.setup(),
+        presetFilesIO.setup(),
+      ];
+      return () => {
+        logger.log("finalizing agents");
+        finalizers.forEach((fn) => {
+          fn();
+        });
+      };
+    },
+    async initialLoad() {
+      logger.log("agents initial loading...");
+      await stateKvs.initialLoad();
+      await sharedKvs.initialLoad();
       await presetManager.loadPresetList();
-      logger.log("Initializing agents... done");
+      logger.log("agents initial loading... done");
     },
   };
 }

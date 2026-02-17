@@ -11,22 +11,24 @@ export function createPluginAppPresetFilesIO(
     (result: { success: boolean; content?: string }) => void
   > = {};
 
-  coreBridge.assignReceiver((message) => {
-    if (
-      message.type === "rpcReadFileResponse" ||
-      message.type === "rpcWriteFileResponse" ||
-      message.type === "rpcDeleteFileResponse"
-    ) {
-      const { rpcId, success } = message;
-      const content =
-        message.type === "rpcReadFileResponse" ? message.content : undefined;
-      const resolver = pendingRpcResolvers[rpcId];
-      if (resolver) {
-        resolver({ success, content });
-        delete pendingRpcResolvers[rpcId];
+  function setupReceiver() {
+    return coreBridge.assignReceiver((message) => {
+      if (
+        message.type === "rpcReadFileResponse" ||
+        message.type === "rpcWriteFileResponse" ||
+        message.type === "rpcDeleteFileResponse"
+      ) {
+        const { rpcId, success } = message;
+        const content =
+          message.type === "rpcReadFileResponse" ? message.content : undefined;
+        const resolver = pendingRpcResolvers[rpcId];
+        if (resolver) {
+          resolver({ success, content });
+          delete pendingRpcResolvers[rpcId];
+        }
       }
-    }
-  });
+    });
+  }
 
   function executeRpc(
     msg: MessageFromUI & { rpcId: number },
@@ -38,6 +40,7 @@ export function createPluginAppPresetFilesIO(
   }
 
   return {
+    setup: setupReceiver,
     async readFile(path, options) {
       const res = await executeRpc({
         type: "rpcReadFileRequest",
@@ -79,6 +82,9 @@ export function createPluginAppPresetFilesIO(
 export function createOnMemoryPresetFilesIO(): PresetFilesIO {
   const fileItems: Record<string, string> = {};
   return {
+    setup() {
+      return () => {};
+    },
     async readFile(path) {
       const content = fileItems[path];
       if (!content) {

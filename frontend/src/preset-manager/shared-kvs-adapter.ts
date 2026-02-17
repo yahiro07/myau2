@@ -2,7 +2,7 @@ import { PresetFilesIO } from "@/preset-manager/preset-manager-core-port-types";
 
 //data is stored in app data folder as a single JSON file.
 type SharedKvsAdapter = {
-  initialize(): Promise<void>;
+  initialLoad(): Promise<void>;
   read(key: string): string | undefined;
   write(key: string, value: string): void;
   delete(key: string): void;
@@ -25,7 +25,7 @@ export function createSharedKvsAdapter(
     }, 1000);
   }
   return {
-    async initialize() {
+    async initialLoad() {
       const dataText = await presetFileIO.readFile(filePath, {
         skipIfNotExist: true,
       });
