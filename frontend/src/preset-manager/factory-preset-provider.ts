@@ -6,7 +6,7 @@ type FactoryPresetProvider = {
   loadPreset(presetKey: string): Promise<PresetData>;
 };
 
-type MetaJson = Record<string, string>; //presetKey: presetName
+type MetaJson = Record<string, string>; //rawPresetKey: presetName
 
 export async function fetchAssetsJson<T>(path: string): Promise<T> {
   const response = await fetch(path);
@@ -27,12 +27,17 @@ export function createFactoryPresetProvider(): FactoryPresetProvider {
       try {
         const metaJson = await fetchAssetsJson<MetaJson>("/presets/meta.json");
         logger.log(`Loaded factory preset meta: ${JSON.stringify(metaJson)}`);
-        return Object.entries(metaJson).map(([presetKey, presetName]) => ({
-          presetKey,
-          presetName,
-          createAt: 0,
-          presetKind: "factory" as const,
-        }));
+        return Object.entries(metaJson).map(([rawPresetKey, presetName]) => {
+          //prefixing "factory:" to distinguish from user presets.
+          //e.g rawPresetKey: "preset1" --> presetKey: "factory:preset1"
+          const presetKey = `factory:${rawPresetKey}`;
+          return {
+            presetKey,
+            presetName,
+            createAt: 0,
+            presetKind: "factory" as const,
+          };
+        });
       } catch (e) {
         logger.logError(e, "error@listFactoryPresets");
         return [];
@@ -40,7 +45,8 @@ export function createFactoryPresetProvider(): FactoryPresetProvider {
     },
     async loadPreset(presetKey) {
       logger.log(`Loading factory preset: ${presetKey}`);
-      return await fetchAssetsJson<PresetData>(`/presets/${presetKey}.json`);
+      const rawPresetKey = presetKey.replace(/^factory:/, "");
+      return await fetchAssetsJson<PresetData>(`/presets/${rawPresetKey}.json`);
     },
   };
 }
