@@ -1,4 +1,4 @@
-protocol PresetFilesIO {
+public protocol PresetFilesIO {
   func readFile(path: String, skipIfNotExist: Bool?) throws -> String
   func writeFile(path: String, content: String, append: Bool?) throws
   func deleteFile(path: String) throws

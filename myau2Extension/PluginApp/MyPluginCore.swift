@@ -17,7 +17,7 @@ class MyPluginCore: AUv3PluginCore {
   func createView(
     _ viewAccessibleResources: ViewAccessibleResources
   ) -> AnyView {
-    return AnyView(MyPluginContentView(viewAccessibleResources))
+    return AnyView(MyPluginContentView00(parameterTree: viewAccessibleResources.parameterTree))
   }
 
 }

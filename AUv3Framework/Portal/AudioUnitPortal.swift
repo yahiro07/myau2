@@ -1,6 +1,6 @@
 import Combine
 
-enum AudioUnitPortalEvent {
+public enum AudioUnitPortalEvent {
   case hostNoteOn(Int, Float)
   case hostNoteOff(Int)
   case hostTempo(Int)
@@ -12,7 +12,7 @@ enum AudioUnitPortalEvent {
 //・UI上の鍵盤からのノートオン/ノートオフ
 //・ホストから送られたイベントの購読
 //の機能を提供する
-protocol AudioUnitPortal {
+public protocol AudioUnitPortal {
   var isHostedInStandaloneApp: Bool { get }
   func noteOnFromUI(_ noteNumber: Int, velocity: Float)
   func noteOffFromUI(_ noteNumber: Int)

@@ -7,11 +7,11 @@ public protocol ParametersMigrator {
 }
 
 public struct ViewAccessibleResources {
-  let parameterTree: ObservableAUParameterGroup
-  let audioUnitPortal: AudioUnitPortal
-  let presetFilesIO: PresetFilesIO
-  let parametersMigrator: ParametersMigrator?
-  let stateKvs: StateKvs
+  public let parameterTree: ObservableAUParameterGroup
+  public let audioUnitPortal: AudioUnitPortal
+  public let presetFilesIO: PresetFilesIO
+  public let parametersMigrator: ParametersMigrator?
+  public let stateKvs: StateKvs
 }
 
 public protocol AUv3PluginCore: AnyObject {
