@@ -25,7 +25,6 @@ open class GenericAudioUnitViewController: AUViewController {
   {
     return try DispatchQueue.main.sync {
       logger.log("⏬createAudioUnitInternal")
-      Greet()
 
       let audioUnit = try GenericAudioUnit(
         componentDescription: componentDescription, options: [])
