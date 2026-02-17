@@ -1,6 +1,8 @@
 .local
 
 **/xcuserdata/
+**/xcshareddata/
+
 /build/
 buildServer.json
 
