@@ -219,6 +219,8 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
     kernel.setParametersVersion(Int32(parametersVersion))
   }
 
+  var firstFullStateRestorationCalled = false
+
   public override var fullState: [String: Any]? {
     get {
       logger.log("Saving state")
@@ -231,6 +233,10 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
     }
 
     set(newValue) {
+      if !firstFullStateRestorationCalled {
+        logger.log("⏬ First fullState restoration")
+        firstFullStateRestorationCalled = true
+      }
       guard let state = newValue else { return }
       logger.log("Restoring state data: \(state)")
       if let flag = state["myau2.hostedInStandaloneApp"] as? Bool {

@@ -232,7 +232,7 @@ class BasicWebViewHub {
   ) {
     switch msg {
     case .uiLoaded:
-      logger.log("received UI loaded")
+      logger.log("⏬ received UI loaded")
       uiLoaded = true
       if audioUnitPortal.isHostedInStandaloneApp {
         sendMessageToUI(.standaloneAppFlag)
@@ -338,6 +338,7 @@ class BasicWebViewHub {
   }
 
   func bindWebViewIo(webViewIo: WebViewIoProtocol) {
+    logger.log("⏬ bindWebViewIo")
     self.webViewIo = webViewIo
 
     webViewIoSubscription?.cancel()
