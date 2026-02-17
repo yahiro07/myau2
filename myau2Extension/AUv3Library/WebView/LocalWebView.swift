@@ -147,8 +147,14 @@ func commonWebViewSetup(
 
   coordinator.webView = webView
 
-  let url = URL(string: "app://www/index.html")!
-  webView.load(URLRequest(url: url))
+  if false {
+    let url = URL(string: "app://www/index.html")!
+    webView.load(URLRequest(url: url))
+  } else {
+    // For debugging: load from localhost
+    let url = URL(string: "http://localhost:3000")!
+    webView.load(URLRequest(url: url))
+  }
 
   coordinator.callOnBindIfNeeded(onBind)
 
