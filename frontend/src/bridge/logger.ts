@@ -2,6 +2,19 @@
 // const isDebug = true; //debug
 // const isDebug = false;
 
+const loggerOptions = {
+  console: false,
+  localHttp: false,
+  sendToApp: false,
+};
+if (1) {
+  Object.assign(loggerOptions, {
+    console: true,
+    localHttp: true,
+    sendToApp: true,
+  });
+}
+
 let postFailed = false;
 
 async function loggingViaLocalHttp(msg: string) {
@@ -17,6 +30,22 @@ async function loggingViaLocalHttp(msg: string) {
       postFailed = true;
     }
   }
+}
+
+function sendLogToApp(msg: string) {
+  const globalThisTyped = globalThis as unknown as {
+    webkit?: {
+      messageHandlers: {
+        putMessageFromUI: {
+          postMessage: (msg: { type: "log"; message: string }) => void;
+        };
+      };
+    };
+  };
+  globalThisTyped.webkit?.messageHandlers.putMessageFromUI.postMessage({
+    type: "log",
+    message: msg,
+  });
 }
 
 export const logger = {
@@ -37,9 +66,16 @@ export const logger = {
         return part.toString();
       })
       .join(" ");
-    console.log(msg);
-    if (1) {
-      const timedMessage = `(@t:${Date.now()}, @k:ui) ${msg}`;
+
+    if (loggerOptions.console) {
+      console.log(msg);
+    }
+
+    const timedMessage = `(@t:${Date.now()}, @k:ui) ${msg}`;
+    if (logger) {
+      sendLogToApp(timedMessage);
+    }
+    if (loggerOptions.localHttp) {
       void loggingViaLocalHttp(timedMessage);
     }
   },

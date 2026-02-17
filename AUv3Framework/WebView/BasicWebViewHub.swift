@@ -1,6 +1,7 @@
 import Combine
 
 private enum MessageFromUI {
+  case log(message: String)
   //UI読み込み完了時の通知,このあとプラグイン本体から初期パラメタを送信する
   case uiLoaded
   //UI操作で変更されたパラメタをプラグイン本体に送信
@@ -40,6 +41,10 @@ private enum MessageFromApp {
 private func mapMessageFromUI_fromDictionary(_ dict: [String: Any]) -> MessageFromUI? {
   guard let type = dict["type"] as? String else { return nil }
   switch type {
+  case "log":
+    if let message = dict["message"] as? String {
+      return .log(message: message)
+    }
   case "uiLoaded":
     return .uiLoaded
   case "beginParameterEdit":
@@ -231,6 +236,8 @@ public class BasicWebViewHub {
     msg: MessageFromUI,
   ) {
     switch msg {
+    case .log(let message):
+      logger.log("⭐️Log message from UI: \(message)")
     case .uiLoaded:
       logger.log("⏬ received UI loaded")
       uiLoaded = true
