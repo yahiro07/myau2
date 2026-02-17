@@ -24,13 +24,13 @@ open class GenericAudioUnitViewController: AUViewController {
     throws -> AUAudioUnit
   {
     return try DispatchQueue.main.sync {
-      logger.log("⏬createAudioUnitInternal")
+      logger.mark("createAudioUnitInternal")
+      logger.log("Loaded From: " + Bundle.main.bundlePath)
+      try presetFilesIO.debugLogDataLocation()
 
       let audioUnit = try GenericAudioUnit(
         componentDescription: componentDescription, options: [])
       self.audioUnit = audioUnit
-
-      try presetFilesIO.debugLogDataLocation()
 
       audioUnit.setupPluginCore(pluginCore)
 

@@ -528,7 +528,7 @@ const KeyboardPart = () => {
                 const json = await fetchAssetsJson("/presets/meta.json");
                 logger.log(`fetched meta.json: ${JSON.stringify(json)}`);
               } catch (e) {
-                logger.logError(e, "error@fetching meta.json");
+                logger.error(e, "error@fetching meta.json");
               }
             }}
           >

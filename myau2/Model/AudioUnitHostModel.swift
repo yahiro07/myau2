@@ -54,7 +54,7 @@ class AudioUnitHostModel {
       || type.fourCharCode == kAudioUnitType_MusicDevice
       || type.fourCharCode == kAudioUnitType_Generator
     self.isFreeRunning = isFreeRunning
-    logger.log("isFreeRunning: \(isFreeRunning)")
+    // logger.log("isFreeRunning: \(isFreeRunning)")
 
     auValString = "\(type) \(subType) \(manufacturer)"
 

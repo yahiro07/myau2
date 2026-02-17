@@ -50,7 +50,7 @@ export function createEditorBridge(coreBridge: CoreBridge): EditorBridge {
           const sendingValue =
             typeof value === "boolean" ? (value ? 1 : 0) : value;
 
-          logger.log("sending parameter change to app", { key, sendingValue });
+          // logger.log("sending parameter change to app", { key, sendingValue });
           coreBridge.sendMessage({
             type: "setParameter",
             paramKey: key,
@@ -68,7 +68,7 @@ export function createEditorBridge(coreBridge: CoreBridge): EditorBridge {
           typeof paramType === "boolean" ? value >= 0.5 : value;
         store.mutations.assigns({ [paramKey]: castedValue });
       } else {
-        logger.log("unknown parameter key from app:", paramKey);
+        logger.warn("unknown parameter key from app:", paramKey);
       }
     }
 
@@ -90,10 +90,10 @@ export function createEditorBridge(coreBridge: CoreBridge): EditorBridge {
       } else if (msg.type === "hostNoteOff") {
         logger.log(`hostNoteOff: ${msg.noteNumber}`);
       } else if (msg.type === "standaloneAppFlag") {
-        logger.log("Received standalone app flag from host");
+        // logger.log("Received standalone app flag from host");
         store.mutations.setStandaloneFlag(true);
       } else if (msg.type === "latestParametersVersion") {
-        logger.log(`Received latest parameters version: ${msg.version}`);
+        // logger.log(`Received latest parameters version: ${msg.version}`);
         store.mutations.setLatestParametersVersion(msg.version);
       }
       //snap-storeの状態を更新したあと、別タスクでsubscribeのコールバックが呼ばれるので

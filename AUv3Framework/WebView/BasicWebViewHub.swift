@@ -202,7 +202,7 @@ public class BasicWebViewHub {
   public init(
     _ viewAccessibleResources: ViewAccessibleResources
   ) {
-    logger.log("BasicWebViewHub init")
+    logger.mark("BasicWebViewHub init")
     self.flatParameterTree = FlatObservableParameters(
       parameterTree: viewAccessibleResources.parameterTree)
     self.audioUnitPortal = viewAccessibleResources.audioUnitPortal
@@ -218,13 +218,13 @@ public class BasicWebViewHub {
 
   private func sendMessageToUI(_ msg: MessageFromApp) {
     if !uiLoaded {
-      logger.log("⚠️Tried to send message before UI loaded, skipping: \(msg)")
+      logger.warn("Tried to send message before UI loaded, skipping: \(msg)")
       return
     }
     if let jsDataDictionary = mapMessageFromApp_toDictionary(msg) {
       webViewIo?.sendRawMessageToUI(data: jsDataDictionary)
     } else {
-      logger.log("Failed to map message from app to dictionary: \(msg)")
+      logger.warn("Failed to map message from app to dictionary: \(msg)")
     }
   }
 
@@ -243,7 +243,7 @@ public class BasicWebViewHub {
       loggerCore.pushLogItem(
         LogItem(timestamp: timeStamp, subSystem: "ui", kind: kind, message: message))
     case .uiLoaded:
-      logger.log("⏬ received UI loaded")
+      logger.mark("received UI loaded")
       uiLoaded = true
       if audioUnitPortal.isHostedInStandaloneApp {
         sendMessageToUI(.standaloneAppFlag)
@@ -258,12 +258,12 @@ public class BasicWebViewHub {
     case .beginParameterEdit(let paramKey):
       if let paramEntry = flatParameterTree.entries[paramKey] {
         paramEntry.onEditingChanged(true)
-        logger.log("begin parameter edit: \(paramKey)")
+        // logger.log("begin parameter edit: \(paramKey)")
       }
     case .endParameterEdit(let paramKey):
       if let paramEntry = flatParameterTree.entries[paramKey] {
         paramEntry.onEditingChanged(false)
-        logger.log("end parameter edit: \(paramKey)")
+        // logger.log("end parameter edit: \(paramKey)")
       }
     case .setParameter(let paramKey, let value):
       logger.log("received parameter changed from UI: \(paramKey) = \(value)")
@@ -271,16 +271,16 @@ public class BasicWebViewHub {
         valueTracker.reserveEchoSuppression(paramKey: paramKey, value: value)
         paramEntry.value = value
       } else {
-        logger.log("Unknown parameter key from UI: \(paramKey)")
+        logger.warn("Unknown parameter key from UI: \(paramKey)")
       }
     case .loadFullParameters(let parametersVersion, let parameters):
-      logger.log("Received full parameters from UI: \(parameters)")
+      // logger.log("Received full parameters from UI: \(parameters)")
       audioUnitPortal.applyParametersState(parametersVersion, parameters)
     case .noteOnRequest(let noteNumber):
-      logger.log("Note On Request from UI: \(noteNumber)")
+      // logger.log("Note On Request from UI: \(noteNumber)")
       audioUnitPortal.noteOnFromUI(noteNumber, velocity: 1.0)
     case .noteOffRequest(let noteNumber):
-      logger.log("Note Off Request from UI: \(noteNumber)")
+      // logger.log("Note Off Request from UI: \(noteNumber)")
       audioUnitPortal.noteOffFromUI(noteNumber)
     //
     case .rpcReadFileRequest(let rpcId, let path, let skipIfNotExists):
@@ -288,7 +288,7 @@ public class BasicWebViewHub {
         let content = try presetFilesIO.readFile(path: path, skipIfNotExist: skipIfNotExists)
         sendMessageToUI(.rpcReadFileResponse(rpcId: rpcId, success: true, content: content))
       } catch {
-        logger.log("RPC readFile error: \(error)")
+        logger.error("RPC readFile error: \(error)")
         sendMessageToUI(.rpcReadFileResponse(rpcId: rpcId, success: false, content: ""))
       }
     case .rpcWriteFileRequest(let rpcId, let path, let content, let append):
@@ -296,7 +296,7 @@ public class BasicWebViewHub {
         try presetFilesIO.writeFile(path: path, content: content, append: append)
         sendMessageToUI(.rpcWriteFileResponse(rpcId: rpcId, success: true))
       } catch {
-        logger.log("RPC writeFile error: \(error)")
+        logger.error("RPC writeFile error: \(error)")
         sendMessageToUI(.rpcWriteFileResponse(rpcId: rpcId, success: false))
       }
     case .rpcDeleteFileRequest(let rpcId, let path):
@@ -304,7 +304,7 @@ public class BasicWebViewHub {
         try presetFilesIO.deleteFile(path: path)
         sendMessageToUI(.rpcDeleteFileResponse(rpcId: rpcId, success: true))
       } catch {
-        logger.log("RPC deleteFile error: \(error)")
+        logger.error("RPC deleteFile error: \(error)")
         sendMessageToUI(.rpcDeleteFileResponse(rpcId: rpcId, success: false))
       }
     case .rpcLoadStateKvsItems(let rpcId):
@@ -319,10 +319,10 @@ public class BasicWebViewHub {
   func handlePortalEvent(_ event: AudioUnitPortalEvent) {
     switch event {
     case .hostNoteOn(let noteNumber, let velocity):
-      logger.log("Received Note On from host: \(noteNumber) velocity: \(velocity)")
+      // logger.log("Received Note On from host: \(noteNumber) velocity: \(velocity)")
       sendMessageToUI(.hostNoteOn(noteNumber: noteNumber, velocity: velocity))
     case .hostNoteOff(let noteNumber):
-      logger.log("Received Note Off from host: \(noteNumber)")
+      // logger.log("Received Note Off from host: \(noteNumber)")
       sendMessageToUI(.hostNoteOff(noteNumber: noteNumber))
     case .hostPlayState(let playState):
       logger.log("Received Play State from host @whub: \(playState)")
@@ -335,7 +335,7 @@ public class BasicWebViewHub {
 
   func startAUStateListeners() {
     valueTracker.setReceiver { [weak self] key, value in
-      logger.log("PT value changed, send to UI, \(key) \(value)")
+      // logger.log("PT value changed, send to UI, \(key) \(value)")
       self?.sendMessageToUI(.setParameter(paramKey: key, value: value))
     }
     for (paramKey, paramEntry) in flatParameterTree.entries {
@@ -349,7 +349,7 @@ public class BasicWebViewHub {
   }
 
   public func bindWebViewIo(webViewIo: WebViewIoProtocol) {
-    logger.log("⏬ bindWebViewIo")
+    logger.mark("bindWebViewIo")
     self.webViewIo = webViewIo
 
     webViewIoSubscription?.cancel()
@@ -357,7 +357,7 @@ public class BasicWebViewHub {
       if let msg: MessageFromUI = mapMessageFromUI_fromDictionary(jsDataDictionary) {
         self?.handleMessageFromUI(msg: msg)
       } else {
-        logger.log("Unknown or invalid message from UI \(jsDataDictionary)")
+        logger.warn("Unknown or invalid message from UI \(jsDataDictionary)")
       }
     }
   }

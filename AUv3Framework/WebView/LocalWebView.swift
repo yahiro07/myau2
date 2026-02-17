@@ -17,7 +17,7 @@ private class ScriptMessageHandler: NSObject, WKScriptMessageHandler {
     if let jsDataDictionary = message.body as? JsDataDictionary {
       handler(jsDataDictionary)
     } else {
-      logger.log("Invalid message body type: \(type(of: message.body))")
+      logger.warn("Invalid message body type: \(type(of: message.body))")
     }
   }
 }
@@ -29,7 +29,7 @@ private func serializeDictionaryToJsonString(_ dict: [String: Any]) -> String {
 
 private func sendMessageToWebViewRaw(webView: WKWebView, jsDataDictionary: JsDataDictionary) {
   let jsStringifiedData = serializeDictionaryToJsonString(jsDataDictionary)
-  logger.log("sending message to UI: \(jsStringifiedData)")
+  // logger.log("sending message to UI: \(jsStringifiedData)")
   //window.putMessageFromApp()を呼び出す
   let jsCode =
     "window.putMessageFromApp && window.putMessageFromApp(\(jsStringifiedData));"
@@ -91,7 +91,7 @@ class MySchemeHandler: NSObject, WKURLSchemeHandler {
     print("Loading:", fileURL.path)
 
     guard let data = try? Data(contentsOf: fileURL) else {
-      logger.log("Failed to load file for URL: \(url), path: \(path)")
+      logger.error("Failed to load file for URL: \(url), path: \(path)")
       urlSchemeTask.didFailWithError(NSError(domain: "file", code: 404))
       return
     }

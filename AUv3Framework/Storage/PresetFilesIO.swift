@@ -66,7 +66,7 @@ class PresetFilesIOImpl: PresetFilesIO {
     let fileURL = try SharedContainer.getRelativePathFileURL(path)
     if FileManager.default.fileExists(atPath: fileURL.path) {
       let content = try String(contentsOf: fileURL, encoding: .utf8)
-      logger.log("PresetFilesIO readFile path: \(path) content: \(content)")
+      // logger.log("PresetFilesIO readFile path: \(path) content: \(content)")
       return content
     } else if skipIfNotExist == true {
       return ""
@@ -89,12 +89,12 @@ class PresetFilesIOImpl: PresetFilesIO {
       return
     }
     try content.write(to: fileURL, atomically: true, encoding: .utf8)
-    logger.log("PresetFilesIO writeFile path: \(path) content: \(content)")
+    // logger.log("PresetFilesIO writeFile path: \(path) content: \(content)")
   }
 
   func deleteFile(path: String) throws {
     let fileURL = try SharedContainer.getRelativePathFileURL(path)
     try FileManager.default.removeItem(at: fileURL)
-    logger.log("PresetFilesIO deleteFile path: \(path)")
+    // logger.log("PresetFilesIO deleteFile path: \(path)")
   }
 }

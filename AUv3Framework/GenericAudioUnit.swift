@@ -21,8 +21,7 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
   @objc override init(
     componentDescription: AudioComponentDescription, options: AudioComponentInstantiationOptions,
   ) throws {
-    logger.log("GenericExtensionAudioUnit init 1609")
-    logger.log("Loaded From: " + Bundle.main.bundlePath)
+    logger.log("GenericExtensionAudioUnit init")
 
     self.format = AVAudioFormat(standardFormatWithSampleRate: 44_100, channels: 2)!
 
@@ -60,7 +59,7 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
   }
 
   func setupPluginCore(_ pluginCore: AUv3PluginCore) {
-    logger.log("setupPluginCore")
+    // logger.log("setupPluginCore")
     self.pluginCore = pluginCore
     let dspCore = pluginCore.getDSPCore()
     kernel.setDSPCore(&dspCore.pointee)
@@ -125,19 +124,19 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
   }
 
   public func setupParameterTree(_ parameterTree: AUParameterTree) {
-    logger.log("setupParameterTree")
+    // logger.log("setupParameterTree")
     self.parameterTree = parameterTree
 
     let maxAddress = parameterTree.allParameters.map { $0.address }.max() ?? 0
     let capacity64 = maxAddress &+ 1
     let capacity = UInt32(min(capacity64, UInt64(UInt32.max)))
-    logger.log(
-      "Setting parameter capacity to \(capacity) based on max parameter address \(maxAddress)")
+    // logger.log(
+    //   "Setting parameter capacity to \(capacity) based on max parameter address \(maxAddress)")
     kernel.setParameterCapacity(capacity)
 
     // Set the Parameter default values before setting up the parameter callbacks
     for param in parameterTree.allParameters {
-      if param.address < 5 || 30 <= param.address {
+      if (param.address < 5 || 30 <= param.address) && false {
         logger.log(
           "route parameterTree default value to kernel: \(param.address) \(param.identifier) \(param.value)"
         )
@@ -155,7 +154,7 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
       // logger.log(
       //   "notified ParamChanged @implementorValueObserver: \(param.address) \(param.identifier) to \(value)"
       // )
-      if param.address < 5 || 30 <= param.address {
+      if (param.address < 5 || 30 <= param.address) && false {
         logger.log(
           "notified ParamChanged @implementorValueObserver: \(param.address) \(param.identifier) to \(value)"
         )
@@ -166,7 +165,7 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
     // implementorValueProvider is called when the value needs to be refreshed.
     parameterTree?.implementorValueProvider = { [weak self] param in
       let value = self!.kernel.getParameter(param.address)
-      if param.address < 5 || 30 <= param.address {
+      if (param.address < 5 || 30 <= param.address) && false {
         logger.log(
           "ParamGet @implementorValueProvider: \(param.address) \(param.identifier) is \(value)")
       }
@@ -200,7 +199,7 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
       paramVer: parametersVersion, rawParameters: &modParameters)
     parameterTree?.allParameters.forEach { param in
       if let value = modParameters[param.identifier] {
-        if param.address < 5 || 30 <= param.address {
+        if (param.address < 5 || 30 <= param.address) && false {
           logger.log("SetParam @applyParametersState \(param.address) \(param.identifier) \(value)")
         }
         param.value = value
@@ -210,13 +209,13 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
     kernel.setParametersVersion(Int32(parametersVersion))
   }
 
-  var firstFullStateRestorationCalled = false
+  // var firstFullStateRestorationCalled = false
 
   public override var fullState: [String: Any]? {
     get {
-      logger.log("Saving state")
+      logger.mark("fullSaving saving")
       let baseState = super.fullState
-      logger.log("baseVersion: \(baseState?["version"] ?? "nil")")
+      // logger.log("baseVersion: \(baseState?["version"] ?? "nil")")
       var state: [String: Any] = [
         "type": componentDescription.componentType,
         "subtype": componentDescription.componentSubType,
@@ -231,15 +230,16 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
     }
 
     set(newValue) {
-      if !firstFullStateRestorationCalled {
-        logger.log("⏬ First fullState restoration")
-        firstFullStateRestorationCalled = true
-      }
+      // if !firstFullStateRestorationCalled {
+      //   logger.mark("First fullState restoration")
+      //   firstFullStateRestorationCalled = true
+      // }
+      logger.mark("fullState restoration")
       guard let state = newValue else { return }
-      logger.log("Restoring state data: \(state)")
+      // logger.log("Restoring state data: \(state)")
       if let flag = state["myau2.hostedInStandaloneApp"] as? Bool {
-        logger.log("received hostedInStandaloneApp flag: \(flag)")
-        self.isHostedInStandaloneApp = true
+        // logger.log("received hostedInStandaloneApp flag: \(flag)")
+        self.isHostedInStandaloneApp = flag
       }
       if let parametersVersion = state["parametersVersion"] as? Int,
         let parameters = state["parameters"] as? [String: Float]
@@ -247,7 +247,7 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
         applyParametersState(parametersVersion, parameters)
       }
       if let kvsItems = state["kvsItems"] as? [String: String] {
-        logger.log("kvsItems to restore: \(kvsItems)")
+        // logger.log("kvsItems to restore: \(kvsItems)")
         stateKvs.setItems(kvsItems)
       }
       //skipping super.fullState to avoid overwriting our custom restoration results.

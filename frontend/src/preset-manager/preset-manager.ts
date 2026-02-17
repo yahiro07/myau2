@@ -21,7 +21,7 @@ export function createPresetManager(
   return {
     async loadPresetList() {
       try {
-        logger.log("loadPresetList");
+        // logger.log("loadPresetList");
         if (1) {
           const factoryItems = await factoryPresetProvider.listPresetItems();
           const userItems = await presetManagerCore.listPresetItems();
@@ -31,12 +31,12 @@ export function createPresetManager(
           store.mutations.setPresetItems([...userItems]);
         }
         const lastLoadedPresetKey = stateKvs.read("lastLoadedPresetKey");
-        logger.log(`lastLoadedPresetKey: ${lastLoadedPresetKey}`);
+        // logger.log(`lastLoadedPresetKey: ${lastLoadedPresetKey}`);
         if (lastLoadedPresetKey) {
           store.mutations.setLastLoadedPresetKey(lastLoadedPresetKey);
         }
       } catch (e: unknown) {
-        logger.logError(e, "error@loadPresetList");
+        logger.error(e, "error@loadPresetList");
       }
     },
     async loadPreset(presetKey: string) {
@@ -70,7 +70,7 @@ export function createPresetManager(
           }
         }
       } catch (e) {
-        logger.logError(e, `error@loadPreset, presetKey: ${presetKey}`);
+        logger.error(e, `error@loadPreset, presetKey: ${presetKey}`);
       }
     },
     async savePreset(presetKey: string, presetName?: string) {
@@ -97,7 +97,7 @@ export function createPresetManager(
           stateKvs.write("lastLoadedPresetKey", presetKey);
         }
       } catch (e) {
-        logger.logError(e, `error@savePreset, presetKey: ${presetKey}`);
+        logger.error(e, `error@savePreset, presetKey: ${presetKey}`);
       }
     },
   };

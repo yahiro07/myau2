@@ -8,7 +8,7 @@
 // }
 
 public struct LogItem {
-  let timestamp: Double
+  let timestamp: Double  //ms from epoch
   let subSystem: String
   let kind: String
   let message: String
@@ -34,7 +34,7 @@ public struct LogItem {
 
 //TODO: 00:00:00.000にしたい
 func formatTimestamp(_ timestamp: Double) -> String {
-  let date = Date(timeIntervalSince1970: timestamp)
+  let date = Date(timeIntervalSince1970: timestamp / 1000)
   return date.formatted(date: .omitted, time: .standard)
 }
 
@@ -82,7 +82,8 @@ public class LoggerEntry {
   private func pushLog(_ kind: String, _ message: String) {
     loggerCore.pushLogItem(
       LogItem(
-        timestamp: Date().timeIntervalSince1970, subSystem: subSystem, kind: kind, message: message
+        timestamp: Date().timeIntervalSince1970 * 1000, subSystem: subSystem, kind: kind,
+        message: message
       ))
   }
 

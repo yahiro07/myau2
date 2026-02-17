@@ -67,6 +67,7 @@ type LogArguments = (
   | boolean
   | object
   | Array<string | number | boolean | object>
+  | unknown
 )[];
 
 function mapLogArgumentsToString(args: LogArguments) {
