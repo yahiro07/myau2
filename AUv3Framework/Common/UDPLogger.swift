@@ -1,14 +1,15 @@
+import Foundation
 import Network
 import os
 
 #if DEBUG
 
-  class UDPLogger {
+  public class UDPLogger {
     private var conn: NWConnection?
     private let dispatchQueue = DispatchQueue(label: "UDPLogger")
     private let category: String
 
-    init(category: String) {
+    public init(category: String) {
       self.category = category
     }
 
@@ -22,7 +23,7 @@ import os
       conn?.start(queue: dispatchQueue)
     }
 
-    func log(_ message: String) {
+    public func log(_ message: String) {
       print(message)
 
       let timedMessage = "(@t:\(Date().timeIntervalSince1970 * 1000), @k:\(category)) \(message)"
@@ -41,11 +42,10 @@ import os
 
 #else
 
-  class UDPLogger {
-    init() {}
-    func log(_ message: String) {}
+  public class UDPLogger {
+    public init() {}
+    public func log(_ message: String) {
+    }
   }
 
 #endif
-
-let logger = UDPLogger(category: "ext")

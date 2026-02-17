@@ -1,10 +1,3 @@
-//
-//  myau2ExtensionAudioUnit.swift
-//  myau2Extension
-//
-//  Created by ore on 2026/02/09.
-//
-
 import AVFoundation
 import CoreAudioKit
 

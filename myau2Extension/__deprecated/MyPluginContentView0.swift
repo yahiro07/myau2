@@ -1,11 +1,9 @@
+import AUv3Framework
 import SwiftUI
 
 struct MyPluginContentView0: View {
 
-  init(
-    parameterTree: ObservableAUParameterGroup, audioUnitPortal: AudioUnitPortal,
-    presetManager: PresetManager
-  ) {
+  init() {
   }
 
   var body: some View {

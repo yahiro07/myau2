@@ -1,3 +1,4 @@
+import AUv3Framework
 import SwiftUI
 
 struct MyPluginContentView: View {

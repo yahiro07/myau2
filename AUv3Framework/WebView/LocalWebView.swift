@@ -2,7 +2,7 @@ import Combine
 import SwiftUI
 import WebKit
 
-typealias JsDataDictionary = [String: Any]
+public typealias JsDataDictionary = [String: Any]
 
 private class ScriptMessageHandler: NSObject, WKScriptMessageHandler {
   let handler: (JsDataDictionary) -> Void
@@ -36,7 +36,7 @@ private func sendMessageToWebViewRaw(webView: WKWebView, jsDataDictionary: JsDat
   webView.evaluateJavaScript(jsCode)
 }
 
-final class WebViewCoordinator: NSObject, WebViewIoProtocol {
+public class WebViewCoordinator: NSObject, WebViewIoProtocol {
   weak var webView: WKWebView?
   private var receivers: [UUID: (JsDataDictionary) -> Void] = [:]
   private var didCallOnBind = false
@@ -51,13 +51,13 @@ final class WebViewCoordinator: NSObject, WebViewIoProtocol {
     receivers.values.forEach { $0(dict) }
   }
 
-  func sendRawMessageToUI(data: JsDataDictionary) {
+  public func sendRawMessageToUI(data: JsDataDictionary) {
     guard let webView else { return }
     sendMessageToWebViewRaw(webView: webView, jsDataDictionary: data)
   }
 
   @discardableResult
-  func subscribeRawMessageFromUI(receiver: @escaping (JsDataDictionary) -> Void)
+  public func subscribeRawMessageFromUI(receiver: @escaping (JsDataDictionary) -> Void)
     -> AnyCancellable
   {
     let id = UUID()
@@ -162,21 +162,22 @@ func commonWebViewSetup(
 }
 
 #if os(macOS)
-  struct LocalWebView: NSViewRepresentable {
+  public struct LocalWebView: NSViewRepresentable {
     let onBind: (WebViewIoProtocol) -> Void
 
-    init(_ onBind: @escaping (WebViewIoProtocol) -> Void) {
+    public init(_ onBind: @escaping (WebViewIoProtocol) -> Void) {
       self.onBind = onBind
     }
 
-    func makeCoordinator() -> WebViewCoordinator { WebViewCoordinator() }
+    public func makeCoordinator() -> WebViewCoordinator { WebViewCoordinator() }
 
-    func makeNSView(context: Context) -> WKWebView {
+    public func makeNSView(context: Context) -> WKWebView {
       return commonWebViewSetup(coordinator: context.coordinator, onBind: onBind)
     }
 
-    func updateNSView(_ webView: WKWebView, context: Context) {
+    public func updateNSView(_ webView: WKWebView, context: Context) {
     }
+
   }
 
 #elseif os(iOS)

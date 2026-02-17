@@ -1,10 +1,3 @@
-//
-//  MIDIManager.swift
-//  myau2
-//
-//  Created by ore on 2026/02/09.
-//
-
 import CoreMIDI
 import Foundation
 

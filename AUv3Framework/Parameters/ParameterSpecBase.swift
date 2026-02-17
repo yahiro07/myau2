@@ -1,10 +1,3 @@
-//
-//  ParameterSpecBase.swift
-//  myau2Extension
-//
-//  Created by ore on 2026/02/09.
-//
-
 import AudioToolbox
 import Foundation
 
@@ -19,9 +12,9 @@ extension NodeSpec {
   }
 }
 
-@resultBuilder struct ParameterGroupBuilder {
-  static func buildBlock() -> [NodeSpec] { [] }
-  static func buildBlock(_ nodes: NodeSpec...) -> [NodeSpec] { nodes }
+@resultBuilder public struct ParameterGroupBuilder {
+  public static func buildBlock() -> [NodeSpec] { [] }
+  public static func buildBlock(_ nodes: NodeSpec...) -> [NodeSpec] { nodes }
 }
 
 /// Specification for a group of parameters.
@@ -30,7 +23,8 @@ public struct ParameterGroupSpec: NodeSpec {
   let name: String
   let children: [NodeSpec]
 
-  init(identifier: String, name: String, @ParameterGroupBuilder _ children: () -> [NodeSpec]) {
+  public init(identifier: String, name: String, @ParameterGroupBuilder _ children: () -> [NodeSpec])
+  {
     self.identifier = ParameterGroupSpec.validateID(identifier)
     self.name = name
     self.children = children()
@@ -39,7 +33,7 @@ public struct ParameterGroupSpec: NodeSpec {
 
 public struct ParameterTreeSpec: NodeSpec {
   let children: [NodeSpec]
-  init(@ParameterGroupBuilder _ children: () -> [NodeSpec]) { self.children = children() }
+  public init(@ParameterGroupBuilder _ children: () -> [NodeSpec]) { self.children = children() }
 }
 
 /// ParameterSpec mirrors what gets passed to
@@ -151,7 +145,7 @@ extension Array where Element == NodeSpec {
 }
 
 extension ParameterTreeSpec {
-  func createAUParameterTree() -> AUParameterTree {
+  public func createAUParameterTree() -> AUParameterTree {
     AUParameterTree.createTree(withChildren: self.children.createAUParameterNodes())
   }
 }

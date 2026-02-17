@@ -176,7 +176,7 @@ private func mapMessageFromApp_toDictionary(_ msg: MessageFromApp) -> [String: A
 }
 
 @MainActor
-class BasicWebViewHub {
+public class BasicWebViewHub {
   private let flatParameterTree: FlatObservableParameters
   private let audioUnitPortal: AudioUnitPortal
   private let presetFilesIO: PresetFilesIO
@@ -191,7 +191,7 @@ class BasicWebViewHub {
 
   private var uiLoaded = false
 
-  init(
+  public init(
     _ viewAccessibleResources: ViewAccessibleResources
   ) {
     logger.log("BasicWebViewHub init")
@@ -337,7 +337,7 @@ class BasicWebViewHub {
     }
   }
 
-  func bindWebViewIo(webViewIo: WebViewIoProtocol) {
+  public func bindWebViewIo(webViewIo: WebViewIoProtocol) {
     logger.log("⏬ bindWebViewIo")
     self.webViewIo = webViewIo
 
