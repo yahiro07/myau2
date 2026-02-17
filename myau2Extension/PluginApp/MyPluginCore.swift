@@ -17,7 +17,13 @@ class MyPluginCore: AUv3PluginCore {
   func createView(
     _ viewAccessibleResources: ViewAccessibleResources
   ) -> AnyView {
-    return AnyView(MyPluginContentView00(parameterTree: viewAccessibleResources.parameterTree))
+    if true {
+      //WebView based UI, primary development target for this project.
+      return AnyView(MyPluginContentView(viewAccessibleResources))
+    } else {
+      //A Simple Swift based UI, kept as a minimum working example.
+      return AnyView(SwiftBasedSimpleView(parameterTree: viewAccessibleResources.parameterTree))
+    }
   }
 
 }

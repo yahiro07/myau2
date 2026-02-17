@@ -118,7 +118,7 @@ extension ObservableAUParameter {
   }
 }
 
-struct MyPluginContentView00: View {
+struct SwiftBasedSimpleView: View {
   var parameterTree: ObservableAUParameterGroup
 
   var body: some View {
