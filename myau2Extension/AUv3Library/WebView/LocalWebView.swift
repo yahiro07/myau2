@@ -126,6 +126,35 @@ class MySchemeHandler: NSObject, WKURLSchemeHandler {
   }
 }
 
+func commonWebViewSetup(
+  coordinator: WebViewCoordinator, onBind: @escaping (WebViewIoProtocol) -> Void
+) -> WKWebView {
+  let config = WKWebViewConfiguration()
+
+  config.setURLSchemeHandler(MySchemeHandler(), forURLScheme: "app")
+
+  let userContentController: WKUserContentController = WKUserContentController()
+  userContentController.add(
+    ScriptMessageHandler { [weak coordinator] dict in
+      coordinator?.dispatchFromUI(dict)
+    },
+    name: "putMessageFromUI"
+  )
+  config.userContentController = userContentController
+
+  let webView = WKWebView(frame: .zero, configuration: config)
+  webView.isInspectable = true
+
+  coordinator.webView = webView
+
+  let url = URL(string: "app://www/index.html")!
+  webView.load(URLRequest(url: url))
+
+  coordinator.callOnBindIfNeeded(onBind)
+
+  return webView
+}
+
 #if os(macOS)
   struct LocalWebView: NSViewRepresentable {
     let onBind: (WebViewIoProtocol) -> Void
@@ -137,34 +166,31 @@ class MySchemeHandler: NSObject, WKURLSchemeHandler {
     func makeCoordinator() -> WebViewCoordinator { WebViewCoordinator() }
 
     func makeNSView(context: Context) -> WKWebView {
-      let config = WKWebViewConfiguration()
-
-      config.setURLSchemeHandler(MySchemeHandler(), forURLScheme: "app")
-
-      let userContentController: WKUserContentController = WKUserContentController()
-      config.userContentController = userContentController
-
-      let webView = WKWebView(frame: .zero, configuration: config)
-      if #available(macOS 13.3, *) { webView.isInspectable = true }
-
-      userContentController.add(
-        ScriptMessageHandler { [weak coordinator = context.coordinator] dict in
-          coordinator?.dispatchFromUI(dict)
-        },
-        name: "putMessageFromUI"
-      )
-
-      let url = URL(string: "app://www/index.html")!
-      webView.load(URLRequest(url: url))
-
-      return webView
+      return commonWebViewSetup(coordinator: context.coordinator, onBind: onBind)
     }
 
     func updateNSView(_ webView: WKWebView, context: Context) {
-      context.coordinator.webView = webView
-      context.coordinator.callOnBindIfNeeded(onBind)
+    }
+  }
+
+#elseif os(iOS)
+  // iOSではUIViewRepresentableを使用
+  struct LocalWebView: UIViewRepresentable {
+
+    let onBind: (WebViewIoProtocol) -> Void
+
+    init(_ onBind: @escaping (WebViewIoProtocol) -> Void) {
+      self.onBind = onBind
+    }
+
+    func makeCoordinator() -> WebViewCoordinator { WebViewCoordinator() }
+
+    func makeUIView(context: Context) -> WKWebView {
+      return commonWebViewSetup(coordinator: context.coordinator, onBind: onBind)
+    }
+
+    func updateUIView(_ webView: WKWebView, context: Context) {
     }
 
   }
-
 #endif

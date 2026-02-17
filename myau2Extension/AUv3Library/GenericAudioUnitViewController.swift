@@ -120,6 +120,7 @@ public class GenericAudioUnitViewController: AUViewController {
     // logger.log("finished configureSwiftUIView")
   }
 
+    #if os(mscOS)
   override public func viewDidAppear() {
     super.viewDidAppear()
     startEventLoop()
@@ -129,6 +130,7 @@ public class GenericAudioUnitViewController: AUViewController {
     super.viewWillDisappear()
     stopEventLoop()
   }
+    #endif
 
   // private var displayLink: CADisplayLink?
   // func startEventLoop() {
