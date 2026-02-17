@@ -1,4 +1,5 @@
 import { CoreBridge, MessageFromUI } from "@/bridge/core-bridge";
+import { rpcIdCounter } from "@/preset-manager/rpc-id-counter";
 
 //the data is stored in AudioUnit extension's state object
 export type StateKvsAdapter = {
@@ -10,8 +11,6 @@ export type StateKvsAdapter = {
 };
 
 function createStateKvsItemsFetcher(coreBridge: CoreBridge) {
-  let rpcIdCounter = 0;
-
   const pendingRpcResolvers: Record<
     number,
     (result: { items?: Record<string, string> }) => void
@@ -44,7 +43,7 @@ function createStateKvsItemsFetcher(coreBridge: CoreBridge) {
     async fetchStateKvsItems() {
       const res = await executeRpc({
         type: "rpcLoadStateKvsItems",
-        rpcId: rpcIdCounter++,
+        rpcId: rpcIdCounter.count++,
       });
       return res.items ?? {};
     },

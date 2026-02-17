@@ -1,11 +1,10 @@
 import { CoreBridge, MessageFromUI } from "@/bridge/core-bridge";
 import { PresetFilesIO } from "@/preset-manager/preset-manager-core-port-types";
+import { rpcIdCounter } from "@/preset-manager/rpc-id-counter";
 
 export function createPluginAppPresetFilesIO(
   coreBridge: CoreBridge,
 ): PresetFilesIO {
-  let rpcIdCounter = 0;
-
   const pendingRpcResolvers: Record<
     number,
     (result: { success: boolean; content?: string }) => void
@@ -44,7 +43,7 @@ export function createPluginAppPresetFilesIO(
     async readFile(path, options) {
       const res = await executeRpc({
         type: "rpcReadFileRequest",
-        rpcId: rpcIdCounter++,
+        rpcId: rpcIdCounter.count++,
         path,
         skipIfNotExists: options?.skipIfNotExist ?? false,
       });
@@ -57,7 +56,7 @@ export function createPluginAppPresetFilesIO(
     async writeFile(path, content, options) {
       const res = await executeRpc({
         type: "rpcWriteFileRequest",
-        rpcId: rpcIdCounter++,
+        rpcId: rpcIdCounter.count++,
         path,
         content,
         append: options?.append ?? false,
@@ -69,7 +68,7 @@ export function createPluginAppPresetFilesIO(
     async deleteFile(path) {
       const res = await executeRpc({
         type: "rpcDeleteFileRequest",
-        rpcId: rpcIdCounter++,
+        rpcId: rpcIdCounter.count++,
         path,
       });
       if (!res.success) {
