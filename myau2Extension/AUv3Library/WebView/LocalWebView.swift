@@ -96,12 +96,15 @@ class MySchemeHandler: NSObject, WKURLSchemeHandler {
       return
     }
 
-    let response = URLResponse(
+    let response = HTTPURLResponse(
       url: url,
-      mimeType: mimeType(for: fileURL.path),
-      expectedContentLength: data.count,
-      textEncodingName: nil
-    )
+      statusCode: 200,
+      httpVersion: "HTTP/1.1",
+      headerFields: [
+        "Content-Type": mimeType(for: fileURL.path),
+        "Content-Length": "\(data.count)",
+      ]
+    )!
 
     urlSchemeTask.didReceive(response)
     urlSchemeTask.didReceive(data)
@@ -135,8 +138,6 @@ class MySchemeHandler: NSObject, WKURLSchemeHandler {
 
     func makeNSView(context: Context) -> WKWebView {
       let config = WKWebViewConfiguration()
-      // config.setValue(true, forKey: "allowUniversalAccessFromFileURLs")
-      // config.setValue(true, forKey: "allowFileAccessFromFileURLs")　//crashing
 
       config.setURLSchemeHandler(MySchemeHandler(), forURLScheme: "app")
 
@@ -156,12 +157,6 @@ class MySchemeHandler: NSObject, WKURLSchemeHandler {
       let url = URL(string: "app://www/index.html")!
       webView.load(URLRequest(url: url))
 
-      // if true {
-      //   loadAssetPage(webView)
-      // } else {
-      //   loadLocalhostPage(webView)
-      // }
-
       return webView
     }
 
@@ -169,27 +164,6 @@ class MySchemeHandler: NSObject, WKURLSchemeHandler {
       context.coordinator.webView = webView
       context.coordinator.callOnBindIfNeeded(onBind)
     }
-
-    // private func loadLocalhostPage(_ webView: WKWebView) {
-    //   guard let url = URL(string: "http://localhost:3000") else { return }
-    //   logger.log("load url: \(url)")
-    //   webView.load(URLRequest(url: url))
-    // }
-
-    // private func loadAssetPage(_ webView: WKWebView) {
-    //   if false {
-    //     guard
-    //       let url = Bundle.main.url(
-    //         forResource: "index", withExtension: "html", subdirectory: "dist")
-    //     else { return }
-    //     logger.log("load url: \(url)")
-    //     webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
-    //   } else {
-    //     let assetsURL = Bundle.main.resourceURL!.appendingPathComponent("dist")
-    //     let indexURL = assetsURL.appendingPathComponent("index.html")
-    //     webView.loadFileURL(indexURL, allowingReadAccessTo: assetsURL)
-    //   }
-    // }
 
   }
 
