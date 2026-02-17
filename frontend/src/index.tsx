@@ -20,6 +20,7 @@ import "@/styles/page.css";
 import { useEffect } from "react";
 import { logger } from "@/bridge/logger";
 import { ScreenUiScaler } from "@/components/UiScaler";
+import { fetchAssetsJson } from "@/preset-manager/factory-preset-provider";
 import { actions } from "@/store/actions";
 import { agents } from "@/store/agents";
 
@@ -523,6 +524,15 @@ const KeyboardPart = () => {
           shared kvs get
         </button>
         <div>lpk: {st.lastLoadedPresetKey}</div>
+        <button
+          type="button"
+          onClick={async () => {
+            const json = await fetchAssetsJson("/presets/meta.json");
+            console.log({ json });
+          }}
+        >
+          debug fetch json
+        </button>
       </div>
     </div>
   );
@@ -562,6 +572,7 @@ const App = () => {
 
 async function start() {
   logger.log("UI 0033");
+  logger.log(`at: ${location.href}`);
   const rootDiv = document.getElementById("app");
   if (!rootDiv) {
     document.body.innerHTML = "no root element found";
