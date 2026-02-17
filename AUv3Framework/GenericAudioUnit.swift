@@ -13,8 +13,6 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
 
   private(set) var pluginCore: AUv3PluginCore?
 
-  let presetManager: PresetManagerImpl = PresetManagerImpl()
-
   let stateKvs = StateKvs()
 
   private(set) var isHostedInStandaloneApp: Bool = false
