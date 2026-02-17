@@ -147,7 +147,7 @@ func commonWebViewSetup(
 
   coordinator.webView = webView
 
-  if false {
+  if true {
     let url = URL(string: "app://www/index.html")!
     webView.load(URLRequest(url: url))
   } else {
@@ -182,21 +182,21 @@ func commonWebViewSetup(
 
 #elseif os(iOS)
   // iOSではUIViewRepresentableを使用
-  struct LocalWebView: UIViewRepresentable {
+  public struct LocalWebView: UIViewRepresentable {
 
     let onBind: (WebViewIoProtocol) -> Void
 
-    init(_ onBind: @escaping (WebViewIoProtocol) -> Void) {
+    public init(_ onBind: @escaping (WebViewIoProtocol) -> Void) {
       self.onBind = onBind
     }
 
-    func makeCoordinator() -> WebViewCoordinator { WebViewCoordinator() }
+    public func makeCoordinator() -> WebViewCoordinator { WebViewCoordinator() }
 
-    func makeUIView(context: Context) -> WKWebView {
+    public func makeUIView(context: Context) -> WKWebView {
       return commonWebViewSetup(coordinator: context.coordinator, onBind: onBind)
     }
 
-    func updateUIView(_ webView: WKWebView, context: Context) {
+    public func updateUIView(_ webView: WKWebView, context: Context) {
     }
 
   }
