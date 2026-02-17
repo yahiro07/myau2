@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3C4159952F3EF3710082A3AF /* dist in Resources */ = {isa = PBXBuildFile; fileRef = 3C4159942F3EF3710082A3AF /* dist */; };
 		3C5948E12F41083E0028A5EC /* presets in Resources */ = {isa = PBXBuildFile; fileRef = 3C5948E02F41083E0028A5EC /* presets */; };
+		3C594B2E2F448AB10028A5EC /* www in Resources */ = {isa = PBXBuildFile; fileRef = 3C594B2D2F448AB10028A5EC /* www */; };
 		3CF377222F39F4EB001F5073 /* myau2Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3CF377212F39F4EB001F5073 /* myau2Extension.appex */; platformFilters = (ios, macos, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -39,6 +39,7 @@
 /* Begin PBXFileReference section */
 		3C4159942F3EF3710082A3AF /* dist */ = {isa = PBXFileReference; lastKnownFileType = folder; name = dist; path = frontend/dist; sourceTree = "<group>"; };
 		3C5948E02F41083E0028A5EC /* presets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = presets; sourceTree = "<group>"; };
+		3C594B2D2F448AB10028A5EC /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; name = www; path = frontend/www; sourceTree = "<group>"; };
 		3CF376FB2F39F4EA001F5073 /* myau2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myau2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3CF377212F39F4EB001F5073 /* myau2Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = myau2Extension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -93,6 +94,7 @@
 		3CF376F22F39F4EA001F5073 = {
 			isa = PBXGroup;
 			children = (
+				3C594B2D2F448AB10028A5EC /* www */,
 				3C5948E02F41083E0028A5EC /* presets */,
 				3C4159942F3EF3710082A3AF /* dist */,
 				3CF376FD2F39F4EA001F5073 /* myau2 */,
@@ -209,8 +211,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C594B2E2F448AB10028A5EC /* www in Resources */,
 				3C5948E12F41083E0028A5EC /* presets in Resources */,
-				3C4159952F3EF3710082A3AF /* dist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
