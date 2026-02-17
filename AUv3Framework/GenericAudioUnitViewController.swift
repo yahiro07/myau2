@@ -61,13 +61,13 @@ open class GenericAudioUnitViewController: AUViewController {
     }
   }
 
-  //not invoked after init?
-  public override func viewDidLoad() {
-    logger.log("viewDidLoad")
-    super.viewDidLoad()
-    // self.preferredContentSize = CGSize(width: 1080, height: 600)
-    configureSwiftUIView()
-  }
+  //called before createAudioUnitInternal, so it's no effective action to configure the view here
+  // public override func viewDidLoad() {
+  //   logger.log("viewDidLoad")
+  //   super.viewDidLoad()
+  //   // self.preferredContentSize = CGSize(width: 1080, height: 600)
+  //   configureSwiftUIView()
+  // }
 
   #if os(iOS)
     public override func viewWillTransition(
