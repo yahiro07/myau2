@@ -22,7 +22,10 @@ export default defineConfig({
     tsconfigPaths(),
     // configs.useDevServerHttps && mkcert(),
   ],
-  base: "./",
+  build: {
+    outDir: "./www",
+  },
+  // base: "./",
   server: {
     port: configs.devServerPort,
     host: "0.0.0.0",
