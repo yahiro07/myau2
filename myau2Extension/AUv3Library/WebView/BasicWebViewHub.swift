@@ -58,11 +58,11 @@ private func mapMessageFromUI_fromDictionary(_ dict: [String: Any]) -> MessageFr
     }
   case "loadFullParameters":
     if let parametersVersion = dict["parametersVersion"] as? Int,
-      let parametersDict = dict["parameters"] as? [String: Float]
+      let parametersDict = dict["parameters"] as? [String: Double]
     {
       var parameters: [String: Float] = [:]
       for (key, value) in parametersDict {
-        parameters[key] = value
+        parameters[key] = Float(value)
       }
       return .loadFullParameters(parametersVersion: parametersVersion, parameters: parameters)
     }
@@ -317,6 +317,7 @@ class BasicWebViewHub {
 
   func startAUStateListeners() {
     valueTracker.setReceiver { [weak self] key, value in
+      logger.log("PT value changed, send to UI, \(key) \(value)")
       self?.sendMessageToUI(.setParameter(paramKey: key, value: value))
     }
     for (paramKey, paramEntry) in flatParameterTree.entries {
