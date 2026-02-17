@@ -1,5 +1,9 @@
-class ParameterSpecBuilder<Address: RawRepresentable> where Address.RawValue == AUParameterAddress {
-  func Raw(
+import AudioToolbox
+
+public class ParameterSpecBuilder<Address: RawRepresentable>
+where Address.RawValue == AUParameterAddress {
+  public init() {}
+  public func Raw(
     address: Address,
     identifier: String,
     name: String,
@@ -26,7 +30,7 @@ class ParameterSpecBuilder<Address: RawRepresentable> where Address.RawValue == 
       dependentParameters: dependentParameters
     )
   }
-  func Linear(
+  public func Linear(
     _ address: Address, _ identifier: String, _ name: String, _ defaultValue: AUValue,
     _ minValue: AUValue, _ maxValue: AUValue
   ) -> ParameterSpec {
@@ -39,7 +43,7 @@ class ParameterSpecBuilder<Address: RawRepresentable> where Address.RawValue == 
       defaultValue: defaultValue,
     )
   }
-  func Unary(
+  public func Unary(
     _ address: Address, _ identifier: String, _ name: String, _ defaultValue: AUValue
   ) -> ParameterSpec {
     return ParameterSpec(
@@ -51,7 +55,7 @@ class ParameterSpecBuilder<Address: RawRepresentable> where Address.RawValue == 
       defaultValue: defaultValue,
     )
   }
-  func Bool(
+  public func Bool(
     _ address: Address, _ identifier: String, _ name: String, _ defaultValue: Bool
   ) -> ParameterSpec {
     return ParameterSpec(
@@ -63,7 +67,7 @@ class ParameterSpecBuilder<Address: RawRepresentable> where Address.RawValue == 
       defaultValue: defaultValue ? 1.0 : 0.0,
     )
   }
-  func Enum(
+  public func Enum(
     _ address: Address, _ identifier: String, _ name: String, _ defaultString: String,
     _ valueStrings: [String]
   ) -> ParameterSpec {

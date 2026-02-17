@@ -1,3 +1,5 @@
+import Foundation
+
 private let jsonFloatFormatter: NumberFormatter = {
   let formatter = NumberFormatter()
   formatter.locale = Locale(identifier: "en_US_POSIX")
