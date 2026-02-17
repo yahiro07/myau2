@@ -189,6 +189,8 @@ class BasicWebViewHub {
   private var portalSubscription: AnyCancellable?
   private var webViewIoSubscription: AnyCancellable?
 
+  private var uiLoaded = false
+
   init(
     _ viewAccessibleResources: ViewAccessibleResources
   ) {
@@ -207,6 +209,10 @@ class BasicWebViewHub {
   }
 
   private func sendMessageToUI(_ msg: MessageFromApp) {
+    if !uiLoaded {
+      logger.log("⚠️Tried to send message before UI loaded, skipping: \(msg)")
+      return
+    }
     if let jsDataDictionary = mapMessageFromApp_toDictionary(msg) {
       webViewIo?.sendRawMessageToUI(data: jsDataDictionary)
     } else {
@@ -227,6 +233,7 @@ class BasicWebViewHub {
     switch msg {
     case .uiLoaded:
       logger.log("received UI loaded")
+      uiLoaded = true
       if audioUnitPortal.isHostedInStandaloneApp {
         sendMessageToUI(.standaloneAppFlag)
       }
