@@ -76,7 +76,7 @@ class AudioUnitHostModel {
 
       self.restoreState()
 
-      if false {
+      if true {
         if let audioUnit = playEngine.avAudioUnit {
           Task { @MainActor in
             logger.log("--Start validation--")
