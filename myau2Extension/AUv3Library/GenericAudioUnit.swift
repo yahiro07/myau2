@@ -224,7 +224,14 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
   public override var fullState: [String: Any]? {
     get {
       logger.log("Saving state")
-      var state: [String: Any] = [:]
+      let baseState = super.fullState
+      logger.log("baseVersion: \(baseState?["version"] ?? "nil")")
+      var state: [String: Any] = [
+        "type": componentDescription.componentType,
+        "subtype": componentDescription.componentSubType,
+        "manufacturer": componentDescription.componentManufacturer,
+        "version": baseState?["version"] as? Int ?? 0,
+      ]
       state["kvsItems"] = stateKvs.items
       let (parametersVersion, parameters) = emitParametersState()
       state["parametersVersion"] = parametersVersion
