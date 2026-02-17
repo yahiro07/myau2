@@ -1,10 +1,3 @@
-//
-//  myau2App.swift
-//  myau2
-//
-//  Created by ore on 2026/02/09.
-//
-
 import SwiftUI
 
 @main

@@ -1,10 +1,3 @@
-//
-//  TypeAliases.swift
-//  myau2
-//
-//  Created by ore on 2026/02/09.
-//
-
 import AudioToolbox
 import CoreMIDI
 

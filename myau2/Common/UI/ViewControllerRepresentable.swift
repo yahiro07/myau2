@@ -1,10 +1,3 @@
-//
-//  ViewControllerRepresentable.swift
-//  myau2
-//
-//  Created by ore on 2026/02/09.
-//
-
 import SwiftUI
 
 #if os(iOS) || os(visionOS)
