@@ -243,6 +243,7 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
         applyParametersState(parametersVersion, parameters)
       }
       if let kvsItems = state["kvsItems"] as? [String: String] {
+        logger.log("kvsItems to restore: \(kvsItems)")
         stateKvs.setItems(kvsItems)
       }
       //skipping super.fullState to avoid overwriting our custom restoration results.

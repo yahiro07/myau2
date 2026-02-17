@@ -290,8 +290,7 @@ class BasicWebViewHub {
         sendMessageToUI(.rpcDeleteFileResponse(rpcId: rpcId, success: false))
       }
     case .rpcLoadStateKvsItems(let rpcId):
-      let items = audioUnitPortal.isHostedInStandaloneApp ? [:] : stateKvs.items
-      sendMessageToUI(.rpcLoadStateKvsItemsResponse(rpcId: rpcId, items: items))
+      sendMessageToUI(.rpcLoadStateKvsItemsResponse(rpcId: rpcId, items: stateKvs.items))
     case .writeStateKvsItem(let key, let value):
       stateKvs.write(key, value)
     case .deleteStateKvsItem(let key):
