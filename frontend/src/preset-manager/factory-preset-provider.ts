@@ -26,7 +26,7 @@ export function createFactoryPresetProvider(): FactoryPresetProvider {
   return {
     async listPresetItems() {
       try {
-        const metaJson = await fetchAssetsJson<MetaJson>("./presets/meta.json");
+        const metaJson = await fetchAssetsJson<MetaJson>("/presets/meta.json");
         logger.log(`Loaded factory preset meta: ${JSON.stringify(metaJson)}`);
         return Object.entries(metaJson).map(([rawPresetKey, presetName]) => {
           //prefixing "factory:" to distinguish from user presets.
@@ -47,9 +47,7 @@ export function createFactoryPresetProvider(): FactoryPresetProvider {
     async loadPreset(presetKey) {
       logger.log(`Loading factory preset: ${presetKey}`);
       const rawPresetKey = presetKey.replace(/^factory:/, "");
-      return await fetchAssetsJson<PresetData>(
-        `./presets/${rawPresetKey}.json`,
-      );
+      return await fetchAssetsJson<PresetData>(`/presets/${rawPresetKey}.json`);
     },
   };
 }
