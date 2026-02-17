@@ -81,6 +81,8 @@ final class WebViewCoordinator: NSObject, WebViewIoProtocol {
     func makeNSView(context: Context) -> WKWebView {
       let config = WKWebViewConfiguration()
       config.setValue(true, forKey: "allowUniversalAccessFromFileURLs")
+      // config.setValue(true, forKey: "allowFileAccessFromFileURLs")　//crashing
+
       let userContentController: WKUserContentController = WKUserContentController()
       config.userContentController = userContentController
 
@@ -94,8 +96,12 @@ final class WebViewCoordinator: NSObject, WebViewIoProtocol {
         name: "putMessageFromUI"
       )
 
-      // loadAssetPage(webView)
-      loadLocalhostPage(webView)
+      if true {
+        loadAssetPage(webView)
+      } else {
+        loadLocalhostPage(webView)
+      }
+
       return webView
     }
 
@@ -111,12 +117,18 @@ final class WebViewCoordinator: NSObject, WebViewIoProtocol {
     }
 
     private func loadAssetPage(_ webView: WKWebView) {
-      guard
-        let url = Bundle.main.url(
-          forResource: "index", withExtension: "html", subdirectory: "dist")
-      else { return }
-      logger.log("load url: \(url)")
-      webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
+      if false {
+        guard
+          let url = Bundle.main.url(
+            forResource: "index", withExtension: "html", subdirectory: "dist")
+        else { return }
+        logger.log("load url: \(url)")
+        webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
+      } else {
+        let assetsURL = Bundle.main.resourceURL!.appendingPathComponent("dist")
+        let indexURL = assetsURL.appendingPathComponent("index.html")
+        webView.loadFileURL(indexURL, allowingReadAccessTo: assetsURL)
+      }
     }
 
   }
