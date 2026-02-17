@@ -24,7 +24,7 @@ public class GenericAudioUnitViewController: AUViewController {
     throws -> AUAudioUnit
   {
     return try DispatchQueue.main.sync {
-      logger.log("createAudioUnitInternal")
+      logger.log("⏬createAudioUnitInternal")
 
       let audioUnit = try GenericAudioUnit(
         componentDescription: componentDescription, options: [])
@@ -80,7 +80,7 @@ public class GenericAudioUnitViewController: AUViewController {
   #endif
 
   private func configureSwiftUIView() {
-    logger.log("configureSwiftUIView")
+    logger.log("⏬configureSwiftUIView")
 
     if let host = hostingController {
       host.removeFromParent()
@@ -120,17 +120,27 @@ public class GenericAudioUnitViewController: AUViewController {
     // logger.log("finished configureSwiftUIView")
   }
 
-    #if os(mscOS)
-  override public func viewDidAppear() {
-    super.viewDidAppear()
-    startEventLoop()
-  }
+  #if os(macOS)
+    override public func viewDidAppear() {
+      super.viewDidAppear()
+      startEventLoop()
+    }
 
-  override public func viewWillDisappear() {
-    super.viewWillDisappear()
-    stopEventLoop()
-  }
-    #endif
+    override public func viewWillDisappear() {
+      super.viewWillDisappear()
+      stopEventLoop()
+    }
+  #elseif os(iOS)
+    override public func viewDidAppear(_ animated: Bool) {
+      super.viewDidAppear(animated)
+      startEventLoop()
+    }
+
+    override public func viewWillDisappear(_ animated: Bool) {
+      super.viewWillDisappear(animated)
+      stopEventLoop()
+    }
+  #endif
 
   // private var displayLink: CADisplayLink?
   // func startEventLoop() {
