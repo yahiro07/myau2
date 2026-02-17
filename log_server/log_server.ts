@@ -63,6 +63,16 @@ function parseLogText(msg: string): LogItem {
   }
 }
 
+function formatTimestamp(timestamp: number) {
+  const date = new Date(timestamp);
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+  const milliseconds = String(date.getMilliseconds()).padStart(3, "0");
+  //00:00:00.000
+  return `${hours}:${minutes}:${seconds}.${milliseconds}`;
+}
+
 function createLoggerCore() {
   const logItems: LogItem[] = [];
   let timerId: number | undefined;
@@ -75,10 +85,9 @@ function createLoggerCore() {
       isMuted = false;
     } else if (logItem.message) {
       if (!isMuted) {
-        const secPart = logItem.timestamp % 1000;
         const icon = categoryPresets[logItem.category ?? ""]?.icon ?? "";
         console.log(
-          `${secPart.toFixed(3)} [${icon}${logItem.category ?? "unknown"}] ${logItem.message}`,
+          `${formatTimestamp(logItem.timestamp)} [${icon}${logItem.category ?? "unknown"}] ${logItem.message}`,
         );
       }
     }
