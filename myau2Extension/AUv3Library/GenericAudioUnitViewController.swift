@@ -3,6 +3,8 @@ import CoreAudioKit
 import SwiftUI
 import os
 
+import AUv3Framework
+
 private let log = Logger(
   subsystem: "net.miqsel.synth2511.myau2Extension", category: "AudioUnitViewController")
 
@@ -25,6 +27,7 @@ public class GenericAudioUnitViewController: AUViewController {
   {
     return try DispatchQueue.main.sync {
       logger.log("⏬createAudioUnitInternal")
+        Greet()
 
       let audioUnit = try GenericAudioUnit(
         componentDescription: componentDescription, options: [])
