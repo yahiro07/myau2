@@ -83,7 +83,7 @@ export function createCoreBridge(): CoreBridge {
 
   function sendMessage(msg: MessageFromUI) {
     try {
-      logger.log(`sending ${JSON.stringify(msg)}`);
+      logger.log(`send ${JSON.stringify(msg)}`);
       webkit?.messageHandlers.putMessageFromUI.postMessage(msg);
     } catch (e) {
       console.log(e);
@@ -94,7 +94,7 @@ export function createCoreBridge(): CoreBridge {
 
   function assignReceiver(receiver: MessageReceiver) {
     globalThisTyped.putMessageFromApp ??= (msg: MessageFromApp) => {
-      logger.log(`received ${JSON.stringify(msg)}`);
+      logger.log(`recv ${JSON.stringify(msg)}`);
       receivers.forEach((fn) => {
         fn(msg);
       });

@@ -1,5 +1,6 @@
 import { parametersConverter } from "@/bridge/converter";
 import { CoreBridge } from "@/bridge/core-bridge";
+import { logger } from "@/bridge/logger";
 import { createFactoryPresetProvider } from "@/preset-manager/factory-preset-provider";
 import { PresetData } from "@/preset-manager/preset-data-types";
 import { PresetFilesIO } from "@/preset-manager/preset-manager-core-port-types";
@@ -20,16 +21,22 @@ export function createPresetManager(
   return {
     async loadPresetList() {
       try {
-        const factoryItems = await factoryPresetProvider.listPresetItems();
-        const userItems = await presetManagerCore.listPresetItems();
-        store.mutations.setPresetItems([...factoryItems, ...userItems]);
+        logger.log("loadPresetList");
+        if (0) {
+          const factoryItems = await factoryPresetProvider.listPresetItems();
+          const userItems = await presetManagerCore.listPresetItems();
+          store.mutations.setPresetItems([...factoryItems, ...userItems]);
+        } else {
+          const userItems = await presetManagerCore.listPresetItems();
+          store.mutations.setPresetItems([...userItems]);
+        }
         const lastLoadedPresetKey = stateKvs.read("lastLoadedPresetKey");
+        logger.log(`lastLoadedPresetKey: ${lastLoadedPresetKey}`);
         if (lastLoadedPresetKey) {
           store.mutations.setLastLoadedPresetKey(lastLoadedPresetKey);
         }
-      } catch (e) {
-        console.error("Failed to load preset list", e);
-        //TODO: show error to user
+      } catch (e: unknown) {
+        logger.logError(e, "error@loadPresetList");
       }
     },
     async loadPreset(presetKey: string) {
@@ -63,8 +70,7 @@ export function createPresetManager(
           }
         }
       } catch (e) {
-        console.error(`Failed to load preset: ${presetKey}`, e);
-        //TODO: show error to user
+        logger.logError(e, `error@loadPreset, presetKey: ${presetKey}`);
       }
     },
     async savePreset(presetKey: string, presetName?: string) {
@@ -91,8 +97,7 @@ export function createPresetManager(
           stateKvs.write("lastLoadedPresetKey", presetKey);
         }
       } catch (e) {
-        console.error(`Failed to save preset: ${presetKey}`, e);
-        //TODO: show error to user
+        logger.logError(e, `error@savePreset, presetKey: ${presetKey}`);
       }
     },
   };

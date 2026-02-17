@@ -43,6 +43,11 @@ export const logger = {
       void loggingViaLocalHttp(timedMessage);
     }
   },
+  logError(e: Error | unknown, note?: string) {
+    console.error(e);
+    const msg = e instanceof Error ? (e.stack ?? e.message) : String(e);
+    logger.log(note ?? "", msg);
+  },
   timedLog(msg: string) {
     const now = new Date();
     const time = now.toISOString();
