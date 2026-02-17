@@ -2,18 +2,20 @@ import { parametersConverter } from "@/bridge/converter";
 import { CoreBridge } from "@/bridge/core-bridge";
 import { createFactoryPresetProvider } from "@/preset-manager/factory-preset-provider";
 import { PresetData } from "@/preset-manager/preset-data-types";
-import { createStateKvsAdapter } from "@/preset-manager/state-kvs-adapter";
+import { PresetFilesIO } from "@/preset-manager/preset-manager-core-port-types";
+import { StateKvsAdapter } from "@/preset-manager/state-kvs-adapter";
 import { defaultSynthParameters } from "@/store/parameters";
 import { store } from "@/store/store";
 import { filterObjectMembers } from "@/utils/general-utils";
 import { createPresetManagerCore } from "./preset-manager-core";
-import { createOnMemoryPresetFilesIO } from "./preset-manager-core-adapters";
 
-export function createPresetManager(coreBridge: CoreBridge) {
+export function createPresetManager(
+  coreBridge: CoreBridge,
+  stateKvs: StateKvsAdapter,
+  presetFilesIO: PresetFilesIO,
+) {
   const factoryPresetProvider = createFactoryPresetProvider();
-  const presetFilesIO = createOnMemoryPresetFilesIO();
   const presetManagerCore = createPresetManagerCore(presetFilesIO);
-  const stateKvs = createStateKvsAdapter(coreBridge);
 
   return {
     async loadPresetList() {
@@ -21,7 +23,6 @@ export function createPresetManager(coreBridge: CoreBridge) {
         const factoryItems = await factoryPresetProvider.listPresetItems();
         const userItems = await presetManagerCore.listPresetItems();
         store.mutations.setPresetItems([...factoryItems, ...userItems]);
-        await stateKvs.initialize();
         const lastLoadedPresetKey = stateKvs.read("lastLoadedPresetKey");
         if (lastLoadedPresetKey) {
           store.mutations.setLastLoadedPresetKey(lastLoadedPresetKey);

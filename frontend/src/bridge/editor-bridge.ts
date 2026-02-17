@@ -15,6 +15,7 @@ type EditorBridge = {
 
 export function createEditorBridge(coreBridge: CoreBridge): EditorBridge {
   function setupReceivers() {
+    logger.log("Setting up editor bridge receivers");
     let isReceiving = false;
     const parameterKeys = new Set(Object.keys(defaultSynthParameters));
     let editTargetSent: ParameterKey | undefined;

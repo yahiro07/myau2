@@ -490,13 +490,14 @@ const App = () => {
   );
 };
 
-function start() {
+async function start() {
   logger.log("UI 0033");
   const rootDiv = document.getElementById("app");
   if (!rootDiv) {
     document.body.innerHTML = "no root element found";
     return;
   }
+  await agents.initialize();
   reactDOM.createRoot(rootDiv).render(<App />);
 }
 

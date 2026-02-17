@@ -1,7 +1,7 @@
 import { CoreBridge, MessageFromUI } from "@/bridge/core-bridge";
 
 //the data is stored in AudioUnit extension's state object
-type StateKvsAdapter = {
+export type StateKvsAdapter = {
   initialize(): Promise<void>;
   read(key: string): string | undefined;
   write(key: string, value: string): void;
