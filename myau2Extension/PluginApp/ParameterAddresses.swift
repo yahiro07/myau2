@@ -1,6 +1,6 @@
 //must be synced with ParameterAddresses.h
 
-enum ParameterAddress: AUParameterAddress {
+enum ParameterAddressInSwift: AUParameterAddress {
   case osc1On = 0
   case osc1Wave
   case osc1Octave

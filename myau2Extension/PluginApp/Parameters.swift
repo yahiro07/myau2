@@ -1,7 +1,7 @@
 import AUv3Framework
 import Foundation
 
-let PB: ParameterSpecBuilder<ParameterAddress> = ParameterSpecBuilder()
+let PB: ParameterSpecBuilder<ParameterAddressInSwift> = ParameterSpecBuilder()
 
 let oscWaveValues = ["Saw", "Rect", "Tri", "Sine", "Noise"]
 

@@ -122,14 +122,15 @@ struct MyPluginContentView00: View {
   var parameterTree: ObservableAUParameterGroup
 
   var body: some View {
-    let ptFlat = TypeSafeObservableParameters(tree: parameterTree)
+    let ptFlat: (ParameterAddressInSwift) -> ObservableAUParameter =
+      flattenObservableParametersByAddress(parameterTree)
     VStack {
       Text("My Plugin 1443").bold().font(.largeTitle)
       HStack(spacing: 60) {
         VStack(spacing: 20) {
           HStack(spacing: 100) {
             Text("OSC1").bold().font(.title)
-            Picker("Wave", selection: ptFlat.osc1Wave.bindEnum) {
+            Picker("Wave", selection: ptFlat(.osc1Wave).bindEnum) {
               Text("Saw").tag(0)
               Text("Rect").tag(1)
               Text("Tri").tag(2)
@@ -137,7 +138,7 @@ struct MyPluginContentView00: View {
               Text("Noise").tag(4)
             }
           }
-          Picker("OSC Wave", selection: ptFlat.osc1Wave.bindEnum) {
+          Picker("OSC Wave", selection: ptFlat(.osc1Wave).bindEnum) {
             Text("Saw").tag(0)
             Text("Rect").tag(1)
             Text("Tri").tag(2)
@@ -146,34 +147,33 @@ struct MyPluginContentView00: View {
           }.pickerStyle(.segmented)
             .frame(width: 250)
           HStack(spacing: 40) {
-            Knob(label: "Octave", value: ptFlat.osc1Octave.bindUnary)
-            Knob(label: "PW/Mix", value: ptFlat.osc1PwMix.bindUnary)
-            Knob(label: "Volume", value: ptFlat.osc1Volume.bindUnary)
+            Knob(label: "Octave", value: ptFlat(.osc1Octave).bindUnary)
+            Knob(label: "PW/Mix", value: ptFlat(.osc1PwMix).bindUnary)
+            Knob(label: "Volume", value: ptFlat(.osc1Volume).bindUnary)
           }
         }
 
         VStack(spacing: 20) {
           HStack(spacing: 100) {
             Text("Filter").bold().font(.title)
-            Picker("Type", selection: ptFlat.filterType.bindEnum) {
+            Picker("Type", selection: ptFlat(.filterType).bindEnum) {
               Text("LPF").tag(0)
               Text("BPF").tag(1)
               Text("HPF").tag(2)
             }
           }
-          Picker("Type", selection: ptFlat.filterType.bindEnum) {
+          Picker("Type", selection: ptFlat(.filterType).bindEnum) {
             Text("LPF").tag(0)
             Text("BPF").tag(1)
             Text("HPF").tag(2)
           }.pickerStyle(.segmented)
             .frame(width: 250)
           HStack(spacing: 40) {
-            Knob(label: "Cutoff", value: ptFlat.filterCutoff.bindUnary)
-            Knob(label: "Peak", value: ptFlat.filterPeak.bindUnary)
-            Knob(label: "EnvMod", value: ptFlat.filterEnvMod.bindUnary)
+            Knob(label: "Cutoff", value: ptFlat(.filterCutoff).bindUnary)
+            Knob(label: "Peak", value: ptFlat(.filterPeak).bindUnary)
+            Knob(label: "EnvMod", value: ptFlat(.filterEnvMod).bindUnary)
           }
         }
-
       }
 
       HStack(spacing: 60) {
@@ -181,7 +181,7 @@ struct MyPluginContentView00: View {
         VStack(spacing: 20) {
           HStack(spacing: 100) {
             Text("OSC2").bold().font(.title)
-            Picker("Wave", selection: ptFlat.osc2Wave.bindEnum) {
+            Picker("Wave", selection: ptFlat(.osc2Wave).bindEnum) {
               Text("Saw").tag(0)
               Text("Rect").tag(1)
               Text("Tri").tag(2)
@@ -189,7 +189,7 @@ struct MyPluginContentView00: View {
               Text("Noise").tag(4)
             }
           }
-          Picker("OSC Wave", selection: ptFlat.osc2Wave.bindEnum) {
+          Picker("OSC Wave", selection: ptFlat(.osc2Wave).bindEnum) {
             Text("Saw").tag(0)
             Text("Rect").tag(1)
             Text("Tri").tag(2)
@@ -198,9 +198,9 @@ struct MyPluginContentView00: View {
           }.pickerStyle(.segmented)
             .frame(width: 250)
           HStack(spacing: 40) {
-            Knob(label: "Octave", value: ptFlat.osc2Octave.bindUnary)
-            Knob(label: "PW/Mix", value: ptFlat.osc2PwMix.bindUnary)
-            Knob(label: "Volume", value: ptFlat.osc2Volume.bindUnary)
+            Knob(label: "Octave", value: ptFlat(.osc2Octave).bindUnary)
+            Knob(label: "Detune", value: ptFlat(.osc2Detune).bindUnary)
+            Knob(label: "Volume", value: ptFlat(.osc2Volume).bindUnary)
           }
         }
 
@@ -209,10 +209,10 @@ struct MyPluginContentView00: View {
             Text("Amplifier").bold().font(.title)
           }
           HStack(spacing: 40) {
-            Knob(label: "Attack", value: ptFlat.ampAttack.bindUnary)
-            Knob(label: "Decay", value: ptFlat.ampDecay.bindUnary)
-            Knob(label: "Sustain", value: ptFlat.ampSustain.bindUnary)
-            Knob(label: "Release", value: ptFlat.ampRelease.bindUnary)
+            Knob(label: "Attack", value: ptFlat(.ampAttack).bindUnary)
+            Knob(label: "Decay", value: ptFlat(.ampDecay).bindUnary)
+            Knob(label: "Sustain", value: ptFlat(.ampSustain).bindUnary)
+            Knob(label: "Release", value: ptFlat(.ampRelease).bindUnary)
           }
         }
       }
@@ -220,36 +220,36 @@ struct MyPluginContentView00: View {
       HStack(spacing: 60) {
         VStack(spacing: 20) {
           HStack(spacing: 40) {
-            Knob(label: "Glide", value: ptFlat.glide.bindUnary)
-            TogglePad(label: "Mono", active: ptFlat.mono.bindBool)
-            TogglePad(label: "Osc On", active: ptFlat.oscOn.bindBool)
+            Knob(label: "Glide", value: ptFlat(.glide).bindUnary)
+            TogglePad(label: "Mono", active: ptFlat(.voicingMode).bindBool)
+            // TogglePad(label: "Osc On", active: ptFlat(.oscOn).bindBool)
           }.frame(width: 200)
         }
 
         VStack(spacing: 20) {
           HStack(spacing: 100) {
             Text("LFO").bold().font(.title)
-            Picker("Dest", selection: ptFlat.lfoDestination.bindEnum) {
+            Picker("Dest", selection: ptFlat(.lfoTarget).bindEnum) {
               Text("None").tag(0)
               Text("OSC1 Pitch").tag(1)
               Text("OSC1 PW/Mix").tag(2)
               Text("OSC1 Volume").tag(3)
               Text("OSC2 Pitch").tag(4)
-              Text("OSC2 PW/Mix").tag(5)
+              Text("OSC2 Detune").tag(5)
               Text("OSC2 Volume").tag(6)
               Text("Filter Cutoff").tag(7)
               Text("Amp Volume").tag(8)
             }
           }
-          Picker("Wave", selection: ptFlat.lfoWave.bindEnum) {
+          Picker("Wave", selection: ptFlat(.lfoWave).bindEnum) {
             Text("Saw").tag(0)
             Text("Rect").tag(1)
             Text("Tri").tag(2)
             Text("Sine").tag(3)
           }.pickerStyle(.segmented).frame(width: 250)
           HStack(spacing: 40) {
-            Knob(label: "Rate", value: ptFlat.lfoRate.bindUnary)
-            Knob(label: "Depth", value: ptFlat.lfoDepth.bindUnary)
+            Knob(label: "Rate", value: ptFlat(.lfoRate).bindUnary)
+            Knob(label: "Depth", value: ptFlat(.lfoDepth).bindUnary)
           }
         }
       }
@@ -274,12 +274,6 @@ struct MyPluginContentView00: View {
 
     }.padding(50)
       .background(.blue.opacity(0.1))
-    // .onAppear {
-    //   udpLogger.log("MyPluginContentView appeared")
-    //   let ptFlat = TypeSafeObservableParameters(tree: parameterTree)
-    //   ptFlat.osc1Wave.value = 3.0
-    //   ptFlat.osc1Volume.value = 0.1
-    // }
   }
 }
 

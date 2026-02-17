@@ -131,6 +131,8 @@ public final class ObservableAUParameter: ObservableAUParameterNode {
   let defaultValue: AUValue = 0.0
   let unit: AudioUnitParameterUnit
 
+  public let address: AUParameterAddress
+
   init(_ parameter: AUParameter) {
     self.parameter = parameter
     self.value = parameter.value
@@ -138,6 +140,7 @@ public final class ObservableAUParameter: ObservableAUParameterNode {
     self.max = parameter.maxValue
     self.displayName = parameter.displayName
     self.unit = parameter.unit
+    self.address = parameter.address
     super.init()
 
     /// Use the parameter.token(byAddingParameterObserver:) function to monitor for parameter
