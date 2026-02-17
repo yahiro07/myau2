@@ -11,6 +11,7 @@ type MetaJson = Record<string, string>; //rawPresetKey: presetName
 export async function fetchAssetsJson<T>(path: string): Promise<T> {
   const response = await fetch(path);
   if (!response.ok) {
+    logger.log("failed to fetch json", { path, status: response.status });
     throw new Error(`Failed to fetch JSON: ${path}`);
   }
   const text = await response.text();

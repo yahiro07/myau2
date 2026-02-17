@@ -524,8 +524,12 @@ const KeyboardPart = () => {
           <button
             type="button"
             onClick={async () => {
-              const json = await fetchAssetsJson("./presets/meta.json");
-              console.log({ json });
+              try {
+                const json = await fetchAssetsJson("/presets/meta.json");
+                logger.log(`fetched meta.json: ${JSON.stringify(json)}`);
+              } catch (e) {
+                logger.logError(e, "error@fetching meta.json");
+              }
             }}
           >
             debug fetch json
