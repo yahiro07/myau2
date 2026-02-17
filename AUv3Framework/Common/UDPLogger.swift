@@ -24,7 +24,6 @@ import os
     }
 
     public func log(_ message: String) {
-      print(message)
 
       let timedMessage = "(@t:\(Date().timeIntervalSince1970 * 1000), @k:\(category)) \(message)"
 

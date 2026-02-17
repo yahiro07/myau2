@@ -1,7 +1,7 @@
 import Combine
 
 private enum MessageFromUI {
-  case log(message: String)
+  case putLogItem(timeStamp: Double, kind: String, message: String)
   //UI読み込み完了時の通知,このあとプラグイン本体から初期パラメタを送信する
   case uiLoaded
   //UI操作で変更されたパラメタをプラグイン本体に送信
@@ -41,9 +41,12 @@ private enum MessageFromApp {
 private func mapMessageFromUI_fromDictionary(_ dict: [String: Any]) -> MessageFromUI? {
   guard let type = dict["type"] as? String else { return nil }
   switch type {
-  case "log":
-    if let message = dict["message"] as? String {
-      return .log(message: message)
+  case "putLogItem":
+    if let timeStamp = dict["timeStamp"] as? Double,
+      let kind = dict["kind"] as? String,
+      let message = dict["message"] as? String
+    {
+      return .putLogItem(timeStamp: timeStamp, kind: kind, message: message)
     }
   case "uiLoaded":
     return .uiLoaded
@@ -236,8 +239,9 @@ public class BasicWebViewHub {
     msg: MessageFromUI,
   ) {
     switch msg {
-    case .log(let message):
-      logger.log("⭐️Log message from UI: \(message)")
+    case .putLogItem(let timeStamp, let kind, let message):
+      loggerCore.pushLogItem(
+        LogItem(timestamp: timeStamp, subSystem: "ui", kind: kind, message: message))
     case .uiLoaded:
       logger.log("⏬ received UI loaded")
       uiLoaded = true
@@ -351,7 +355,6 @@ public class BasicWebViewHub {
     webViewIoSubscription?.cancel()
     webViewIoSubscription = webViewIo.subscribeRawMessageFromUI { [weak self] jsDataDictionary in
       if let msg: MessageFromUI = mapMessageFromUI_fromDictionary(jsDataDictionary) {
-        logger.log("mapped message from UI: \(msg)")
         self?.handleMessageFromUI(msg: msg)
       } else {
         logger.log("Unknown or invalid message from UI \(jsDataDictionary)")

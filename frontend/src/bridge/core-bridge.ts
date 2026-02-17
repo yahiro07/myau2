@@ -2,7 +2,7 @@ import { logger } from "@/bridge/logger";
 import { removeArrayItem } from "@/utils/array-utils";
 
 type MessageFromUI_Base =
-  | { type: "log"; message: string }
+  | { type: "putLogItem"; timeStamp: number; kind: string; message: string }
   | { type: "uiLoaded" }
   | { type: "beginParameterEdit"; paramKey: string }
   | { type: "endParameterEdit"; paramKey: string }

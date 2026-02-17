@@ -47,7 +47,7 @@ let subSystemIcons: [String: String] = [
 
 let logKindIcons: [String: String] = [
   "log": "",
-  "mark": "🟢",
+  "mark": "🔽",
   "warn": "⚠️",
   "error": "📛",
 ]
