@@ -1,1 +1,1 @@
-#import "MySynthDSP-Bridging-Header.h"
+#import "MySynthDSP.hpp"
