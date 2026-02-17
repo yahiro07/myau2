@@ -30,6 +30,8 @@ public class GenericAudioUnitViewController: AUViewController {
         componentDescription: componentDescription, options: [])
       self.audioUnit = audioUnit
 
+      try presetFilesIO.debugLogDataLocation()
+
       audioUnit.setupPluginCore(pluginCore)
 
       self.audioUnitPortal.setAudioUnit(audioUnit)

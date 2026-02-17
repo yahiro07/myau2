@@ -57,6 +57,11 @@ class SharedContainer {
 
 class PresetFilesIOImpl: PresetFilesIO {
 
+  func debugLogDataLocation() throws {
+    let baseURL = try SharedContainer.baseURL()
+    logger.log("data location: \(baseURL.path)")
+  }
+
   func readFile(path: String, skipIfNotExist: Bool? = false) throws -> String {
     let fileURL = try SharedContainer.getRelativePathFileURL(path)
     if FileManager.default.fileExists(atPath: fileURL.path) {
