@@ -10,7 +10,11 @@ import {
   VoicingModeOptions,
 } from "@/store/parameters";
 import { store } from "@/store/store";
-import { flexCentered, flexVertical } from "@/utils/styling-utils";
+import {
+  flexCentered,
+  flexVertical,
+  flexVerticalCentered,
+} from "@/utils/styling-utils";
 import "@/styles/utility-classes.css";
 import "@/styles/page.css";
 import { useEffect } from "react";
@@ -424,7 +428,7 @@ const KeyboardPart = () => {
           fontSize: "20px",
           fontWeight: "bold",
         },
-        ...flexCentered(40),
+        ...flexVerticalCentered(10),
         button: {
           width: "80px",
           height: "60px",
@@ -434,47 +438,88 @@ const KeyboardPart = () => {
         },
       }}
     >
-      <div className="flex-ha gap-2">
-        <button
-          type="button"
-          onPointerDown={() => actions.noteOn(60)}
-          onPointerUp={() => actions.noteOff(60)}
-        >
-          C
-        </button>
-        <button
-          type="button"
-          onPointerDown={() => actions.noteOn(62)}
-          onPointerUp={() => actions.noteOff(62)}
-        >
-          D
-        </button>
-        <button
-          type="button"
-          onPointerDown={() => actions.noteOn(64)}
-          onPointerUp={() => actions.noteOff(64)}
-        >
-          E
-        </button>
+      <div className="flex-ha gap-10">
+        <div className="flex-ha gap-2">
+          <button
+            type="button"
+            onPointerDown={() => actions.noteOn(60)}
+            onPointerUp={() => actions.noteOff(60)}
+          >
+            C
+          </button>
+          <button
+            type="button"
+            onPointerDown={() => actions.noteOn(62)}
+            onPointerUp={() => actions.noteOff(62)}
+          >
+            D
+          </button>
+          <button
+            type="button"
+            onPointerDown={() => actions.noteOn(64)}
+            onPointerUp={() => actions.noteOff(64)}
+          >
+            E
+          </button>
+        </div>
+        <div className="flex-ha gap-2">
+          <button type="button" onClick={() => actions.loadPresetFromSlot(1)}>
+            load preset 1
+          </button>
+          <button
+            type="button"
+            onClick={() => actions.saveCurrentPresetToSlot(1)}
+          >
+            save preset 1
+          </button>
+          <button type="button" onClick={() => actions.loadPresetFromSlot(2)}>
+            load preset 2
+          </button>
+          <button
+            type="button"
+            onClick={() => actions.saveCurrentPresetToSlot(2)}
+          >
+            save preset 2
+          </button>
+        </div>
       </div>
       <div className="flex-ha gap-2">
-        <button type="button" onClick={() => actions.loadPresetFromSlot(1)}>
-          load preset 1
+        <button
+          type="button"
+          onClick={() => {
+            agents.stateKvs.write("testKey", "hello world");
+            logger.log("state kvs write: testKey = hello world");
+          }}
+        >
+          state kvs set
         </button>
         <button
           type="button"
-          onClick={() => actions.saveCurrentPresetToSlot(1)}
+          onClick={() => {
+            const value = agents.stateKvs.read("testKey");
+            logger.log(`state kvs read: ${value}`);
+          }}
         >
-          save preset 1
+          state kvs get
         </button>
-        <button type="button" onClick={() => actions.loadPresetFromSlot(2)}>
-          load preset 2
+
+        <button
+          type="button"
+          onClick={() => {
+            agents.sharedKvs.write("testKey1", "hello world1");
+            logger.log("shared kvs write: testKey1 = hello world1");
+          }}
+        >
+          shared kvs set
         </button>
         <button
           type="button"
-          onClick={() => actions.saveCurrentPresetToSlot(2)}
+          onClick={() => {
+            const value = agents.sharedKvs.read("testKey1");
+            logger.log(`shared kvs read: ${value}`);
+          }}
         >
-          save preset 2
+          shared kvs get
         </button>
       </div>
     </div>
