@@ -68,6 +68,61 @@ final class WebViewCoordinator: NSObject, WebViewIoProtocol {
   }
 }
 
+class MySchemeHandler: NSObject, WKURLSchemeHandler {
+
+  func webView(
+    _ webView: WKWebView,
+    start urlSchemeTask: WKURLSchemeTask
+  ) {
+
+    guard let url = urlSchemeTask.request.url else { return }
+
+    print("request url:", url.absoluteString)
+    print("url.path:", url.path)
+
+    let host = url.host ?? ""
+    let path = url.path
+
+    let relativePath = host + path
+
+    let resourceURL = Bundle.main.resourceURL!
+    let fileURL = resourceURL.appendingPathComponent(relativePath)
+
+    print("Loading:", fileURL.path)
+
+    guard let data = try? Data(contentsOf: fileURL) else {
+      logger.log("Failed to load file for URL: \(url), path: \(path)")
+      urlSchemeTask.didFailWithError(NSError(domain: "file", code: 404))
+      return
+    }
+
+    let response = URLResponse(
+      url: url,
+      mimeType: mimeType(for: fileURL.path),
+      expectedContentLength: data.count,
+      textEncodingName: nil
+    )
+
+    urlSchemeTask.didReceive(response)
+    urlSchemeTask.didReceive(data)
+    urlSchemeTask.didFinish()
+  }
+
+  func webView(
+    _ webView: WKWebView,
+    stop urlSchemeTask: WKURLSchemeTask
+  ) {
+  }
+
+  private func mimeType(for path: String) -> String {
+    if path.hasSuffix(".html") { return "text/html" }
+    if path.hasSuffix(".js") { return "application/javascript" }
+    if path.hasSuffix(".css") { return "text/css" }
+    if path.hasSuffix(".json") { return "application/json" }
+    return "application/octet-stream"
+  }
+}
+
 #if os(macOS)
   struct LocalWebView: NSViewRepresentable {
     let onBind: (WebViewIoProtocol) -> Void
@@ -80,8 +135,10 @@ final class WebViewCoordinator: NSObject, WebViewIoProtocol {
 
     func makeNSView(context: Context) -> WKWebView {
       let config = WKWebViewConfiguration()
-      config.setValue(true, forKey: "allowUniversalAccessFromFileURLs")
+      // config.setValue(true, forKey: "allowUniversalAccessFromFileURLs")
       // config.setValue(true, forKey: "allowFileAccessFromFileURLs")　//crashing
+
+      config.setURLSchemeHandler(MySchemeHandler(), forURLScheme: "app")
 
       let userContentController: WKUserContentController = WKUserContentController()
       config.userContentController = userContentController
@@ -96,11 +153,14 @@ final class WebViewCoordinator: NSObject, WebViewIoProtocol {
         name: "putMessageFromUI"
       )
 
-      if true {
-        loadAssetPage(webView)
-      } else {
-        loadLocalhostPage(webView)
-      }
+      let url = URL(string: "app://www/index.html")!
+      webView.load(URLRequest(url: url))
+
+      // if true {
+      //   loadAssetPage(webView)
+      // } else {
+      //   loadLocalhostPage(webView)
+      // }
 
       return webView
     }
@@ -110,58 +170,27 @@ final class WebViewCoordinator: NSObject, WebViewIoProtocol {
       context.coordinator.callOnBindIfNeeded(onBind)
     }
 
-    private func loadLocalhostPage(_ webView: WKWebView) {
-      guard let url = URL(string: "http://localhost:3000") else { return }
-      logger.log("load url: \(url)")
-      webView.load(URLRequest(url: url))
-    }
+    // private func loadLocalhostPage(_ webView: WKWebView) {
+    //   guard let url = URL(string: "http://localhost:3000") else { return }
+    //   logger.log("load url: \(url)")
+    //   webView.load(URLRequest(url: url))
+    // }
 
-    private func loadAssetPage(_ webView: WKWebView) {
-      if false {
-        guard
-          let url = Bundle.main.url(
-            forResource: "index", withExtension: "html", subdirectory: "dist")
-        else { return }
-        logger.log("load url: \(url)")
-        webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
-      } else {
-        let assetsURL = Bundle.main.resourceURL!.appendingPathComponent("dist")
-        let indexURL = assetsURL.appendingPathComponent("index.html")
-        webView.loadFileURL(indexURL, allowingReadAccessTo: assetsURL)
-      }
-    }
-
-  }
-
-#elseif os(iOS)
-
-  struct LocalWebView: UIViewRepresentable {
-    // iOSではUIViewRepresentableを使用
-
-    func makeUIView(context: Context) -> WKWebView {
-      let config = WKWebViewConfiguration()
-      config.setValue(true, forKey: "allowUniversalAccessFromFileURLs")
-
-      let webView = WKWebView(frame: .zero, configuration: config)
-
-      loadPage(webView)
-      return webView
-    }
-
-    func loadPage(_ webView: WKWebView) {
-      guard
-        let url = Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "dist")
-      else {
-        print("Invalid URL")
-        return
-      }
-      print("Load URL: \(url)")
-      webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
-    }
-
-    func updateUIView(_ webView: WKWebView, context: Context) {
-
-    }
+    // private func loadAssetPage(_ webView: WKWebView) {
+    //   if false {
+    //     guard
+    //       let url = Bundle.main.url(
+    //         forResource: "index", withExtension: "html", subdirectory: "dist")
+    //     else { return }
+    //     logger.log("load url: \(url)")
+    //     webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
+    //   } else {
+    //     let assetsURL = Bundle.main.resourceURL!.appendingPathComponent("dist")
+    //     let indexURL = assetsURL.appendingPathComponent("index.html")
+    //     webView.loadFileURL(indexURL, allowingReadAccessTo: assetsURL)
+    //   }
+    // }
 
   }
+
 #endif
