@@ -424,9 +424,9 @@ const KeyboardPart = () => {
           fontSize: "20px",
           fontWeight: "bold",
         },
-        ...flexCentered(8),
-        ">button": {
-          width: "60px",
+        ...flexCentered(40),
+        button: {
+          width: "80px",
           height: "60px",
           background: "#fff",
           border: "solid 1px #888",
@@ -457,7 +457,7 @@ const KeyboardPart = () => {
           E
         </button>
       </div>
-      <div className="flex-ha ga-2">
+      <div className="flex-ha gap-2">
         <button type="button" onClick={() => actions.loadPresetFromSlot(1)}>
           load preset 1
         </button>
