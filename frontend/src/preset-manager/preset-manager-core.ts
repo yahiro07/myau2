@@ -21,6 +21,14 @@ function mapPresetKeyToRelativeFilePath(presetKey: string): string {
   return `user_presets/${presetKey}.json`;
 }
 
+function checkPresetKeyValid(presetKey: string): boolean {
+  //raise error if presetKey contains characters that are not allowed in file names
+  if (/[\/\\:\*\?"<>\|]/.test(presetKey)) {
+    return false;
+  }
+  return true;
+}
+
 type PresetListStorage = {
   listItems(): Promise<PresetListItem[]>;
   addItem(item: PresetListItem): Promise<void>;
@@ -170,6 +178,12 @@ export function createPresetManagerCore(
       return await presetListStorage.listItems();
     },
     async savePreset(presetKey, presetData) {
+      const presetKeyValid = checkPresetKeyValid(presetKey);
+      if (!presetKeyValid) {
+        throw new Error(
+          `Invalid presetKey: ${presetKey}. presetKey cannot contain characters that are not allowed in file names.`,
+        );
+      }
       const relativeFilePath = mapPresetKeyToRelativeFilePath(presetKey);
       const presetListItem: PresetListItem = {
         presetKey,
