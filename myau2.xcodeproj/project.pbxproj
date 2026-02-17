@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3C5948E12F41083E0028A5EC /* presets in Resources */ = {isa = PBXBuildFile; fileRef = 3C5948E02F41083E0028A5EC /* presets */; };
 		3C594B2E2F448AB10028A5EC /* www in Resources */ = {isa = PBXBuildFile; fileRef = 3C594B2D2F448AB10028A5EC /* www */; };
 		3C594DCD2F44B1E90028A5EC /* AUv3Framework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C594DC52F44B1D30028A5EC /* AUv3Framework.framework */; };
 		3C594DCE2F44B1E90028A5EC /* AUv3Framework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3C594DC52F44B1D30028A5EC /* AUv3Framework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -57,7 +56,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		3C5948E02F41083E0028A5EC /* presets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = presets; sourceTree = "<group>"; };
 		3C594B2D2F448AB10028A5EC /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; name = www; path = frontend/www; sourceTree = "<group>"; };
 		3C594DC52F44B1D30028A5EC /* AUv3Framework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AUv3Framework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3CF376FB2F39F4EA001F5073 /* myau2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myau2.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -128,7 +126,6 @@
 			isa = PBXGroup;
 			children = (
 				3C594B2D2F448AB10028A5EC /* www */,
-				3C5948E02F41083E0028A5EC /* presets */,
 				3CF376FD2F39F4EA001F5073 /* myau2 */,
 				3CF377252F39F4EB001F5073 /* myau2Extension */,
 				3C594DC62F44B1D30028A5EC /* AUv3Framework */,
@@ -292,7 +289,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				3C594B2E2F448AB10028A5EC /* www in Resources */,
-				3C5948E12F41083E0028A5EC /* presets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
