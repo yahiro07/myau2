@@ -102,9 +102,6 @@ export function createEditorBridge(coreBridge: CoreBridge): EditorBridge {
         isReceiving = false;
       });
     });
-
-    coreBridge.sendMessage({ type: "uiLoaded" });
-
     return () => {
       unsubscribeStore();
       unsubscribeCoreBridge();

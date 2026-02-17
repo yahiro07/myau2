@@ -39,6 +39,7 @@ function createAgents() {
     },
     async initialLoad() {
       logger.log("agents initial loading...");
+      coreBridge.sendMessage({ type: "uiLoaded" });
       await stateKvs.initialLoad();
       await sharedKvs.initialLoad();
       await presetManager.loadPresetList();
