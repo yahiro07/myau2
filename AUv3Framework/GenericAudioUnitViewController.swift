@@ -89,7 +89,7 @@ open class GenericAudioUnitViewController: AUViewController {
       host.view.removeFromSuperview()
     }
     guard let audioUnit = self.audioUnit,
-      let observableParameterTree = audioUnit.observableParameterTree,
+      let parameterTree = audioUnit.parameterTree,
       let pluginCore = audioUnit.pluginCore
     else {
       return
@@ -97,7 +97,7 @@ open class GenericAudioUnitViewController: AUViewController {
 
     let parameterMigrator = pluginCore.parametersMigrator
     let viewAccessibleResources = ViewAccessibleResources(
-      parameterTree: observableParameterTree, audioUnitPortal: self.audioUnitPortal,
+      parameterTree: parameterTree, audioUnitPortal: self.audioUnitPortal,
       presetFilesIO: self.presetFilesIO, parametersMigrator: parameterMigrator,
       stateKvs: audioUnit.stateKvs)
 

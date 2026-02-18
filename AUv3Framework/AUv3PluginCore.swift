@@ -7,7 +7,7 @@ public protocol ParametersMigrator {
 }
 
 public struct ViewAccessibleResources {
-  public let parameterTree: ObservableAUParameterGroup
+  public let parameterTree: AUParameterTree
   public let audioUnitPortal: AudioUnitPortal
   public let presetFilesIO: PresetFilesIO
   public let parametersMigrator: ParametersMigrator?
@@ -15,10 +15,10 @@ public struct ViewAccessibleResources {
 }
 
 public protocol AUv3PluginCore: AnyObject {
+  var parametersMigrator: ParametersMigrator? { get }
   func buildParameters() -> AUParameterTree
   func getDSPCore() -> UnsafeMutablePointer<DSPCore>
   func createView(
     _ viewAccessibleResources: ViewAccessibleResources
   ) -> AnyView
-  var parametersMigrator: ParametersMigrator? { get }
 }

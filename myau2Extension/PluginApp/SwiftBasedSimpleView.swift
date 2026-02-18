@@ -1,4 +1,5 @@
 import AUv3Framework
+import AudioToolbox
 import SwiftUI
 
 struct Knob: View {
@@ -119,7 +120,11 @@ extension ObservableAUParameter {
 }
 
 struct SwiftBasedSimpleView: View {
-  var parameterTree: ObservableAUParameterGroup
+  private let parameterTree: ObservableAUParameterGroup
+
+  init(parameterTree: AUParameterTree) {
+    self.parameterTree = ObservableAUParameterGroup(parameterTree)
+  }
 
   var body: some View {
     let ptFlat: (ParameterAddressInSwift) -> ObservableAUParameter =

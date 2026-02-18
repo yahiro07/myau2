@@ -100,7 +100,7 @@ public final class ObservableAUParameterGroup: ObservableAUParameterNode {
 
   private(set) var children: [String: ObservableAUParameterNode]
 
-  init(_ parameterGroup: AUParameterGroup) {
+  public init(_ parameterGroup: AUParameterGroup) {
     children = parameterGroup.children.reduce(
       into: [String: ObservableAUParameterNode]()
     ) { dict, node in
@@ -122,7 +122,7 @@ public final class ObservableAUParameterGroup: ObservableAUParameterNode {
 public final class ObservableAUParameter: ObservableAUParameterNode {
 
   private weak var parameter: AUParameter?
-  private var observerToken: AUParameterObserverToken!
+  private var observerToken: AUParameterObserverToken?
   private var editingState: EditingState = .inactive
 
   let min: AUValue
@@ -145,10 +145,12 @@ public final class ObservableAUParameter: ObservableAUParameterNode {
 
     /// Use the parameter.token(byAddingParameterObserver:) function to monitor for parameter
     /// changes from the host. The only role of this callback is to update the UI if the value is changed by the host.
+    weak var weakSelf = self
     self.observerToken = parameter.token {
       @Sendable (_ address: AUParameterAddress, _ auValue: AUValue) in
 
       DispatchQueue.main.async {
+        guard let self = weakSelf else { return }
         guard address == self.parameter?.address else { return }
 
         // Don't update the UI if the user is currently interacting
@@ -158,6 +160,12 @@ public final class ObservableAUParameter: ObservableAUParameterNode {
         self.value = auValue
         self.editingState = .inactive
       }
+    }
+  }
+
+  @MainActor deinit {
+    if let parameter, let token = observerToken {
+      parameter.removeParameterObserver(token)
     }
   }
 
@@ -278,11 +286,11 @@ public final class ObservableAUParameter: ObservableAUParameterNode {
   // }
 }
 
-extension AUAudioUnit {
-  // Can we subclass the Parameter tree to set that on the AUAudioUnit?
+// extension AUAudioUnit {
+//   // Can we subclass the Parameter tree to set that on the AUAudioUnit?
 
-  @MainActor var observableParameterTree: ObservableAUParameterGroup? {
-    guard let paramTree = self.parameterTree else { return nil }
-    return ObservableAUParameterGroup(paramTree)
-  }
-}
+//   @MainActor var observableParameterTree: ObservableAUParameterGroup? {
+//     guard let paramTree = self.parameterTree else { return nil }
+//     return ObservableAUParameterGroup(paramTree)
+//   }
+// }

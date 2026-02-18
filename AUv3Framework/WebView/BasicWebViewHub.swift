@@ -205,7 +205,7 @@ public class BasicWebViewHub {
   ) {
     logger.mark("BasicWebViewHub init")
     self.flatParameterTree = FlatObservableParameters(
-      parameterTree: viewAccessibleResources.parameterTree)
+      parameterTree: ObservableAUParameterGroup(viewAccessibleResources.parameterTree))
     self.audioUnitPortal = viewAccessibleResources.audioUnitPortal
     self.presetFilesIO = viewAccessibleResources.presetFilesIO
     self.parameterMigrator = viewAccessibleResources.parametersMigrator
