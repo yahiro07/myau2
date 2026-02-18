@@ -65,14 +65,17 @@
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		3C594FC22F456DD90028A5EC /* Exceptions for "AUv3Framework" folder in "AUv3Framework" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			publicHeaders = (
-				AUv3Framework.h,
-				DSPCore.hpp,
+			privateHeaders = (
+				AUv3Framework_Private.h,
 				GenericAUProcessHelper.hpp,
 				GenericDSPKernel.hpp,
 				Portal/LowLevelPortalEvent.hpp,
 				Portal/LowLevelPortalEventQueue.hpp,
 				Portal/SPSCQueue.hpp,
+			);
+			publicHeaders = (
+				AUv3Framework.h,
+				DSPCore.hpp,
 			);
 			target = 3C594DC42F44B1D30028A5EC /* AUv3Framework */;
 		};
@@ -379,6 +382,8 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
+				MODULEMAP_FILE = AUv3Framework/module.modulemap;
+				MODULEMAP_PRIVATE_FILE = AUv3Framework/module.private.modulemap;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = net.miqsel.synth2511.AUv3Framework;
@@ -431,6 +436,8 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
+				MODULEMAP_FILE = AUv3Framework/module.modulemap;
+				MODULEMAP_PRIVATE_FILE = AUv3Framework/module.private.modulemap;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = net.miqsel.synth2511.AUv3Framework;

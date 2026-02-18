@@ -1,4 +1,5 @@
 import AUv3Framework
+import AudioToolbox
 import SwiftUI
 
 class MyPluginCore: AUv3PluginCore {

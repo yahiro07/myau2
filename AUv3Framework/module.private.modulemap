@@ -1,0 +1,5 @@
+framework module AUv3Framework_Private {
+    umbrella header "AUv3Framework_Private.h"
+    export *
+    module * { export * }
+}

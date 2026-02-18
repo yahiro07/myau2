@@ -1,3 +1,5 @@
+import AUv3Framework_Private
+
 func mapPortalEventFromRaw(_ rawEvent: LowLevelPortalEvent) -> AudioUnitPortalEvent? {
   let type = rawEvent.type
   let data1: Int = Int(rawEvent.data1)
