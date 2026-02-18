@@ -6,6 +6,7 @@
 //   case mute
 //   case unmute
 // }
+import Foundation
 
 public struct LogItem {
   let timestamp: Double  //ms from epoch
