@@ -10,6 +10,7 @@
 		3C594B2E2F448AB10028A5EC /* www in Resources */ = {isa = PBXBuildFile; fileRef = 3C594B2D2F448AB10028A5EC /* www */; };
 		3C594DCD2F44B1E90028A5EC /* AUv3Framework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C594DC52F44B1D30028A5EC /* AUv3Framework.framework */; };
 		3C594DCE2F44B1E90028A5EC /* AUv3Framework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3C594DC52F44B1D30028A5EC /* AUv3Framework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3C5956F42F461BD60028A5EC /* www_dev in Resources */ = {isa = PBXBuildFile; fileRef = 3C5956F32F461BD60028A5EC /* www_dev */; };
 		3CF377222F39F4EB001F5073 /* myau2Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3CF377212F39F4EB001F5073 /* myau2Extension.appex */; platformFilters = (ios, macos, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -58,6 +59,7 @@
 /* Begin PBXFileReference section */
 		3C594B2D2F448AB10028A5EC /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; name = www; path = frontend/www; sourceTree = "<group>"; };
 		3C594DC52F44B1D30028A5EC /* AUv3Framework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AUv3Framework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C5956F32F461BD60028A5EC /* www_dev */ = {isa = PBXFileReference; lastKnownFileType = folder; name = www_dev; path = frontend/www_dev; sourceTree = "<group>"; };
 		3CF376FB2F39F4EA001F5073 /* myau2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myau2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3CF377212F39F4EB001F5073 /* myau2Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = myau2Extension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -144,6 +146,7 @@
 		3CF376F22F39F4EA001F5073 = {
 			isa = PBXGroup;
 			children = (
+				3C5956F32F461BD60028A5EC /* www_dev */,
 				3C594B2D2F448AB10028A5EC /* www */,
 				3CF376FD2F39F4EA001F5073 /* myau2 */,
 				3CF377252F39F4EB001F5073 /* myau2Extension */,
@@ -307,6 +310,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C5956F42F461BD60028A5EC /* www_dev in Resources */,
 				3C594B2E2F448AB10028A5EC /* www in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
