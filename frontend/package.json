@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite",
     "typecheck": "tsc -b",
-    "build": "tsc && vite build"
+    "build": "tsc && vite build && touch www_dev/.keep"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

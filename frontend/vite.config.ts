@@ -23,7 +23,7 @@ export default defineConfig({
     // configs.useDevServerHttps && mkcert(),
   ],
   build: {
-    outDir: "./www",
+    outDir: "./www_dev",
   },
   // base: "./",
   server: {
