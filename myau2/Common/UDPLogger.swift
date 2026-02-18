@@ -7,11 +7,8 @@ import os
   class UDPLogger {
     private var conn: NWConnection?
     private let dispatchQueue = DispatchQueue(label: "UDPLogger")
-    private let subSystem: String
 
-    init(subSystem: String) {
-      self.subSystem = subSystem
-    }
+    init() {}
 
     private func ensureConnection() {
       if conn != nil { return }
@@ -23,14 +20,8 @@ import os
       conn?.start(queue: dispatchQueue)
     }
 
-    func log(_ message: String) {
-      print(message)
-
-      let timedMessage =
-        "(t:\(Date().timeIntervalSince1970 * 1000), s:\(subSystem), k:log) \(message)"
-
-      guard let content = timedMessage.data(using: .utf8) else { return }
-
+    private func log(_ logLine: String) {
+      guard let content = logLine.data(using: .utf8) else { return }
       dispatchQueue.async { [weak self] in
         guard let self else { return }
         self.ensureConnection()
@@ -39,15 +30,18 @@ import os
           completion: .contentProcessed({ error in }))
       }
     }
+
+    func pushLogItem(_ item: LogItem) {
+      let logLine = "(t:\(item.timestamp), s:\(item.subSystem), k:\(item.kind)) \(item.message)"
+      log(logLine)
+    }
   }
 
 #else
 
   class UDPLogger {
     init() {}
-    func log(_ message: String) {}
+    func pushLogItem(_ item: LogItem) {}
   }
 
 #endif
-
-let logger = UDPLogger(subSystem: "host")
