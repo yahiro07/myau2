@@ -11,7 +11,7 @@ type MetaJson = Record<string, string>; //rawPresetKey: presetName
 export async function fetchAssetsJson<T>(path: string): Promise<T> {
   const response = await fetch(path);
   if (!response.ok) {
-    logger.log("failed to fetch json", { path, status: response.status });
+    logger.error("failed to fetch json", { path, status: response.status });
     throw new Error(`Failed to fetch JSON: ${path}`);
   }
   const text = await response.text();
@@ -40,12 +40,12 @@ export function createFactoryPresetProvider(): FactoryPresetProvider {
           };
         });
       } catch (e) {
-        logger.logError(e, "error@listFactoryPresets");
+        logger.error(e, "error@listFactoryPresets");
         return [];
       }
     },
     async loadPreset(presetKey) {
-      logger.log(`Loading factory preset: ${presetKey}`);
+      // logger.log(`Loading factory preset: ${presetKey}`);
       const rawPresetKey = presetKey.replace(/^factory:/, "");
       return await fetchAssetsJson<PresetData>(`/presets/${rawPresetKey}.json`);
     },
