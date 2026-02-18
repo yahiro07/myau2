@@ -122,7 +122,7 @@ extension ObservableAUParameter {
 struct SwiftBasedSimpleView: View {
   private let parameterTree: ObservableAUParameterGroup
 
-  init(parameterTree: AUParameterTree) {
+  init(_ parameterTree: AUParameterTree) {
     self.parameterTree = ObservableAUParameterGroup(parameterTree)
   }
 

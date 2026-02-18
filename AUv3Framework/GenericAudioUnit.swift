@@ -64,7 +64,7 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
     self.pluginCore = pluginCore
     let dspCore = pluginCore.getDSPCore()
     kernel.setDSPCore(&dspCore.pointee)
-    self.setupParameterTree(pluginCore.buildParameters())
+    self.setupParameterTree(pluginCore.parameterTree)
   }
 
   public override var outputBusses: AUAudioUnitBusArray {

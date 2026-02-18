@@ -16,7 +16,7 @@ public struct ViewAccessibleResources {
 
 public protocol AUv3PluginCore: AnyObject {
   var parametersMigrator: ParametersMigrator? { get }
-  func buildParameters() -> AUParameterTree
+  var parameterTree: AUParameterTree { get }
   func getDSPCore() -> UnsafeMutablePointer<DSPCore>
   func createView(
     _ viewAccessibleResources: ViewAccessibleResources

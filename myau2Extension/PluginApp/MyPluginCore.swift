@@ -5,11 +5,8 @@ import SwiftUI
 class MyPluginCore: AUv3PluginCore {
   private var mySynthDSP = MySynthDSP()
 
-  var parametersMigrator: ParametersMigrator? = ParametersMigratorImpl()
-
-  func buildParameters() -> AUParameterTree {
-    myPluginParameterSpecs.createAUParameterTree()
-  }
+  let parameterTree = myPluginParameterSpecs.createAUParameterTree()
+  let parametersMigrator: ParametersMigrator? = ParametersMigratorImpl()
 
   func getDSPCore() -> UnsafeMutablePointer<DSPCore> {
     return mySynthDSP.asDSPCorePointer()!
@@ -23,7 +20,7 @@ class MyPluginCore: AUv3PluginCore {
       return AnyView(MyPluginContentView(viewAccessibleResources))
     } else {
       //A Simple Swift based UI, kept as a minimum working example.
-      return AnyView(SwiftBasedSimpleView(parameterTree: viewAccessibleResources.parameterTree))
+      return AnyView(SwiftBasedSimpleView(parameterTree))
     }
   }
 
