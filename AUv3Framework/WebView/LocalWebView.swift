@@ -147,7 +147,7 @@ func commonWebViewSetup(
 
   coordinator.webView = webView
 
-  if false {
+  if true {
     let url = URL(string: "app://www/index.html")!
     webView.load(URLRequest(url: url))
   } else {
