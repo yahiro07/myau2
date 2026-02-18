@@ -90,7 +90,7 @@ function createLoggerEntry() {
     }
 
     if (loggerOptions.localHttp) {
-      void loggingViaLocalHttp(`(@t:${Date.now()}, @k:${kind}) ${msg}`);
+      void loggingViaLocalHttp(`(t:${Date.now()}, s:ui, k:${kind}) ${msg}`);
     }
 
     if (loggerOptions.sendToApp) {

@@ -7,10 +7,10 @@ import os
   class UDPLogger {
     private var conn: NWConnection?
     private let dispatchQueue = DispatchQueue(label: "UDPLogger")
-    private let category: String
+    private let subSystem: String
 
-    init(category: String) {
-      self.category = category
+    init(subSystem: String) {
+      self.subSystem = subSystem
     }
 
     private func ensureConnection() {
@@ -26,7 +26,8 @@ import os
     func log(_ message: String) {
       print(message)
 
-      let timedMessage = "(@t:\(Date().timeIntervalSince1970 * 1000), @k:\(category)) \(message)"
+      let timedMessage =
+        "(t:\(Date().timeIntervalSince1970 * 1000), s:\(subSystem), k:log) \(message)"
 
       guard let content = timedMessage.data(using: .utf8) else { return }
 
@@ -49,4 +50,4 @@ import os
 
 #endif
 
-let logger = UDPLogger(category: "host")
+let logger = UDPLogger(subSystem: "host")

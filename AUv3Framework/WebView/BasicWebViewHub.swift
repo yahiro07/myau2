@@ -239,9 +239,9 @@ public class BasicWebViewHub {
     msg: MessageFromUI,
   ) {
     switch msg {
-    case .putLogItem(let timeStamp, let kind, let message):
+    case .putLogItem(let timestamp, let kind, let message):
       loggerCore.pushLogItem(
-        LogItem(timestamp: timeStamp, subSystem: "ui", kind: kind, message: message))
+        LogItem(timestamp: timestamp, subSystem: "ui", kind: kind, message: message))
     case .uiLoaded:
       logger.mark("received UI loaded")
       uiLoaded = true

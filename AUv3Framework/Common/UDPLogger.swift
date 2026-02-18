@@ -4,14 +4,11 @@ import os
 
 #if DEBUG
 
-  public class UDPLogger {
+  class UDPLogger {
     private var conn: NWConnection?
     private let dispatchQueue = DispatchQueue(label: "UDPLogger")
-    private let category: String
 
-    public init(category: String) {
-      self.category = category
-    }
+    init() {}
 
     private func ensureConnection() {
       if conn != nil { return }
@@ -23,12 +20,8 @@ import os
       conn?.start(queue: dispatchQueue)
     }
 
-    public func log(_ message: String) {
-
-      let timedMessage = "(@t:\(Date().timeIntervalSince1970 * 1000), @k:\(category)) \(message)"
-
-      guard let content = timedMessage.data(using: .utf8) else { return }
-
+    private func log(_ logLine: String) {
+      guard let content = logLine.data(using: .utf8) else { return }
       dispatchQueue.async { [weak self] in
         guard let self else { return }
         self.ensureConnection()
@@ -37,14 +30,18 @@ import os
           completion: .contentProcessed({ error in }))
       }
     }
+
+    func pushLogItem(_ item: LogItem) {
+      let logLine = "(t:\(item.timestamp), s:\(item.subSystem), k:\(item.kind)) \(item.message)"
+      log(logLine)
+    }
   }
 
 #else
 
-  public class UDPLogger {
-    public init() {}
-    public func log(_ message: String) {
-    }
+  class UDPLogger {
+    init() {}
+    func pushLogItem(_ item: LogItem) {}
   }
 
 #endif

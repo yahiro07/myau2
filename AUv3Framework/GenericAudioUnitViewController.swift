@@ -80,7 +80,7 @@ open class GenericAudioUnitViewController: AUViewController {
   #endif
 
   private func configureSwiftUIView() {
-    logger.log("⏬configureSwiftUIView")
+    logger.mark("configureSwiftUIView")
 
     if let host = hostingController {
       host.removeFromParent()

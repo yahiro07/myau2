@@ -4,30 +4,39 @@ const configs = {
   httpPortForUi: 9003,
 };
 
-//log format example, @t is timestamp, @k is category
+// type _LogKind = "log" | "mark" | "warn" | "error" | "mute" | "unmute";
+
+//log format example, t is timestamp, s is subSystem,  k is logKind
 //messages are shown with a little delay and sorted by timestamp
 //since http messages from UI are received asynchronously, their order might not be strictly chronological
 
 //basic message
-//(@t:1771144458.8012319, @k:app) hello world
+//(t:1771144458.8012319, s:app, k:log) hello world
 
 //mute/unmute all logs
-//(@t:1771144458.8012319, @mute)
-//(@t:1771144458.8012319, @unmute)
+//(t:1771144458.8012319, k:mute)
+//(t:1771144458.8012319, k:unmute)
 
 type LogItem = {
   timestamp: number;
-  category?: string;
+  subSystem?: string;
+  logKind?: string;
   message?: string;
-  command?: "mute" | "unmute";
   subOrdering: number;
 };
 
-const categoryPresets: Record<string, { icon: string }> = {
-  host: { icon: "🟣" },
-  ext: { icon: "🔸" },
-  ui: { icon: "🔹" },
-  dsp: { icon: "🔺" },
+const subSystemIcons: Record<string, string> = {
+  host: "🟣",
+  ext: "🔸",
+  ui: "🔹",
+  dsp: "🔺",
+};
+
+const logKindIcons: Record<string, string> = {
+  log: "",
+  mark: "🔽",
+  warn: "⚠️",
+  error: "📛",
 };
 
 let subOrderingCounter = 0;
@@ -43,18 +52,14 @@ function parseLogText(msg: string): LogItem {
         .map((part) => part.trim().split(":"))
         .map(([k, v]) => [k, v]),
     );
-    const timestamp = parseFloat(kvs["@t"]) ?? Date.now();
-    const category = kvs["@k"];
-    const command = kvs["@mute"]
-      ? "mute"
-      : kvs["@unmute"]
-        ? "unmute"
-        : undefined;
+    const timestamp = parseFloat(kvs.t) ?? Date.now();
+    const subSystem = kvs.s;
+    const logKind = kvs.k;
     return {
       timestamp,
-      category,
+      subSystem,
+      logKind,
       message: msgBody,
-      command,
       subOrdering: subOrderingCounter++,
     };
   } else {
@@ -79,15 +84,17 @@ function createLoggerCore() {
   let isMuted = false;
 
   function consumeLogItem(logItem: LogItem) {
-    if (logItem.command === "mute") {
+    if (logItem.logKind === "mute") {
       isMuted = true;
-    } else if (logItem.command === "unmute") {
+    } else if (logItem.logKind === "unmute") {
       isMuted = false;
     } else if (logItem.message) {
       if (!isMuted) {
-        const icon = categoryPresets[logItem.category ?? ""]?.icon ?? "";
+        const ssIcon = subSystemIcons[logItem.subSystem ?? ""] ?? "";
+        const kindIcon = logKindIcons[logItem.logKind ?? ""] ?? "";
+        const ts = formatTimestamp(logItem.timestamp);
         console.log(
-          `${formatTimestamp(logItem.timestamp)} [${icon}${logItem.category ?? "unknown"}] ${logItem.message}`,
+          `${ts} [${ssIcon}${logItem.subSystem}] ${kindIcon} ${logItem.message}`,
         );
       }
     }
@@ -133,6 +140,7 @@ async function setupUdpServerForApp() {
     transport: "udp",
   });
   for await (const [data, _addr] of udp) {
+    // console.log(data);
     const msg = new TextDecoder().decode(data);
     loggerCore.log(msg);
   }
