@@ -193,11 +193,12 @@ public class BasicWebViewHub {
 
   private var webViewIo: WebViewIoProtocol?
 
-  private lazy var valueTracker: ObservableValueTracker = ObservableValueTracker()
+  private let valueTracker: ObservableValueTracker = ObservableValueTracker()
+  private var valueTrackerStarted = false
   private var portalSubscription: AnyCancellable?
   private var webViewIoSubscription: AnyCancellable?
 
-  private var uiLoaded = false
+  private var uiReady = false
 
   public init(
     _ viewAccessibleResources: ViewAccessibleResources
@@ -217,8 +218,8 @@ public class BasicWebViewHub {
   }
 
   private func sendMessageToUI(_ msg: MessageFromApp) {
-    if !uiLoaded {
-      logger.warn("Tried to send message before UI loaded, skipping: \(msg)")
+    if !uiReady {
+      logger.warn("Tried to send message before UI uiReady, skipping: \(msg)")
       return
     }
     if let jsDataDictionary = mapMessageFromApp_toDictionary(msg) {
@@ -244,7 +245,7 @@ public class BasicWebViewHub {
         LogItem(timestamp: timestamp, subSystem: "ui", kind: kind, message: message))
     case .uiLoaded:
       logger.mark("received UI loaded")
-      uiLoaded = true
+      uiReady = true
       if audioUnitPortal.isHostedInStandaloneApp {
         sendMessageToUI(.standaloneAppFlag)
       }
@@ -334,12 +335,15 @@ public class BasicWebViewHub {
   }
 
   func startAUStateListeners() {
-    valueTracker.setReceiver { [weak self] key, value in
-      // logger.log("PT value changed, send to UI, \(key) \(value)")
-      self?.sendMessageToUI(.setParameter(paramKey: key, value: value))
-    }
-    for (paramKey, paramEntry) in flatParameterTree.entries {
-      valueTracker.trackParameterValue(paramKey: paramKey, paramEntry: paramEntry)
+    if !valueTrackerStarted {
+      valueTracker.setReceiver { [weak self] key, value in
+        // logger.log("PT value changed, send to UI, \(key) \(value)")
+        self?.sendMessageToUI(.setParameter(paramKey: key, value: value))
+      }
+      for (paramKey, paramEntry) in flatParameterTree.entries {
+        valueTracker.trackParameterValue(paramKey: paramKey, paramEntry: paramEntry)
+      }
+      valueTrackerStarted = true
     }
 
     portalSubscription?.cancel()

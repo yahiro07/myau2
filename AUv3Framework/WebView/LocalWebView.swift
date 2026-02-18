@@ -36,7 +36,7 @@ private func sendMessageToWebViewRaw(webView: WKWebView, jsDataDictionary: JsDat
   webView.evaluateJavaScript(jsCode)
 }
 
-public class WebViewCoordinator: NSObject, WebViewIoProtocol {
+public class WebViewCoordinator: NSObject, WebViewIoProtocol, WKNavigationDelegate {
   weak var webView: WKWebView?
   private var receivers: [UUID: (JsDataDictionary) -> Void] = [:]
   private var didCallOnBind = false
@@ -74,6 +74,17 @@ public class WebViewCoordinator: NSObject, WebViewIoProtocol {
     return AnyCancellable { [weak self] in
       self?.receivers.removeValue(forKey: id)
     }
+  }
+
+  public func webView(
+    _ webView: WKWebView,
+    decidePolicyFor navigationAction: WKNavigationAction,
+    decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
+  ) {
+    if navigationAction.navigationType == .reload {
+      logger.log("Detected WKWebView reload: \(String(describing: navigationAction.request.url))")
+    }
+    decisionHandler(.allow)
   }
 }
 
@@ -153,6 +164,7 @@ func commonWebViewSetup(
 
   let webView = WKWebView(frame: .zero, configuration: config)
   webView.isInspectable = true
+  webView.navigationDelegate = coordinator
 
   coordinator.webView = webView
 
