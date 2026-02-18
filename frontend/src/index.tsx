@@ -10,12 +10,15 @@ import {
   VoicingModeOptions,
 } from "@/store/parameters";
 import { store } from "@/store/store";
-import { flexVertical } from "@/utils/styling-utils";
+import { flexCentered, flexVertical } from "@/utils/styling-utils";
 import "@/styles/utility-classes.css";
 import "@/styles/page.css";
-import { useEditorBridge } from "@/bridge/editor-bridge";
+import { useEffect } from "react";
 import { logger } from "@/bridge/logger";
 import { ScreenUiScaler } from "@/components/UiScaler";
+import { fetchAssetsJson } from "@/preset-manager/factory-preset-provider";
+import { actions } from "@/store/actions";
+import { agents } from "@/store/agents";
 
 const cssSectionFrame = css({
   padding: "20px 35px",
@@ -360,10 +363,10 @@ const VoiceControlSection = () => {
   );
 };
 
-const MainPanel = () => {
+const ParametersEditPart = () => {
+  const st = store.useSnapshot();
   return (
     <div
-      className="flex-c"
       css={{
         width: "1080px",
         height: "600px",
@@ -376,6 +379,8 @@ const MainPanel = () => {
           fontSize: "20px",
           fontWeight: "bold",
         },
+        position: "relative",
+        ...flexCentered(),
       }}
     >
       <div className="flex-v gap-4">
@@ -397,27 +402,193 @@ const MainPanel = () => {
           <LfoSection />
         </div>
       </div>
+      <div className="absolute bottom-0 right-0 p-1">myau2 web ui - 1723</div>
+      <div className="absolute bottom-0 left-0 p-1">
+        {st.standaloneFlag && "standalone mode"}
+      </div>
     </div>
+  );
+};
+
+const KeyboardPart = () => {
+  const st = store.useSnapshot();
+  return (
+    <div
+      css={{
+        width: "1080px",
+        height: "200px",
+        border: "solid 1px #fff4",
+        fontFamily: "Inter, sans-serif",
+        background: "#aaa",
+        color: "#333",
+        fontWeight: "500",
+        h3: {
+          fontSize: "20px",
+          fontWeight: "bold",
+        },
+        button: {
+          width: "80px",
+          height: "60px",
+          background: "#fff",
+          border: "solid 1px #888",
+          cursor: "pointer",
+        },
+      }}
+      className="flex-c gap-10"
+    >
+      <div className="flex-v gap-4">
+        <div className="flex-ha gap-10">
+          <div className="flex-ha gap-2">
+            <button
+              type="button"
+              onPointerDown={() => actions.noteOn(60)}
+              onPointerUp={() => actions.noteOff(60)}
+            >
+              C
+            </button>
+            <button
+              type="button"
+              onPointerDown={() => actions.noteOn(62)}
+              onPointerUp={() => actions.noteOff(62)}
+            >
+              D
+            </button>
+            <button
+              type="button"
+              onPointerDown={() => actions.noteOn(64)}
+              onPointerUp={() => actions.noteOff(64)}
+            >
+              E
+            </button>
+          </div>
+          <div className="flex-ha gap-2">
+            <button type="button" onClick={() => actions.loadPresetFromSlot(1)}>
+              load preset 1
+            </button>
+            <button
+              type="button"
+              onClick={() => actions.saveCurrentPresetToSlot(1)}
+            >
+              save preset 1
+            </button>
+            <button type="button" onClick={() => actions.loadPresetFromSlot(2)}>
+              load preset 2
+            </button>
+            <button
+              type="button"
+              onClick={() => actions.saveCurrentPresetToSlot(2)}
+            >
+              save preset 2
+            </button>
+          </div>
+        </div>
+        <div className="flex-ha gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              agents.stateKvs.write("testKey", "hello world");
+              logger.log("state kvs write: testKey = hello world");
+            }}
+          >
+            state kvs set
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const value = agents.stateKvs.read("testKey");
+              logger.log(`state kvs read: ${value}`);
+            }}
+          >
+            state kvs get
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              agents.sharedKvs.write("testKey1", "hello world1");
+              logger.log("shared kvs write: testKey1 = hello world1");
+            }}
+          >
+            shared kvs set
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const value = agents.sharedKvs.read("testKey1");
+              logger.log(`shared kvs read: ${value}`);
+            }}
+          >
+            shared kvs get
+          </button>
+          <div>lpk: {st.lastLoadedPresetKey}</div>
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                const json = await fetchAssetsJson("/presets/meta.json");
+                logger.log(`fetched meta.json: ${JSON.stringify(json)}`);
+              } catch (e) {
+                logger.error(e, "error@fetching meta.json");
+              }
+            }}
+          >
+            debug fetch json
+          </button>
+        </div>
+      </div>
+      <div>
+        {st.presetItems.map((item) => (
+          <div
+            key={item.presetKey}
+            css={{
+              border: "solid 1px #888",
+            }}
+            onClick={() => agents.presetManager.loadPreset(item.presetKey)}
+          >
+            {item.presetKey} {item.presetName} ({item.presetKind})
+            {item.presetKey === st.lastLoadedPresetKey && "<- loaded"}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const ExtensionView = () => {
+  return (
+    <ScreenUiScaler designWidth={1080} designHeight={600}>
+      <div className="flex-c">
+        <ParametersEditPart />
+      </div>
+    </ScreenUiScaler>
+  );
+};
+
+const StandaloneView = () => {
+  return (
+    <ScreenUiScaler designWidth={1080} designHeight={800}>
+      <div className="flex-vc">
+        <ParametersEditPart />
+        <KeyboardPart />
+      </div>
+    </ScreenUiScaler>
   );
 };
 
 const App = () => {
-  useEditorBridge();
+  useEffect(agents.setup, []);
+  useEffect(() => void agents.initialLoad(), []);
+  const st = store.useSnapshot();
   return (
     <div className="h-dvh flex-c" css={{ background: "#444" }}>
-      {1 ? (
-        <ScreenUiScaler designWidth={1080} designHeight={600}>
-          <MainPanel />
-        </ScreenUiScaler>
-      ) : (
-        <MainPanel />
-      )}
+      {st.standaloneFlag || 1 ? <StandaloneView /> : <ExtensionView />}
     </div>
   );
 };
 
-function start() {
-  logger.log("UI 0033");
+async function start() {
+  logger.mark("frontend start");
+  logger.log(`at: ${location.href}`);
   const rootDiv = document.getElementById("app");
   if (!rootDiv) {
     document.body.innerHTML = "no root element found";

@@ -1,3 +1,4 @@
+import AUv3Framework
 import SwiftUI
 
 struct MyPluginContentView: View {
@@ -11,9 +12,15 @@ struct MyPluginContentView: View {
 
   var body: some View {
     VStack {
-      Text("myau2Extension 0006")
-      LocalWebView { handle in
-        webViewHub.bindWebViewIo(webViewIo: handle)
+      // Text("myau2Extension 0006")
+      LocalWebView { webViewIo in
+        #if DEBUG
+          // webViewIo.loadURL("http://localhost:3000?debug=1")
+          webViewIo.loadURL("app://www/index.html?debug=1")
+        #else
+          webViewIo.loadURL("app://www/index.html")
+        #endif
+        webViewHub.bindWebViewIo(webViewIo)
       }
     }.border(.green, width: 2).ignoresSafeArea()
   }

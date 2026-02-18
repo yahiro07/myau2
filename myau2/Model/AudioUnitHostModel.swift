@@ -1,10 +1,3 @@
-//
-//  AudioUnitHostModel.swift
-//  myau2
-//
-//  Created by ore on 2026/02/09.
-//
-
 import AVFAudio
 import AudioToolbox
 import CoreMIDI
@@ -42,7 +35,7 @@ class AudioUnitHostModel {
 
   init(type: String = "aumu", subType: String = "ma02", manufacturer: String = "Miqs") {
     logger.log("------------------------------------------------")
-    logger.log("HostMode init")
+    logger.mark("HostMode init")
     self.type = type
     self.subType = subType
     self.manufacturer = manufacturer
@@ -61,6 +54,7 @@ class AudioUnitHostModel {
       || type.fourCharCode == kAudioUnitType_MusicDevice
       || type.fourCharCode == kAudioUnitType_Generator
     self.isFreeRunning = isFreeRunning
+    // logger.log("isFreeRunning: \(isFreeRunning)")
 
     auValString = "\(type) \(subType) \(manufacturer)"
 
@@ -72,6 +66,8 @@ class AudioUnitHostModel {
     Task {
       let viewController = await playEngine.initComponent(
         type: type, subType: subType, manufacturer: manufacturer)
+
+      self.restoreState()
 
       if false {
         if let audioUnit = playEngine.avAudioUnit {
@@ -130,7 +126,7 @@ class AudioUnitHostModel {
           formattedOutput = "Validation probably crashed"
         }
 
-        print(formattedOutput)
+        logger.log(formattedOutput)
 
         continuation.resume(returning: (result, formattedOutput))
       }
@@ -142,17 +138,44 @@ class AudioUnitHostModel {
       self, name: instanceInvalidationNotifcation, object: nil)
   }
 
-  func startPlaying() {
-    playEngine.startPlaying()
-  }
-
-  func stopPlaying() {
-    playEngine.stopPlaying()
-  }
   func noteOn(index: UInt8) {
     self.playEngine.sendMessage(message: [0x90, index, 0x7F])
   }
   func noteOff(index: UInt8) {
     self.playEngine.sendMessage(message: [0x80, index, 0x00])
+  }
+
+  func saveState() {
+    guard let au = playEngine.avAudioUnit?.auAudioUnit else { return }
+    let state = au.fullState
+    UserDefaults.standard.set(state, forKey: "SavedAUState")
+    let byteSize = calculateStateByteSize(of: state ?? [:])
+    logger.log("saved state: \(byteSize)bytes")
+    // logger.log("\(String(describing: state))")
+  }
+
+  func restoreState() {
+    guard let au = playEngine.avAudioUnit?.auAudioUnit else { return }
+    var state = UserDefaults.standard.dictionary(forKey: "SavedAUState") ?? au.fullState ?? [:]
+    let byteSize = calculateStateByteSize(of: state)
+    logger.log("restore state: \(byteSize)bytes")
+    // logger.log("\(state)")
+    //set a flag to let the AU know it's being hosted in a standalone app
+    state["myau2.hostedInStandaloneApp"] = true
+    au.fullState = state
+  }
+}
+
+private func calculateStateByteSize(of dict: [String: Any]) -> Int {
+  do {
+    let data = try PropertyListSerialization.data(
+      fromPropertyList: dict,
+      format: .binary,
+      options: 0
+    )
+    return data.count
+  } catch {
+    logger.error("Failed to calculate state size: \(error)")
+    return 0
   }
 }

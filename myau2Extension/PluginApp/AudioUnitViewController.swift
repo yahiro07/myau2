@@ -1,3 +1,4 @@
+import AUv3Framework
 import Combine
 import CoreAudioKit
 import SwiftUI

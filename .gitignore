@@ -1,6 +1,11 @@
 .local
 
 **/xcuserdata/
-SYNTH.aif
+**/xcshareddata/
+
 /build/
 buildServer.json
+
+**/.vscode/settings.json
+
+

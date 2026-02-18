@@ -5,8 +5,8 @@ import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 const configs = {
-	useDevServerHttps: false,
-	devServerPort: 3000,
+  useDevServerHttps: false,
+  devServerPort: 3000,
 };
 // if (1) {
 //   //AudioWorkletを使用し、スマホなどLAN内でアクセスする場合はhttpsにする
@@ -15,15 +15,19 @@ const configs = {
 // }
 
 export default defineConfig({
-	plugins: [
-		tailwindcss(),
-		react(),
-		tsconfigPaths(),
-		// configs.useDevServerHttps && mkcert(),
-	],
-	base: "./",
-	server: {
-		port: configs.devServerPort,
-		host: "0.0.0.0",
-	},
+  appType: "mpa",
+  plugins: [
+    tailwindcss(),
+    react(),
+    tsconfigPaths(),
+    // configs.useDevServerHttps && mkcert(),
+  ],
+  build: {
+    outDir: "./www",
+  },
+  // base: "./",
+  server: {
+    port: configs.devServerPort,
+    host: "0.0.0.0",
+  },
 });
