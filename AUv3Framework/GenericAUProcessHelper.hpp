@@ -4,8 +4,8 @@
 #import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
 
-#include "GenericDSPKernel.hpp"
-#include "LowLevelPortalEventQueue.hpp"
+#include <AUv3Framework/GenericDSPKernel.hpp>
+#include <AUv3Framework/LowLevelPortalEventQueue.hpp>
 #include <vector>
 
 // MARK:- AUProcessHelper Utility Class

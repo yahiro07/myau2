@@ -1,6 +1,6 @@
-#pragma once 
+#pragma once
 
-#include "DSPCore.hpp"
-#include "LowLevelPortalEvent.hpp"
-#include "GenericDSPKernel.hpp"
-#include "GenericAUProcessHelper.hpp"
+#include <AUv3Framework/DSPCore.hpp>
+#include <AUv3Framework/GenericAUProcessHelper.hpp>
+#include <AUv3Framework/GenericDSPKernel.hpp>
+#include <AUv3Framework/LowLevelPortalEvent.hpp>

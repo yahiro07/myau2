@@ -1,6 +1,6 @@
 #pragma once
-#include "SPSCQueue.hpp"
-#include "LowLevelPortalEvent.hpp"
+#include <AUv3Framework/LowLevelPortalEvent.hpp>
+#include <AUv3Framework/SPSCQueue.hpp>
 
 class LowLevelPortalEventQueue {
 private:
