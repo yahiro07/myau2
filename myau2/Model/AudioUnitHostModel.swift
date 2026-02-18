@@ -35,7 +35,7 @@ class AudioUnitHostModel {
 
   init(type: String = "aumu", subType: String = "ma02", manufacturer: String = "Miqs") {
     logger.log("------------------------------------------------")
-    logger.log("HostMode init")
+    logger.mark("HostMode init")
     self.type = type
     self.subType = subType
     self.manufacturer = manufacturer
@@ -126,7 +126,7 @@ class AudioUnitHostModel {
           formattedOutput = "Validation probably crashed"
         }
 
-        print(formattedOutput)
+        logger.log(formattedOutput)
 
         continuation.resume(returning: (result, formattedOutput))
       }
@@ -149,15 +149,33 @@ class AudioUnitHostModel {
     guard let au = playEngine.avAudioUnit?.auAudioUnit else { return }
     let state = au.fullState
     UserDefaults.standard.set(state, forKey: "SavedAUState")
-    logger.log("saved state: \(String(describing: state))")
+    let byteSize = calculateStateByteSize(of: state ?? [:])
+    logger.log("saved state: \(byteSize)bytes")
+    // logger.log("\(String(describing: state))")
   }
 
   func restoreState() {
     guard let au = playEngine.avAudioUnit?.auAudioUnit else { return }
     var state = UserDefaults.standard.dictionary(forKey: "SavedAUState") ?? au.fullState ?? [:]
-    logger.log("restore state: \(state)")
+    let byteSize = calculateStateByteSize(of: state)
+    logger.log("restore state: \(byteSize)bytes")
+    // logger.log("\(state)")
     //set a flag to let the AU know it's being hosted in a standalone app
     state["myau2.hostedInStandaloneApp"] = true
     au.fullState = state
+  }
+}
+
+private func calculateStateByteSize(of dict: [String: Any]) -> Int {
+  do {
+    let data = try PropertyListSerialization.data(
+      fromPropertyList: dict,
+      format: .binary,
+      options: 0
+    )
+    return data.count
+  } catch {
+    logger.error("Failed to calculate state size: \(error)")
+    return 0
   }
 }
