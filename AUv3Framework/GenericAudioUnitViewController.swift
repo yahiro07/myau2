@@ -40,7 +40,7 @@ open class GenericAudioUnitViewController: AUViewController {
         // Configure the SwiftUI view after creating the AU, instead of in viewDidLoad,
         // so that the parameter tree is set up before we build our @AUParameterUI properties
         DispatchQueue.main.async {
-          self.configureSwiftUIView()
+          self.configureSwiftUIView(audioUnit: audioUnit)
         }
       }
 
@@ -61,13 +61,15 @@ open class GenericAudioUnitViewController: AUViewController {
     }
   }
 
-  //called before createAudioUnitInternal, so it's no effective action to configure the view here
-  // public override func viewDidLoad() {
-  //   logger.log("viewDidLoad")
-  //   super.viewDidLoad()
-  //   // self.preferredContentSize = CGSize(width: 1080, height: 600)
-  //   configureSwiftUIView()
-  // }
+  public override func viewDidLoad() {
+    logger.mark("viewDidLoad")
+    super.viewDidLoad()
+    guard let audioUnit = self.audioUnit else {
+      return
+    }
+    // self.preferredContentSize = CGSize(width: 1080, height: 600)
+    configureSwiftUIView(audioUnit: audioUnit)
+  }
 
   #if os(iOS)
     public override func viewWillTransition(
@@ -79,7 +81,7 @@ open class GenericAudioUnitViewController: AUViewController {
     }
   #endif
 
-  private func configureSwiftUIView() {
+  private func configureSwiftUIView(audioUnit: GenericAudioUnit) {
     logger.mark("configureSwiftUIView")
 
     if let host = hostingController {
