@@ -12,7 +12,7 @@ struct MyPluginContentView: View {
 
   var body: some View {
     VStack {
-      Text("myau2Extension 0006")
+      // Text("myau2Extension 0006")
       LocalWebView { webViewIo in
         #if DEBUG
           webViewIo.loadURL("http://localhost:3000?debug=1")

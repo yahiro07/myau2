@@ -1,17 +1,15 @@
-// const isDebug = location.search.includes("debug=1");
-// const isDebug = true; //debug
-// const isDebug = false;
+const isDebug = location.search.includes("debug=1");
 
 const loggerOptions = {
   console: false,
   localHttp: false,
   sendToApp: false,
 };
-if (1) {
+if (isDebug) {
   Object.assign(loggerOptions, {
     console: true,
-    // localHttp: true,
-    sendToApp: true,
+    // localHttp: true, //send to local log server directly
+    sendToApp: true, //app routes app and ui logs to stdout and local log server
   });
 }
 
@@ -83,6 +81,13 @@ function mapLogArgumentsToString(args: LogArguments) {
 
 function createLoggerEntry() {
   function pushLog(kind: string, args: LogArguments) {
+    if (
+      !loggerOptions.console &&
+      !loggerOptions.localHttp &&
+      !loggerOptions.sendToApp
+    ) {
+      return;
+    }
     const msg = mapLogArgumentsToString(args);
 
     if (loggerOptions.console) {
@@ -119,47 +124,3 @@ function createLoggerEntry() {
 }
 
 export const logger = createLoggerEntry();
-
-// export const logger = {
-//   log(
-//     ...parts: (
-//       | string
-//       | number
-//       | boolean
-//       | object
-//       | Array<string | number | boolean | object>
-//     )[]
-//   ) {
-//     const msg = parts
-//       .map((part) => {
-//         if (typeof part === "object" || Array.isArray(part)) {
-//           return JSON.stringify(part);
-//         }
-//         return part.toString();
-//       })
-//       .join(" ");
-
-//     if (loggerOptions.console) {
-//       console.log(msg);
-//     }
-
-//     const timedMessage = `(@t:${Date.now()}, @k:ui) ${msg}`;
-//     if (logger) {
-//       // sendLogToApp(timedMessage);
-//       sendLogToApp(timedMessage, "log");
-//     }
-//     if (loggerOptions.localHttp) {
-//       void loggingViaLocalHttp(timedMessage);
-//     }
-//   },
-//   logError(e: Error | unknown, note?: string) {
-//     console.error(e);
-//     const msg = e instanceof Error ? (e.stack ?? e.message) : String(e);
-//     logger.log(note ?? "", msg);
-//   },
-//   timedLog(msg: string) {
-//     const now = new Date();
-//     const time = now.toISOString();
-//     logger.log(`${time} ${msg}`);
-//   },
-// };
