@@ -15,8 +15,8 @@ struct MyPluginContentView: View {
       // Text("myau2Extension 0006")
       LocalWebView { webViewIo in
         #if DEBUG
-          webViewIo.loadURL("http://localhost:3000?debug=1")
-        // webViewIo.loadURL("app://www/index.html?debug=1")
+          // webViewIo.loadURL("http://localhost:3000?debug=1")
+          webViewIo.loadURL("app://www/index.html?debug=1")
         #else
           webViewIo.loadURL("app://www/index.html")
         #endif
