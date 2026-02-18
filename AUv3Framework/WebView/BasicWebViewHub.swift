@@ -348,7 +348,7 @@ public class BasicWebViewHub {
     }
   }
 
-  public func bindWebViewIo(webViewIo: WebViewIoProtocol) {
+  public func bindWebViewIo(_ webViewIo: WebViewIoProtocol) {
     logger.mark("bindWebViewIo")
     self.webViewIo = webViewIo
 

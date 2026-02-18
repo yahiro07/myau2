@@ -51,6 +51,15 @@ public class WebViewCoordinator: NSObject, WebViewIoProtocol {
     receivers.values.forEach { $0(dict) }
   }
 
+  public func loadURL(_ urlString: String) {
+    guard let webView else { return }
+    if let url = URL(string: urlString) {
+      webView.load(URLRequest(url: url))
+    } else {
+      logger.warn("Invalid URL string: \(urlString)")
+    }
+  }
+
   public func sendRawMessageToUI(data: JsDataDictionary) {
     guard let webView else { return }
     sendMessageToWebViewRaw(webView: webView, jsDataDictionary: data)
@@ -147,14 +156,14 @@ func commonWebViewSetup(
 
   coordinator.webView = webView
 
-  if true {
-    let url = URL(string: "app://www/index.html")!
-    webView.load(URLRequest(url: url))
-  } else {
-    // For debugging: load from localhost
-    let url = URL(string: "http://localhost:3000")!
-    webView.load(URLRequest(url: url))
-  }
+  // if true {
+  //   let url = URL(string: "app://www/index.html")!
+  //   webView.load(URLRequest(url: url))
+  // } else {
+  //   // For debugging: load from localhost
+  //   let url = URL(string: "http://localhost:3000")!
+  //   webView.load(URLRequest(url: url))
+  // }
 
   coordinator.callOnBindIfNeeded(onBind)
 
