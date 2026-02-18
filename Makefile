@@ -22,3 +22,7 @@ list_installed:
 
 remove_installed:
 	rm -rf $(HOME)/Applications/myau2.app
+
+build_fe:
+	cd frontend && npm run build
+

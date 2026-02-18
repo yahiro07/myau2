@@ -201,3 +201,19 @@ func commonWebViewSetup(
 
   }
 #endif
+
+public class WebViewHelper {
+  public static func getWebFolderPrioritized(
+    _ devFolderName: String, _ prodFolderName: String
+  ) -> String {
+    let resourceURL = Bundle.main.resourceURL!
+    let devURL = resourceURL.appendingPathComponent(devFolderName).appendingPathComponent(
+      "index.html")
+
+    if FileManager.default.fileExists(atPath: devURL.path) {
+      return devFolderName
+    } else {
+      return prodFolderName
+    }
+  }
+}
