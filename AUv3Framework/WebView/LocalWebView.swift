@@ -52,6 +52,7 @@ public class WebViewCoordinator: NSObject, WebViewIoProtocol, WKNavigationDelega
   }
 
   public func loadURL(_ urlString: String) {
+    logger.log("loadURL: \(urlString)")
     guard let webView else { return }
     if let url = URL(string: urlString) {
       webView.load(URLRequest(url: url))
@@ -86,6 +87,47 @@ public class WebViewCoordinator: NSObject, WebViewIoProtocol, WKNavigationDelega
     }
     decisionHandler(.allow)
   }
+
+  public func webView(
+    _ webView: WKWebView,
+    didFailProvisionalNavigation navigation: WKNavigation!,
+    withError error: Error
+  ) {
+    logger.error("WebView failed to load (provisional navigation): \(error.localizedDescription)")
+    let nsError = error as NSError
+    logger.error("Error domain: \(nsError.domain), code: \(nsError.code)")
+
+    if nsError.domain == NSURLErrorDomain {
+      switch nsError.code {
+      case NSURLErrorCannotConnectToHost:
+        logger.error("Cannot connect to host - server may not be running")
+      case NSURLErrorNotConnectedToInternet:
+        logger.error("No internet connection")
+      case NSURLErrorBadURL:
+        logger.error("Invalid URL")
+      default:
+        logger.error("Network error occurred")
+      }
+    }
+  }
+
+  public func webView(
+    _ webView: WKWebView,
+    didFail navigation: WKNavigation!,
+    withError error: Error
+  ) {
+    logger.error("WebView failed during navigation: \(error.localizedDescription)")
+    let nsError = error as NSError
+    logger.error("Error domain: \(nsError.domain), code: \(nsError.code)")
+  }
+
+  public func webView(
+    _ webView: WKWebView,
+    didFinish navigation: WKNavigation!
+  ) {
+    logger.log("WebView finished loading: \(webView.url?.absoluteString ?? "unknown")")
+  }
+
 }
 
 class MySchemeHandler: NSObject, WKURLSchemeHandler {
@@ -94,11 +136,12 @@ class MySchemeHandler: NSObject, WKURLSchemeHandler {
     _ webView: WKWebView,
     start urlSchemeTask: WKURLSchemeTask
   ) {
+    logger.log("urlSchemeTask: \(urlSchemeTask.request.url?.absoluteString ?? "unknown")")
 
     guard let url = urlSchemeTask.request.url else { return }
 
-    print("request url:", url.absoluteString)
-    print("url.path:", url.path)
+    // print("request url:", url.absoluteString)
+    // print("url.path:", url.path)
 
     let host = url.host ?? ""
     let path = url.path
@@ -108,7 +151,7 @@ class MySchemeHandler: NSObject, WKURLSchemeHandler {
     let resourceURL = Bundle.main.resourceURL!
     let fileURL = resourceURL.appendingPathComponent(relativePath)
 
-    print("Loading:", fileURL.path)
+    // print("Loading:", fileURL.path)
 
     guard let data = try? Data(contentsOf: fileURL) else {
       logger.error("Failed to load file for URL: \(url), path: \(path)")
@@ -125,6 +168,7 @@ class MySchemeHandler: NSObject, WKURLSchemeHandler {
         "Content-Length": "\(data.count)",
       ]
     )!
+    logger.log("response: \(response)")
 
     urlSchemeTask.didReceive(response)
     urlSchemeTask.didReceive(data)
