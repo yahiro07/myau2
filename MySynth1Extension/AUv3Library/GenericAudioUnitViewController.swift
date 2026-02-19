@@ -4,7 +4,7 @@ import SwiftUI
 import os
 
 private let log = Logger(
-  subsystem: "net.miqsel.synth2511.myau2Extension", category: "AudioUnitViewController")
+  subsystem: "net.miqsel.synth2511.MySynth1Extension", category: "AudioUnitViewController")
 
 open class GenericAudioUnitViewController: AUViewController {
   private var audioUnit: GenericAudioUnit?

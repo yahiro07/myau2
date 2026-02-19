@@ -7,7 +7,7 @@ public protocol PresetFilesIO {
 }
 
 class SharedContainer {
-  static let appGroupId = "group.synth2511.myau2"
+  static let appGroupId = "group.net.miqsel.synth2511.MySynth1"
 
   static func baseURL() throws -> URL {
     guard

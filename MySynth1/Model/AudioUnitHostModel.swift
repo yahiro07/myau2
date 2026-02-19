@@ -33,7 +33,7 @@ class AudioUnitHostModel {
   var validationResult: AudioComponentValidationResult?
   var currentValidationData: String?
 
-  init(type: String = "aumu", subType: String = "ma02", manufacturer: String = "Miqs") {
+  init(type: String = "aumu", subType: String = "ms01", manufacturer: String = "Miqs") {
     logger.log("------------------------------------------------")
     logger.mark("HostMode init")
     self.type = type
@@ -161,7 +161,7 @@ class AudioUnitHostModel {
     logger.log("restore state: \(byteSize)bytes")
     // logger.log("\(state)")
     //set a flag to let the AU know it's being hosted in a standalone app
-    state["myau2.hostedInStandaloneApp"] = true
+    state["MySynth1.hostedInStandaloneApp"] = true
     au.fullState = state
   }
 }

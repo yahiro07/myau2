@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct myau2App: App {
+struct MySynth1App: App {
   @Environment(\.scenePhase) private var scenePhase
 
   private let hostModel = AudioUnitHostModel()

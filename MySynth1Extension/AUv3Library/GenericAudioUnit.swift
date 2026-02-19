@@ -237,7 +237,7 @@ public class GenericAudioUnit: AUAudioUnit, @unchecked Sendable {
       logger.mark("fullState restoration")
       guard let state = newValue else { return }
       // logger.log("Restoring state data: \(state)")
-      if let flag = state["myau2.hostedInStandaloneApp"] as? Bool {
+      if let flag = state["MySynth1.hostedInStandaloneApp"] as? Bool {
         // logger.log("received hostedInStandaloneApp flag: \(flag)")
         self.isHostedInStandaloneApp = flag
       }
