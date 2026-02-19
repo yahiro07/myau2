@@ -21,8 +21,8 @@ export function createSynthesizerRootWithWorklet(): SynthesizerRoot {
   void workletWrapper.initialize();
 
   return {
-    setParameter(address: number, value: number) {
-      workletWrapper.sendMessage({ type: "setParameter", address, value });
+    setParameter(identifier: string, value: number) {
+      workletWrapper.sendMessage({ type: "setParameter", identifier, value });
     },
     noteOn(noteNumber: number, velocity: number) {
       workletWrapper.sendMessage({ type: "noteOn", noteNumber, velocity });

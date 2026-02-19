@@ -41,11 +41,7 @@ export function createCoreBridgeDev(): CoreBridge {
 
     if (msg.type === "uiLoaded") {
     } else if (msg.type === "setParameter") {
-      synthesizerRoot.setParameter(
-        //msg.paramKey,
-        123, //todo
-        msg.value,
-      );
+      synthesizerRoot.setParameter(msg.paramKey, msg.value);
     } else if (msg.type === "noteOnRequest") {
       synthesizerRoot.noteOn(msg.noteNumber, 1);
     } else if (msg.type === "noteOffRequest") {
