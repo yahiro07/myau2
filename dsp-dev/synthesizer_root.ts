@@ -1,8 +1,6 @@
 import { DSPCore } from "./definitions/dsp_core_interface";
-import {
-  calculateParameterIdentifierHash,
-  parameterKeys,
-} from "./definitions/parameter_keys";
+import { assignParameter } from "./definitions/parameter_assigner";
+import { calculateParameterIdentifierHash } from "./definitions/parameter_keys";
 import {
   defaultSynthParameters,
   SynthParametersSuit,
@@ -133,17 +131,11 @@ export function createSynthesizerRoot(): DSPCore {
 
   return {
     setParametersVersion(_version) {},
-    // setParameters(params: Partial<SynthParametersSuit>) {
-    //   Object.assign(synthParameters, params);
-    // },
     mapParameterKey(identifier) {
       return calculateParameterIdentifierHash(identifier);
     },
     setParameter(paramKey, value) {
-      //an example
-      if (paramKey === parameterKeys.osc1Wave) {
-        synthParameters.osc1Wave = value;
-      }
+      assignParameter(synthParameters, paramKey, value);
     },
     prepare(sampleRate, _maxFrameLength) {
       for (const voice of voices) {
