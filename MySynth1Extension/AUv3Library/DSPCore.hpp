@@ -19,8 +19,9 @@ public:
   }
   virtual void setParameter(uint64_t paramKey, float value) = 0;
 
-  // virtual void initialize(double sampleRate, int channelCount) = 0;
+  virtual void prepare(float sampleRate, size_t maxFrameLength) = 0;
   virtual void noteOn(int noteNumber, float velocity) = 0;
   virtual void noteOff(int noteNumber) = 0;
-  virtual void process(float *leftBuffer, float *rightBuffer, int frames) = 0;
+  virtual void process(float *leftBuffer, float *rightBuffer,
+                       size_t frames) = 0;
 };
