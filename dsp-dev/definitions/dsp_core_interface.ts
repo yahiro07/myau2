@@ -1,7 +1,8 @@
 export type DSPCore = {
   setParametersVersion(version: number): void;
-  mapParameterKey(address: number, identifier: string): number;
-  setParameter(address: number, value: number): void;
+  // mapParameterKey(address: number, identifier: string): number;
+  mapParameterKey(identifier: string): number;
+  setParameter(paramKey: number, value: number): void;
 
   prepare(sampleRate: number, maxFrameLength: number): void;
   noteOn(noteNumber: number, velocity: number): void;

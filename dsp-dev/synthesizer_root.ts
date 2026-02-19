@@ -136,7 +136,7 @@ export function createSynthesizerRoot(): DSPCore {
     // setParameters(params: Partial<SynthParametersSuit>) {
     //   Object.assign(synthParameters, params);
     // },
-    mapParameterKey(_address, identifier) {
+    mapParameterKey(identifier) {
       return calculateParameterIdentifierHash(identifier);
     },
     setParameter(paramKey, value) {

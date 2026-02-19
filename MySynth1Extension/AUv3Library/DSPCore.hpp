@@ -14,9 +14,13 @@ public:
   // 初期化時に全パラメタに対してsetParameterを呼ぶときのparamKeyが取得される
   // デフォルトではaddressをそのまま返す
   // オーバーライドすることで、文字列のidentifierのハッシュ値でパラメタを識別する方式にもできる
-  virtual uint64_t mapParameterKey(uint64_t address, const char *identifier) {
-    return address;
-  }
+  // virtual uint64_t mapParameterKey(uint64_t address, const char *identifier)
+  // {
+  //   return address;
+  // }
+
+  virtual uint64_t mapParameterKey(const char *identifier) = 0;
+
   virtual void setParameter(uint64_t paramKey, float value) = 0;
 
   virtual void prepare(float sampleRate, size_t maxFrameLength) = 0;
