@@ -8,4 +8,6 @@ buildServer.json
 
 **/.vscode/settings.json
 
-
+Frontend/node_modules
+Frontend/www_dev/**
+!/Frontend/www_dev/.keep
