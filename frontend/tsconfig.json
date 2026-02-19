@@ -10,6 +10,7 @@
     ],
     "types": [
       "vite/client",
+      "audioworklet"
     ],
     "jsx": "react-jsx",
     "jsxImportSource": "@emotion/react",
