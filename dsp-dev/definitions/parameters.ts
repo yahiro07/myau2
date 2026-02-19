@@ -73,7 +73,6 @@ export type SynthParametersSuit = {
   egTarget: ModTarget;
   //
   glide: number;
-  // mono: boolean;
   voicingMode: VoicingMode;
   masterVolume: number;
 };
@@ -116,7 +115,6 @@ export const defaultSynthParameters: SynthParametersSuit = {
   egTarget: ModTarget.FilterCutoff,
   //
   glide: 0,
-  // mono: false,
   voicingMode: VoicingMode.Poly,
   masterVolume: 0.5,
 };
