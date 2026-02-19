@@ -1,4 +1,3 @@
-import AUv3Framework
 import Foundation
 
 let PB: ParameterSpecBuilder<ParameterAddressInSwift> = ParameterSpecBuilder()

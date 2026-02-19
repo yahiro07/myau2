@@ -1,4 +1,4 @@
-#include <AUv3Framework/DSPCore.hpp>
+#include "DSPCore.hpp"
 #include "ParameterAddresses.h"
 
 #include <cmath>

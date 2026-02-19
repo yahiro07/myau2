@@ -7,7 +7,7 @@
 #import <span>
 #import <vector>
 
-#import <AUv3Framework/DSPCore.hpp>
+#include "DSPCore.hpp"
 
 /*
  GenericDSPKernel

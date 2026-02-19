@@ -1,4 +1,3 @@
-import AUv3Framework_Private
 import AVFoundation
 import CoreAudioKit
 

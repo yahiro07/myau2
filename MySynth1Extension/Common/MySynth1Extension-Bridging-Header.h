@@ -1,9 +1,7 @@
-//
-//  MySynth1Extension-Bridging-Header.h
-//  MySynth1Extension
-//
-//  Created by ore on 2026/02/19.
-//
+#import "DSPCore.hpp"
+#import "MySynthDSP.hpp"
 
-#import "MySynth1ExtensionParameterAddresses.h"
-#import "MySynth1ExtensionAUProcessHelper.hpp"
+#import "GenericAUProcessHelper.hpp"
+#import "GenericDSPKernel.hpp"
+#import "LowLevelPortalEvent.hpp"
+#import "LowLevelPortalEventQueue.hpp"
