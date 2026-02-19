@@ -23,6 +23,9 @@ list_installed:
 remove_installed:
 	rm -rf $(HOME)/Applications/MySynth1.app
 
+start_log_server:
+	cd log-server && make run
+
 start_fe_dev_server:
 	cd frontend && npm run dev
 
