@@ -8,9 +8,16 @@ import { createPluginAppPresetFilesIO } from "@/preset-manager/preset-manager-co
 import { createSharedKvsAdapter } from "@/preset-manager/shared-kvs-adapter";
 import { createStateKvsAdapter } from "@/preset-manager/state-kvs-adapter";
 
+function createCoreBridgeImpl() {
+  if (location.search.includes("proto=1")) {
+    return createCoreBridgeDev();
+  } else {
+    return createCoreBridge();
+  }
+}
+
 function createAgents() {
-  const coreBridgeDev = createCoreBridgeDev();
-  const coreBridge = createCoreBridge();
+  const coreBridge = createCoreBridgeImpl();
   const editorBridge = createEditorBridge(coreBridge);
   const stateKvs = createStateKvsAdapter(coreBridge);
   const presetFilesIO = createPluginAppPresetFilesIO(coreBridge);

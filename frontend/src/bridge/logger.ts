@@ -1,15 +1,16 @@
 const isDebug = location.search.includes("debug=1");
+const isProto = location.search.includes("proto=1");
 
 const loggerOptions = {
   console: false,
-  localHttp: false,
   sendToApp: false,
+  localHttp: false,
 };
 if (isDebug) {
   Object.assign(loggerOptions, {
     console: true,
-    // localHttp: true, //send to local log server directly
     sendToApp: true, //app routes app and ui logs to stdout and local log server
+    localHttp: isProto, //send to local log server directly
   });
 }
 

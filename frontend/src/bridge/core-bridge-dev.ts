@@ -9,11 +9,13 @@ import { removeArrayItem } from "@/utils/array-utils";
 //development bridge for DSP prototyping.
 
 export function createCoreBridgeDev(): CoreBridge {
+  logger.warn("using development bridge")
+
   function sendMessage(msg: MessageFromUI) {
     try {
       logger.log(`send ${JSON.stringify(msg)}`);
     } catch (e) {
-      console.log(e);
+      logger.error(e);
     }
   }
 
