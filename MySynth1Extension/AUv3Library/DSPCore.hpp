@@ -2,7 +2,7 @@
 
 class DSPCore {
 public:
-  // SwiftでDSPCoreの派生クラスから派生元のDSPCoreとしてのポインタを得る関数
+  // SwiftでDSPCoreの派生クラスから派生元のDSPCoreとしてのポインタを得るためのメソッド
   DSPCore *asDSPCorePointer() { return this; };
 
   virtual ~DSPCore() = default;
