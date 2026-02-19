@@ -8,6 +8,7 @@ import { createMultiInterpolator } from "./multi_interpolator";
 
 export interface IFilter {
   reset(): void;
+  setSampleRate(sampleRate: number): void;
   processSamples(
     buffer: Float32Array,
     cutoffNormFreq: number, // 0__0.5
@@ -16,7 +17,7 @@ export interface IFilter {
   ): void;
 }
 
-export function createFilterBiquadLp12(sampleRate: number): IFilter {
+export function createFilterBiquadLp12(): IFilter {
   // Biquad state variables (Direct Form II)
   let z1 = 0;
   let z2 = 0;
@@ -44,7 +45,7 @@ export function createFilterBiquadLp12(sampleRate: number): IFilter {
   }>();
 
   // Feedback-path HPF to prevent DC / very-low-frequency buildup.
-  const highPass = createFilterOnePoleHighPass(sampleRate, 40);
+  const highPass = createFilterOnePoleHighPass(40);
 
   function calculateCoefficients(
     cutoffNormFreq: number,
@@ -133,5 +134,9 @@ export function createFilterBiquadLp12(sampleRate: number): IFilter {
     fbY = 0;
   }
 
-  return { processSamples, reset };
+  function setSampleRate(sampleRate: number) {
+    highPass.setSampleRate(sampleRate);
+  }
+
+  return { setSampleRate, processSamples, reset };
 }

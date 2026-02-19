@@ -1,5 +1,9 @@
 import { DSPCore } from "./definitions/dsp_core_interface";
 import {
+  calculateParameterIdentifierHash,
+  parameterKeys,
+} from "./definitions/parameter_keys";
+import {
   defaultSynthParameters,
   SynthParametersSuit,
 } from "./definitions/parameters";
@@ -23,6 +27,7 @@ import {
 
 type SynthesizerVoice = {
   voiceState: VoiceState;
+  prepare(sampleRate: number): void;
   noteOn(noteNumber: number): void;
   noteOff(): void;
   processSamples(buffer: Float32Array): void;
@@ -30,9 +35,8 @@ type SynthesizerVoice = {
 
 function createSynthesizerVoice(
   synthParameters: SynthParametersSuit,
-  sampleRate: number,
 ): SynthesizerVoice {
-  const voiceState = createVoiceState(synthParameters, sampleRate);
+  const voiceState = createVoiceState(synthParameters);
   const osc1 = createOscillator(voiceState, "osc1");
   const osc2 = createOscillator(voiceState, "osc2");
   const filter = createFilter(voiceState);
@@ -43,6 +47,10 @@ function createSynthesizerVoice(
 
   return {
     voiceState,
+    prepare(sampleRate: number) {
+      voiceState.sampleRate = sampleRate;
+      filter.setSampleRate(sampleRate);
+    },
     noteOn(noteNumber: number) {
       voiceState.noteNumber = noteNumber;
       voiceState.gateOn = true;
@@ -59,6 +67,8 @@ function createSynthesizerVoice(
       voiceState.gateOffUptime = 0;
     },
     processSamples(buffer: Float32Array) {
+      if (!voiceState.sampleRate) return;
+
       const len = buffer.length;
       ampEg.advance();
       modEg.advance();
@@ -113,10 +123,10 @@ function findNextVoice(voices: SynthesizerVoice[]) {
   return voices[index];
 }
 
-export function createSynthesizerRoot(sampleRate: number): DSPCore {
+export function createSynthesizerRoot(): DSPCore {
   const synthParameters: SynthParametersSuit = { ...defaultSynthParameters };
   const voices = seqNumbers(6).map(() =>
-    createSynthesizerVoice(synthParameters, sampleRate),
+    createSynthesizerVoice(synthParameters),
   );
 
   let workBuffer: Float32Array | undefined;
@@ -126,8 +136,19 @@ export function createSynthesizerRoot(sampleRate: number): DSPCore {
     // setParameters(params: Partial<SynthParametersSuit>) {
     //   Object.assign(synthParameters, params);
     // },
-    setParameter(_address, _value) {
-      //TODO
+    mapParameterKey(_address, identifier) {
+      return calculateParameterIdentifierHash(identifier);
+    },
+    setParameter(paramKey, value) {
+      //an example
+      if (paramKey === parameterKeys.osc1Wave) {
+        synthParameters.osc1Wave = value;
+      }
+    },
+    prepare(sampleRate, _maxFrameLength) {
+      for (const voice of voices) {
+        voice.prepare(sampleRate);
+      }
     },
     noteOn(noteNumber, _velocity) {
       const nextVoice = findNextVoice(voices);
@@ -142,20 +163,20 @@ export function createSynthesizerRoot(sampleRate: number): DSPCore {
         }
       }
     },
-    process(bufferLeft, bufferRight, _len) {
-      if (!workBuffer || workBuffer.length !== bufferLeft.length) {
+    process(bufferL, bufferR, _len) {
+      if (!workBuffer || workBuffer.length !== bufferL.length) {
         //オーディオ処理中にバッファを確保 WebAudioの場合は許容,C++の実装では事前確保にする
-        workBuffer = new Float32Array(bufferLeft.length);
+        workBuffer = new Float32Array(bufferL.length);
       }
-      bufferLeft.fill(0);
+      bufferL.fill(0);
       for (const voice of voices) {
         workBuffer.fill(0);
         voice.processSamples(workBuffer);
-        writeBuffer(bufferLeft, workBuffer);
+        writeBuffer(bufferL, workBuffer);
       }
-      applyBufferGainRms(bufferLeft, voices.length);
-      applyBufferSoftClip(bufferLeft);
-      copyBuffer(bufferRight, bufferLeft);
+      applyBufferGainRms(bufferL, voices.length);
+      applyBufferSoftClip(bufferL);
+      copyBuffer(bufferR, bufferL);
     },
   };
 }

@@ -1,11 +1,14 @@
 import { SynthesisInputMessage } from "@/bridge/dsp-dev-support/worklet-types";
+import { DSPCore } from "../../../../dsp-dev/definitions/dsp_core_interface";
 import { createDSPCoreInstance } from "../../../../dsp-dev/my_synth_dsp";
 
 function createProcessorClass() {
   return class extends AudioWorkletProcessor {
-    private dspCore = createDSPCoreInstance();
+    private dspCore: DSPCore;
+    private maxFrameLength = 0;
     constructor() {
       super();
+      this.dspCore = createDSPCoreInstance();
       this.port.onmessage = (event: { data: SynthesisInputMessage }) => {
         const { type } = event.data;
         if (type === "setParameter") {
@@ -20,6 +23,12 @@ function createProcessorClass() {
     process(_inputs: Float32Array[][], outputs: Float32Array[][]): boolean {
       const bufferL = outputs[0][0];
       const bufferR = outputs[0][1];
+      //Workletではprocess()内でしかバッファ長がわからないのでここでprepareを呼ぶ
+      //C++の実装では事前に非オーディオスレッドでprepareを呼ぶ想定
+      if (bufferL.length > this.maxFrameLength) {
+        this.dspCore.prepare(globalThis.sampleRate, bufferL.length);
+        this.maxFrameLength = bufferL.length;
+      }
       if (bufferR) {
         this.dspCore.process(bufferL, bufferR, bufferL.length);
         bufferR.set(bufferL);

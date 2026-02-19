@@ -12,7 +12,7 @@ export type VoiceIntermediateState = {
 export type VoiceState = {
   synthParameters: SynthParametersSuit;
   intermediate: VoiceIntermediateState;
-  sampleRate: number;
+  sampleRate: number | null;
   noteNumber: number;
   gateOn: boolean;
   gateOnUptime: number; //seconds
@@ -22,7 +22,6 @@ export type VoiceState = {
 
 export function createVoiceState(
   synthParameters: SynthParametersSuit,
-  sampleRate: number,
 ): VoiceState {
   return {
     synthParameters,
@@ -34,7 +33,7 @@ export function createVoiceState(
       osc1ModRelNote: 0,
       osc2ModRelNote: 0,
     },
-    sampleRate,
+    sampleRate: null,
     noteNumber: 60,
     gateOn: false,
     gateOnUptime: 0,

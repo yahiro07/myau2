@@ -76,6 +76,7 @@ export function createOscillator(
         modTargetKey_volume,
       } = getOscParameters();
       if (!isOn) return;
+      if (!voiceState.sampleRate) return;
 
       const modRelNote = getOscModRelNote(voiceState, modTargetKey_pitch);
 
@@ -125,7 +126,7 @@ export function createOscillator(
 }
 
 export function createFilter(voiceState: VoiceState) {
-  const filterBiquadLp12 = createFilterBiquadLp12(voiceState.sampleRate);
+  const filterBiquadLp12 = createFilterBiquadLp12();
 
   function calculateNormalizedCutoffFreq(
     noteNumber: number,
@@ -144,10 +145,15 @@ export function createFilter(voiceState: VoiceState) {
   }
 
   return {
+    setSampleRate(sampleRate: number) {
+      filterBiquadLp12.setSampleRate(sampleRate);
+    },
     reset() {
       filterBiquadLp12.reset();
     },
     processSamples(buffer: Float32Array) {
+      if (!voiceState.sampleRate) return;
+
       const sp = voiceState.synthParameters;
       if (!sp.filterOn) return;
       // const prCutoff = highClip(sp.filterCutoff + interm.filterMod * 0.5, 1);
@@ -290,6 +296,8 @@ export function createLfo(voiceState: VoiceState) {
       phaseAcc = 0;
     },
     advance(len: number) {
+      if (!voiceState.sampleRate) return;
+
       const sp = voiceState.synthParameters;
       const freq = mapUnaryTo(sp.lfoRate, 0.01, 10);
       const delta = freq / voiceState.sampleRate;
