@@ -1,59 +1,31 @@
 import { SynthesisInputMessage } from "@/bridge/dsp-dev-support/worklet-types";
-import {
-  dspDev_noteOff,
-  dspDev_noteOn,
-  dspDev_processSamples,
-} from "../../../../dsp-dev/hello";
-
-type DspCoreWrapper = {
-  setParameter(address: number, value: number): void;
-  noteOn(noteNumber: number, velocity: number): void;
-  noteOff(noteNumber: number): void;
-  processSamples(buffer: Float32Array): void;
-};
-
-function createDspCoreWrapper(): DspCoreWrapper {
-  return {
-    setParameter(_address, _value) {},
-    noteOn(noteNumber, velocity) {
-      dspDev_noteOn(noteNumber, velocity);
-    },
-    noteOff(noteNumber) {
-      dspDev_noteOff(noteNumber);
-    },
-    processSamples(buffer) {
-      dspDev_processSamples(buffer, buffer.length);
-    },
-  };
-}
+import { createDSPCoreInstance } from "../../../../dsp-dev/hello";
 
 function createProcessorClass() {
   return class extends AudioWorkletProcessor {
-    private dspCoreWrapper = createDspCoreWrapper();
+    private dspCore = createDSPCoreInstance();
     constructor() {
       super();
       this.port.onmessage = (event: { data: SynthesisInputMessage }) => {
         const { type } = event.data;
         if (type === "setParameter") {
-          this.dspCoreWrapper.setParameter(
-            event.data.address,
-            event.data.value,
-          );
+          this.dspCore.setParameter(event.data.address, event.data.value);
         } else if (type === "noteOn") {
-          this.dspCoreWrapper.noteOn(
-            event.data.noteNumber,
-            event.data.velocity,
-          );
+          this.dspCore.noteOn(event.data.noteNumber, event.data.velocity);
         } else if (type === "noteOff") {
-          this.dspCoreWrapper.noteOff(event.data.noteNumber);
+          this.dspCore.noteOff(event.data.noteNumber);
         }
       };
     }
     process(_inputs: Float32Array[][], outputs: Float32Array[][]): boolean {
-      const bufferLeft = outputs[0][0];
-      const bufferRight = outputs[0][1];
-      this.dspCoreWrapper.processSamples(bufferLeft);
-      bufferRight?.set(bufferLeft);
+      const bufferL = outputs[0][0];
+      const bufferR = outputs[0][1];
+      if (bufferR) {
+        this.dspCore.process(bufferL, bufferR, bufferL.length);
+        bufferR.set(bufferL);
+      } else {
+        this.dspCore.process(bufferL, bufferL, bufferL.length);
+      }
       return true;
     }
   };
