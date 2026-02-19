@@ -1,5 +1,5 @@
 import { SynthesisInputMessage } from "@/bridge/dsp-dev-support/worklet-types";
-import { createDSPCoreInstance } from "../../../../dsp-dev/hello";
+import { createDSPCoreInstance } from "../../../../dsp-dev/my_synth_dsp";
 
 function createProcessorClass() {
   return class extends AudioWorkletProcessor {
