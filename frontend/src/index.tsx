@@ -19,9 +19,6 @@ import { ScreenUiScaler } from "@/components/UiScaler";
 import { fetchAssetsJson } from "@/preset-manager/factory-preset-provider";
 import { actions } from "@/store/actions";
 import { agents } from "@/store/agents";
-import { greet } from "../../dsp-dev/hello";
-
-greet();
 
 const cssSectionFrame = css({
   padding: "20px 35px",
