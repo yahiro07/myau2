@@ -2,26 +2,26 @@
 
 build:
 	@echo building...
-	xcodebuild -project myau2.xcodeproj -target myau2 -configuration Debug
+	xcodebuild -project MySynth1.xcodeproj -target MySynth1 -configuration Debug
 
 # install: build
-# 	rm -rf $(HOME)/Applications/myau2.app
-# 	cp -r build/Debug/myau2.app $(HOME)/Applications/myau2.app
+# 	rm -rf $(HOME)/Applications/MySynth1.app
+# 	cp -r build/Debug/MySynth1.app $(HOME)/Applications/MySynth1.app
 
 run: build
-	@killall myau2 2>/dev/null || true
-	build/Debug/myau2.app/Contents/MacOS/myau2
+	@killall MySynth1 2>/dev/null || true
+	build/Debug/MySynth1.app/Contents/MacOS/MySynth1
 
-# 	"$(HOME)/Applications/myau2.app/Contents/MacOS/myau2"
+# 	"$(HOME)/Applications/MySynth1.app/Contents/MacOS/MySynth1"
 
 clean:
 	rm -rf build
 
 list_installed:
-	mdfind "kMDItemCFBundleIdentifier == 'net.miqsel.synth2511.myau2'"
+	mdfind "kMDItemCFBundleIdentifier == 'net.miqsel.synth2511.MySynth1'"
 
 remove_installed:
-	rm -rf $(HOME)/Applications/myau2.app
+	rm -rf $(HOME)/Applications/MySynth1.app
 
 start_fe_dev_server:
 	cd frontend && npm run dev
