@@ -22,6 +22,9 @@
       "@/*": [
         "./src/*"
       ],
+      "@core-bridge-dev": [
+        "./src/bridge/core-bridge-dev.ts"
+      ]
     }
   },
 }

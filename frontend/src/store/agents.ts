@@ -1,4 +1,6 @@
+import { createCoreBridgeDev } from "@core-bridge-dev";
 import { createCoreBridge } from "@/bridge/core-bridge-main";
+
 import { createEditorBridge } from "@/bridge/editor-bridge";
 import { logger } from "@/bridge/logger";
 import { createPresetManager } from "@/preset-manager/preset-manager";
@@ -7,6 +9,7 @@ import { createSharedKvsAdapter } from "@/preset-manager/shared-kvs-adapter";
 import { createStateKvsAdapter } from "@/preset-manager/state-kvs-adapter";
 
 function createAgents() {
+  const coreBridgeDev = createCoreBridgeDev();
   const coreBridge = createCoreBridge();
   const editorBridge = createEditorBridge(coreBridge);
   const stateKvs = createStateKvsAdapter(coreBridge);
