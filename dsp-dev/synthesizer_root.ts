@@ -126,8 +126,41 @@ export function createSynthesizerRoot(): DSPCore {
   const voices = seqNumbers(6).map(() =>
     createSynthesizerVoice(synthParameters),
   );
+  const chunkSize = 32;
+  const chunkBuffer = new Float32Array(chunkSize);
+  const voiceBuffer = new Float32Array(chunkSize);
 
-  let workBuffer: Float32Array | undefined;
+  function processFillChunk() {
+    const buffer = chunkBuffer;
+    buffer.fill(0);
+    for (const voice of voices) {
+      voiceBuffer.fill(0);
+      voice.processSamples(voiceBuffer);
+      writeBuffer(buffer, voiceBuffer);
+    }
+    applyBufferGainRms(buffer, voices.length);
+    applyBufferSoftClip(buffer);
+  }
+
+  let readPos = 0;
+  function processWithChunking(destBuffer: Float32Array, len: number) {
+    if (len === 0) return;
+    // 常に固定チャンクサイズ単位で波形生成を行う
+    // モジュレーションの状態更新もチャンク境界でのみ行う,チャンク内では線形補完
+    // sampleOffsetを指定した厳密なタイミングでの発音は現在未対応
+    const outBuf = chunkBuffer;
+    for (let i = 0; i < len; i++) {
+      //読み出し位置が先頭にあるときバッファ1面分の波形を生成
+      if (readPos === 0) {
+        processFillChunk();
+      }
+      //1サンプルずつとって出力バッファを埋める
+      destBuffer[i] = outBuf[readPos++];
+      if (readPos >= outBuf.length) {
+        readPos = 0;
+      }
+    }
+  }
 
   return {
     setParametersVersion(_version) {},
@@ -155,19 +188,8 @@ export function createSynthesizerRoot(): DSPCore {
         }
       }
     },
-    process(bufferL, bufferR, _len) {
-      if (!workBuffer || workBuffer.length !== bufferL.length) {
-        //オーディオ処理中にバッファを確保 WebAudioの場合は許容,C++の実装では事前確保にする
-        workBuffer = new Float32Array(bufferL.length);
-      }
-      bufferL.fill(0);
-      for (const voice of voices) {
-        workBuffer.fill(0);
-        voice.processSamples(workBuffer);
-        writeBuffer(bufferL, workBuffer);
-      }
-      applyBufferGainRms(bufferL, voices.length);
-      applyBufferSoftClip(bufferL);
+    process(bufferL, bufferR, len) {
+      processWithChunking(bufferL, len);
       copyBuffer(bufferR, bufferL);
     },
   };
