@@ -172,3 +172,7 @@ export function createSynthesizerRoot(): DSPCore {
     },
   };
 }
+
+export function createDSPCoreInstance(): DSPCore {
+  return createSynthesizerRoot();
+}
