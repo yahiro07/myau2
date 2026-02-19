@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "typecheck": "tsc -b",
+    "typecheck": "tsc",
     "build": "tsc && vite build && touch www_dev/.keep"
   },
   "dependencies": {
