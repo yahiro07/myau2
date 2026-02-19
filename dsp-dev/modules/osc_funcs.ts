@@ -1,11 +1,11 @@
-import { OscWave } from "./defs";
+import { OscWave } from "../definitions/parameters";
 import {
   invPower2,
   linearInterpolate,
   mixValue,
   randF,
   tunableSigmoid,
-} from "./number_utils";
+} from "../functions/number_utils";
 
 export function midiToFrequency(midiNote: number): number {
   return 440 * 2 ** ((midiNote - 69) / 12);

@@ -1,14 +1,17 @@
-import { defaultSynthParameters, SynthParametersSuit } from "./defs";
-import { DSPCore } from "./dsp_core_interface";
-import { seqNumbers } from "./funcs/array_utils";
+import { DSPCore } from "./definitions/dsp_core_interface";
+import {
+  defaultSynthParameters,
+  SynthParametersSuit,
+} from "./definitions/parameters";
+import { createVoiceState, VoiceState } from "./definitions/state_bus";
+import { seqNumbers } from "./functions/array_utils";
 import {
   applyBufferGain,
   applyBufferGainRms,
   copyBuffer,
   writeBuffer,
-} from "./funcs/buffer_functions";
-import { applyBufferSoftClip } from "./funcs/clippers";
-import { createVoiceState, VoiceState } from "./state_bus";
+} from "./functions/buffer_functions";
+import { applyBufferSoftClip } from "./functions/clippers";
 import {
   createAmpEg,
   createFilter,

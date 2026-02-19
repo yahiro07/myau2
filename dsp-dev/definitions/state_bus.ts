@@ -1,4 +1,4 @@
-import { SynthParametersSuit } from "./defs";
+import { SynthParametersSuit } from "./parameters";
 
 export type VoiceIntermediateState = {
   ampEgLevel: number;

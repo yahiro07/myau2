@@ -1,6 +1,11 @@
-import { mapInvExpCurve, riseInvCosine } from "./curves";
-import { LfoWave } from "./defs";
-import { clampValue, mapUnaryFrom, mapUnaryTo, power2 } from "./number_utils";
+import { LfoWave } from "../definitions/parameters";
+import { mapInvExpCurve, riseInvCosine } from "../functions/curves";
+import {
+  clampValue,
+  mapUnaryFrom,
+  mapUnaryTo,
+  power2,
+} from "../functions/number_utils";
 
 export function calculateShortAttackEgLevel(gateOnUptime: number): number {
   // noteOn直後のクリック抑制用の短いアタック（0→1）

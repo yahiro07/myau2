@@ -1,6 +1,6 @@
-import { ModTarget } from "./defs";
-import { clampValue01, power2, power3 } from "./number_utils";
-import { VoiceState } from "./state_bus";
+import { ModTarget } from "../definitions/parameters";
+import { VoiceState } from "../definitions/state_bus";
+import { clampValue01, power2, power3 } from "../functions/number_utils";
 
 export function applyUnitParameterModulated(
   voiceState: VoiceState,

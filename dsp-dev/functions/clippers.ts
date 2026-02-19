@@ -1,4 +1,4 @@
-import { clampValue } from "../number_utils";
+import { clampValue } from "./number_utils";
 
 export function softClip(x: number) {
   const sqrt2 = Math.SQRT2;

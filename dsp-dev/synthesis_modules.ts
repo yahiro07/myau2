@@ -1,28 +1,28 @@
-import { LfoWave, ModTarget, OscWave } from "./defs";
-import { createFilterBiquadLp12 } from "./filter-biquad-lp12";
-import { createInterpolator } from "./interpolator";
-import {
-  calculateShortAttackEgLevel,
-  getEnvelopeLevelADSR,
-  getLfoWaveform,
-} from "./mod_funcs";
-import {
-  applyUnitParameterModulated,
-  getOscModRelNote,
-} from "./modulation_affecter";
+import { LfoWave, ModTarget, OscWave } from "./definitions/parameters";
+import { VoiceState } from "./definitions/state_bus";
 import {
   clampValue,
   invPower2,
   mapUnaryTo,
   mapUnaryToInt,
   power2,
-} from "./number_utils";
+} from "./functions/number_utils";
+import { createFilterBiquadLp12 } from "./modules/filter_biquad_lp12";
+import { createInterpolator } from "./modules/interpolator";
+import {
+  applyUnitParameterModulated,
+  getOscModRelNote,
+} from "./modules/modulation_affecter";
+import {
+  calculateShortAttackEgLevel,
+  getEnvelopeLevelADSR,
+  getLfoWaveform,
+} from "./modules/modulation_funcs";
 import {
   getOscCoreWaveform,
   midiToFrequency,
   mixPitchedNoise,
-} from "./osc_funcs";
-import { VoiceState } from "./state_bus";
+} from "./modules/osc_funcs";
 
 export function createOscillator(
   voiceState: VoiceState,

@@ -1,4 +1,4 @@
-import { DSPCore } from "./dsp_core_interface";
+import { DSPCore } from "./definitions/dsp_core_interface";
 
 function createMySynthDSP(): DSPCore {
   let noteActive = false;

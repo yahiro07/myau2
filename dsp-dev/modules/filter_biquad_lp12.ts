@@ -1,10 +1,10 @@
 // Biquad Lowpass Filter (12dB/oct, 2-pole)
 // Standard cookbook implementation
 
-import { createFilterOnePoleHighPass } from "./filter-onepole-highpass";
-import { applySoftClipAt } from "./funcs/clippers";
-import { createMultiInterpolator } from "./multi-interpolator";
-import { clampValue } from "./number_utils";
+import { applySoftClipAt } from "../functions/clippers";
+import { clampValue } from "../functions/number_utils";
+import { createFilterOnePoleHighPass } from "./filter_onepole_highpass";
+import { createMultiInterpolator } from "./multi_interpolator";
 
 export interface IFilter {
   reset(): void;
