@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		3C5958A02F46F7E60028A5EC /* MySynth1Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3C59589F2F46F7E60028A5EC /* MySynth1Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		3C59598E2F470CFD0028A5EC /* www in Resources */ = {isa = PBXBuildFile; fileRef = 3C59598D2F470CFD0028A5EC /* www */; };
+		3C5959922F470D350028A5EC /* www_dev in Resources */ = {isa = PBXBuildFile; fileRef = 3C5959912F470D350028A5EC /* www_dev */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,12 +39,15 @@
 /* Begin PBXFileReference section */
 		3C5958792F46F7E40028A5EC /* MySynth1.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MySynth1.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3C59589F2F46F7E60028A5EC /* MySynth1Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MySynth1Extension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C59598D2F470CFD0028A5EC /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; name = www; path = frontend/www; sourceTree = "<group>"; };
+		3C5959912F470D350028A5EC /* www_dev */ = {isa = PBXFileReference; lastKnownFileType = folder; name = www_dev; path = frontend/www_dev; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		3C5958C92F46F7E60028A5EC /* Exceptions for "MySynth1Extension" folder in "MySynth1Extension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				compile_flags.txt,
 				Info.plist,
 			);
 			target = 3C59589E2F46F7E60028A5EC /* MySynth1Extension */;
@@ -86,6 +91,8 @@
 		3C5958702F46F7E40028A5EC = {
 			isa = PBXGroup;
 			children = (
+				3C5959912F470D350028A5EC /* www_dev */,
+				3C59598D2F470CFD0028A5EC /* www */,
 				3C59587B2F46F7E40028A5EC /* MySynth1 */,
 				3C5958A32F46F7E60028A5EC /* MySynth1Extension */,
 				3C59587A2F46F7E40028A5EC /* Products */,
@@ -200,6 +207,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C5959922F470D350028A5EC /* www_dev in Resources */,
+				3C59598E2F470CFD0028A5EC /* www in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,11 +245,22 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGN_ENTITLEMENTS = MySynth1Extension/MySynth1Extension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QY6QQBZFX6;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MySynth1Extension/Info.plist;
@@ -281,11 +301,22 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGN_ENTITLEMENTS = MySynth1Extension/MySynth1Extension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QY6QQBZFX6;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MySynth1Extension/Info.plist;
