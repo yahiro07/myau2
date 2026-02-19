@@ -1,4 +1,4 @@
-import { CoreBridge, MessageFromUI } from "@/bridge/core-bridge";
+import { CoreBridge, MessageFromUI } from "@/bridge/core-bridge-types";
 import { PresetFilesIO } from "@/preset-manager/preset-manager-core-port-types";
 import { rpcIdCounter } from "@/preset-manager/rpc-id-counter";
 

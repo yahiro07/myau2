@@ -1,4 +1,4 @@
-import { createCoreBridge } from "@/bridge/core-bridge";
+import { createCoreBridge } from "@/bridge/core-bridge-main";
 import { createEditorBridge } from "@/bridge/editor-bridge";
 import { logger } from "@/bridge/logger";
 import { createPresetManager } from "@/preset-manager/preset-manager";
