@@ -11,12 +11,12 @@ struct MyPluginContentView: View {
 
   var body: some View {
     VStack {
-      // Text("myau2Extension 0006")
+      // Text("MySynth1Extension 0006")
       LocalWebView { webViewIo in
         #if DEBUG
-          webViewIo.loadURL("http://localhost:3000?debug=1")
+          // webViewIo.loadURL("http://localhost:3000?debug=1")
           let folder = WebViewHelper.getWebFolderPrioritized("www_dev", "www")
-        // webViewIo.loadURL("app://\(folder)/index.html?debug=1")
+          webViewIo.loadURL("app://\(folder)/index.html?debug=1")
         #else
           webViewIo.loadURL("app://www/index.html")
         #endif
