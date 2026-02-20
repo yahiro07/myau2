@@ -249,7 +249,7 @@ export function createModEg(voiceState: VoiceState) {
 
   function getModEgLevel() {
     const sp = voiceState.synthParameters;
-    if (!sp.ampOn) {
+    if (!sp.egOn) {
       return voiceState.gateOn ? 1 : 0;
     }
     const egParams = {
