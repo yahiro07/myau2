@@ -13,6 +13,9 @@
       },
       "correctness": {
         "noConstantCondition": "off"
+      },
+      "suspicious": {
+        "noDuplicateElseIf": "off"
       }
     }
   }

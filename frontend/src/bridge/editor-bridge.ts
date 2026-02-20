@@ -1,3 +1,4 @@
+import { CoreBridge } from "@/bridge/core-bridge-types";
 import { logger } from "@/bridge/logger";
 import {
   defaultSynthParameters,
@@ -5,7 +6,6 @@ import {
   SynthParametersSuit,
 } from "@/store/parameters";
 import { store } from "@/store/store";
-import { CoreBridge } from "./core-bridge";
 
 type EditorBridge = {
   setup(): () => void;

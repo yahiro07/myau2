@@ -1,33 +1,30 @@
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
+import path from "path";
 import { defineConfig } from "vite";
-// import mkcert from "vite-plugin-mkcert";
 import tsconfigPaths from "vite-tsconfig-paths";
 
-const configs = {
-  useDevServerHttps: false,
-  devServerPort: 3000,
-};
-// if (1) {
-//   //AudioWorkletを使用し、スマホなどLAN内でアクセスする場合はhttpsにする
-//   configs.useDevServerHttps = true;
-//   configs.devServerPort = 3002;
-// }
-
-export default defineConfig({
-  appType: "mpa",
-  plugins: [
-    tailwindcss(),
-    react(),
-    tsconfigPaths(),
-    // configs.useDevServerHttps && mkcert(),
-  ],
-  build: {
-    outDir: "./www_dev",
-  },
-  // base: "./",
-  server: {
-    port: configs.devServerPort,
-    host: "0.0.0.0",
-  },
+export default defineConfig(({ mode }) => {
+  const isDev = mode === "development";
+  return {
+    appType: "mpa",
+    plugins: [tailwindcss(), react(), tsconfigPaths()],
+    build: {
+      outDir: "./www_dev",
+    },
+    resolve: {
+      alias: {
+        "@core-bridge-dev": path.resolve(
+          __dirname,
+          isDev
+            ? "src/bridge/core-bridge-dev.ts"
+            : "src/bridge/core-bridge-dev-purged.ts",
+        ),
+      },
+    },
+    server: {
+      port: 3000,
+      host: "0.0.0.0",
+    },
+  };
 });

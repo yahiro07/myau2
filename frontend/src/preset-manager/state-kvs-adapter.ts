@@ -1,4 +1,4 @@
-import { CoreBridge, MessageFromUI } from "@/bridge/core-bridge";
+import { CoreBridge, MessageFromUI } from "@/bridge/core-bridge-types";
 import { rpcIdCounter } from "@/preset-manager/rpc-id-counter";
 
 //the data is stored in AudioUnit extension's state object
