@@ -41,9 +41,11 @@ function createProcessorClass() {
         this.maxFrameLength = bufferL.length;
       }
       if (bufferR) {
+        bufferL.fill(0);
+        bufferR.fill(0);
         this.dspCore.process(bufferL, bufferR, bufferL.length);
-        bufferR.set(bufferL);
       } else {
+        bufferL.fill(0);
         this.dspCore.process(bufferL, bufferL, bufferL.length);
       }
       return true;

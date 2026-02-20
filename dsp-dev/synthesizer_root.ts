@@ -105,10 +105,13 @@ function createSynthesizerVoice(
       filter.reset();
       lfo.reset();
       chunkReadPos = 0;
+      //発音開始位置にチャンクの先頭を合わせるためボイス波形の先頭は発音開始位置に揃う
     },
     noteOff() {
       voiceState.gateOn = false;
       voiceState.gateOffUptime = 0;
+      //固定チャンク処理のためノートオフでの波形への反映が最大でチャンク幅分遅れる場合がある
+      //(Fs=48kHz, チャンク幅=32サンプルのとき最大約0.67msの遅延)
     },
     processSamples(buffer: Float32Array, len: number) {
       processWithChunking(buffer, len);
@@ -155,6 +158,7 @@ export function createSynthesizerRoot(): DSPCore {
     createSynthesizerVoice(synthParameters),
   );
 
+  let sampleRate: number | undefined;
   let workBuffer: Float32Array | undefined;
 
   return {
@@ -165,12 +169,13 @@ export function createSynthesizerRoot(): DSPCore {
     setParameter(paramKey, value) {
       assignParameter(synthParameters, paramKey, value);
     },
-    prepare(sampleRate, maxFrameLength) {
+    prepare(_sampleRate, maxFrameLength) {
+      sampleRate = _sampleRate;
       if (!workBuffer || workBuffer.length < maxFrameLength) {
         workBuffer = new Float32Array(maxFrameLength);
       }
       for (const voice of voices) {
-        voice.prepare(sampleRate);
+        voice.prepare(_sampleRate);
       }
     },
     noteOn(noteNumber, _velocity) {
@@ -187,7 +192,7 @@ export function createSynthesizerRoot(): DSPCore {
       }
     },
     process(bufferL, bufferR, len) {
-      if (!workBuffer || workBuffer.length < len) return;
+      if (!sampleRate || !workBuffer || workBuffer.length < len) return;
       const buffer = bufferL;
       buffer.fill(0);
       for (const voice of voices) {
