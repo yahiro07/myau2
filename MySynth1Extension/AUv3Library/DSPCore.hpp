@@ -24,6 +24,9 @@ public:
   virtual void setParameter(uint64_t paramKey, float value) = 0;
 
   virtual void prepare(float sampleRate, size_t maxFrameLength) = 0;
+  // バッファ区間途中でのノートオン/オフの処理はフレームワーク側で対応しており、
+  // ここではノートオン/ノートオフ境界に整合したタイミングでprocess()が呼ばれる
+  // そのためprocessのframesは呼び出しごとに毎回変わる想定での対応が必要
   virtual void noteOn(int noteNumber, float velocity) = 0;
   virtual void noteOff(int noteNumber) = 0;
   virtual void process(float *leftBuffer, float *rightBuffer,
