@@ -28,7 +28,7 @@ type SynthesizerVoice = {
   prepare(sampleRate: number): void;
   noteOn(noteNumber: number): void;
   noteOff(): void;
-  processSamples(buffer: Float32Array): void;
+  processSamples(buffer: Float32Array, len: number): void;
 };
 
 function createSynthesizerVoice(
@@ -42,6 +42,51 @@ function createSynthesizerVoice(
   const modEg = createModEg(voiceState);
   const lfo = createLfo(voiceState);
   const voicingAmp = createVoicingAmp(voiceState);
+
+  const chunkSize = 32;
+  const chunkBuffer = new Float32Array(chunkSize);
+
+  function processFillChunk() {
+    if (!voiceState.sampleRate) return;
+    const buffer = chunkBuffer;
+    buffer.fill(0);
+    const len = buffer.length;
+    ampEg.advance();
+    modEg.advance();
+    lfo.advance(len);
+
+    osc1.process(buffer);
+    osc2.process(buffer);
+    applyBufferGain(buffer, 0.5);
+    filter.processSamples(buffer);
+    voicingAmp.process(buffer);
+
+    const timeElapsed = buffer.length / voiceState.sampleRate;
+    if (voiceState.gateOn) {
+      voiceState.gateOnUptime += timeElapsed;
+    } else {
+      voiceState.gateOffUptime += timeElapsed;
+    }
+  }
+
+  let chunkReadPos = 0;
+  function processWithChunking(destBuffer: Float32Array, len: number) {
+    if (len === 0) return;
+    // 固定チャンクサイズ単位で波形生成を行う
+    // モジュレーションの状態更新をチャンク境界で行う,チャンク内では線形補完
+    const outBuf = chunkBuffer;
+    for (let i = 0; i < len; i++) {
+      //読み出し位置が先頭にあるときバッファ1面分の波形を生成
+      if (chunkReadPos === 0) {
+        processFillChunk();
+      }
+      //1サンプルずつとって出力バッファを埋める
+      destBuffer[i] = outBuf[chunkReadPos++];
+      if (chunkReadPos >= outBuf.length) {
+        chunkReadPos = 0;
+      }
+    }
+  }
 
   return {
     voiceState,
@@ -59,31 +104,14 @@ function createSynthesizerVoice(
       osc2.reset();
       filter.reset();
       lfo.reset();
+      chunkReadPos = 0;
     },
     noteOff() {
       voiceState.gateOn = false;
       voiceState.gateOffUptime = 0;
     },
-    processSamples(buffer: Float32Array) {
-      if (!voiceState.sampleRate) return;
-
-      const len = buffer.length;
-      ampEg.advance();
-      modEg.advance();
-      lfo.advance(len);
-
-      osc1.process(buffer);
-      osc2.process(buffer);
-      applyBufferGain(buffer, 0.5);
-      filter.processSamples(buffer);
-      voicingAmp.process(buffer);
-
-      const timeElapsed = buffer.length / voiceState.sampleRate;
-      if (voiceState.gateOn) {
-        voiceState.gateOnUptime += timeElapsed;
-      } else {
-        voiceState.gateOffUptime += timeElapsed;
-      }
+    processSamples(buffer: Float32Array, len: number) {
+      processWithChunking(buffer, len);
     },
   };
 }
@@ -126,41 +154,8 @@ export function createSynthesizerRoot(): DSPCore {
   const voices = seqNumbers(6).map(() =>
     createSynthesizerVoice(synthParameters),
   );
-  const chunkSize = 32;
-  const chunkBuffer = new Float32Array(chunkSize);
-  const voiceBuffer = new Float32Array(chunkSize);
 
-  function processFillChunk() {
-    const buffer = chunkBuffer;
-    buffer.fill(0);
-    for (const voice of voices) {
-      voiceBuffer.fill(0);
-      voice.processSamples(voiceBuffer);
-      writeBuffer(buffer, voiceBuffer);
-    }
-    applyBufferGainRms(buffer, voices.length);
-    applyBufferSoftClip(buffer);
-  }
-
-  let readPos = 0;
-  function processWithChunking(destBuffer: Float32Array, len: number) {
-    if (len === 0) return;
-    // 常に固定チャンクサイズ単位で波形生成を行う
-    // モジュレーションの状態更新もチャンク境界でのみ行う,チャンク内では線形補完
-    // sampleOffsetを指定した厳密なタイミングでの発音は現在未対応
-    const outBuf = chunkBuffer;
-    for (let i = 0; i < len; i++) {
-      //読み出し位置が先頭にあるときバッファ1面分の波形を生成
-      if (readPos === 0) {
-        processFillChunk();
-      }
-      //1サンプルずつとって出力バッファを埋める
-      destBuffer[i] = outBuf[readPos++];
-      if (readPos >= outBuf.length) {
-        readPos = 0;
-      }
-    }
-  }
+  let workBuffer: Float32Array | undefined;
 
   return {
     setParametersVersion(_version) {},
@@ -170,7 +165,10 @@ export function createSynthesizerRoot(): DSPCore {
     setParameter(paramKey, value) {
       assignParameter(synthParameters, paramKey, value);
     },
-    prepare(sampleRate, _maxFrameLength) {
+    prepare(sampleRate, maxFrameLength) {
+      if (!workBuffer || workBuffer.length < maxFrameLength) {
+        workBuffer = new Float32Array(maxFrameLength);
+      }
       for (const voice of voices) {
         voice.prepare(sampleRate);
       }
@@ -189,7 +187,17 @@ export function createSynthesizerRoot(): DSPCore {
       }
     },
     process(bufferL, bufferR, len) {
-      processWithChunking(bufferL, len);
+      if (!workBuffer || workBuffer.length < len) return;
+      const buffer = bufferL;
+      buffer.fill(0);
+      for (const voice of voices) {
+        workBuffer.fill(0);
+        voice.processSamples(workBuffer, len);
+        writeBuffer(buffer, workBuffer);
+      }
+      applyBufferGainRms(buffer, voices.length);
+      applyBufferSoftClip(buffer);
+
       copyBuffer(bufferR, bufferL);
     },
   };
