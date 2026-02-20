@@ -1,6 +1,8 @@
 export type DSPCore = {
   setParametersVersion(version: number): void;
-  // mapParameterKey(address: number, identifier: string): number;
+  // TypeScriptでのプロトタイピングではパラメタのaddressが未知のため提供されない
+  // 常にidentifierをハッシュ化する方式でパラメタを識別する実装とする
+  // mapParameterCode(identifier: string, address: number): number; //本来のC++でのAPI
   mapParameterCode(identifier: string): number;
   setParameter(code: number, value: number): void;
 

@@ -12,14 +12,12 @@ public:
   virtual void setParametersVersion(int version) = 0;
 
   // 初期化時に全パラメタに対してsetParameterを呼ぶときのcodeが取得される
-  // デフォルトではaddressをそのまま返す
-  // オーバーライドすることで、文字列のidentifierのハッシュ値でパラメタを識別する方式にもできる
-  // virtual uint64_t mapParameterCode(uint64_t address, const char *identifier)
-  // {
-  //   return address;
-  // }
-
-  virtual uint64_t mapParameterCode(const char *identifier) = 0;
+  // 複数言語間でプロトタイピングや移植を行う場合には、identifierをハッシュ化して
+  // codeにすると複数言語で同じenum定義を用意する必要がなくなり扱いやすい
+  // 既存実装の移植などで連番enumベースの識別にしたい場合はaddressをそのまま返す
+  virtual uint64_t mapParameterCode(const char *identifier,
+                                    uint64_t address) = 0;
+  // virtual uint64_t mapParameterCode(const char *identifier) = 0;
 
   virtual void setParameter(uint64_t code, float value) = 0;
 
