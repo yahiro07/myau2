@@ -6,7 +6,7 @@ function createProcessorClass() {
   return class extends AudioWorkletProcessor {
     private dspCore: DSPCore;
     private maxFrameLength = 0;
-    private paramKeyMap: Record<string, number> = {};
+    private paramCodeMap: Record<string, number> = {};
     constructor() {
       super();
       this.dspCore = createDSPCoreInstance();
@@ -14,14 +14,14 @@ function createProcessorClass() {
         const { type } = event.data;
         if (type === "setParameter") {
           const { identifier, value } = event.data;
-          let paramKey = this.paramKeyMap[identifier];
-          if (!paramKey) {
+          let paramCode = this.paramCodeMap[identifier];
+          if (!paramCode) {
             //簡易実装のためインラインでキーを取得してキャッシュ
             //C++の実装では事前に非オーディオスレッドで全パラメタのキーを取得する
-            paramKey = this.paramKeyMap[identifier] =
-              this.dspCore.mapParameterKey(identifier);
+            paramCode = this.paramCodeMap[identifier] =
+              this.dspCore.mapParameterCode(identifier);
           }
-          this.dspCore.setParameter(paramKey, value);
+          this.dspCore.setParameter(paramCode, value);
         } else if (type === "noteOn") {
           const { noteNumber, velocity } = event.data;
           this.dspCore.noteOn(noteNumber, velocity);

@@ -9,7 +9,7 @@ export function calculateParameterIdentifierHash(str: string): number {
 
 const hash = calculateParameterIdentifierHash;
 
-export const parameterKeys = {
+export const parameterCode = {
   osc1On: hash("osc1On"),
   osc1Wave: hash("osc1Wave"),
   osc1Octave: hash("osc1Octave"),

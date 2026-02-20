@@ -163,11 +163,11 @@ export function createSynthesizerRoot(): DSPCore {
 
   return {
     setParametersVersion(_version) {},
-    mapParameterKey(identifier) {
+    mapParameterCode(identifier) {
       return calculateParameterIdentifierHash(identifier);
     },
-    setParameter(paramKey, value) {
-      assignParameter(synthParameters, paramKey, value);
+    setParameter(code, value) {
+      assignParameter(synthParameters, code, value);
     },
     prepare(_sampleRate, maxFrameLength) {
       sampleRate = _sampleRate;
