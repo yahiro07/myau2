@@ -1,5 +1,5 @@
 import { parametersConverter } from "@/bridge/converter";
-import { CoreBridge } from "@/bridge/core-bridge";
+import { CoreBridge } from "@/bridge/core-bridge-types";
 import { logger } from "@/bridge/logger";
 import { createFactoryPresetProvider } from "@/preset-manager/factory-preset-provider";
 import { PresetData } from "@/preset-manager/preset-data-types";
