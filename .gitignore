@@ -1,1 +1,9 @@
 .local/
+node_modules/
+project.xcworkspace/
+xcuserdata/
+
+buildServer.json
+compile_flags.txt
+.build/
+

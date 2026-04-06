@@ -1,0 +1,19 @@
+{
+  "folders": [
+    {
+      "path": "../dsp-dev"
+    },
+    {
+      "path": "../frontend"
+    },    
+    {
+      "path": "../web-proto-root"
+    },
+    {
+      "path": "."
+    },
+    // {
+    //   "path": "../xcode"
+    // },
+  ]
+}
