@@ -4,19 +4,25 @@
       "path": "../dsp-dev"
     },
     {
-      "path": "../frontend"
+      "path": "../swiftpm/Auv3PluginPackage/Sources/Dsp"
     },
     {
-      "path": "../web-proto-root"
+      "path": "../frontend"
+    },
+    // {
+    //   "path": "../web-proto-root"
+    // },
+    {
+      "path": "../swiftpm/Auv3PluginPackage"
+    },
+    {
+      "path": "../xcode"
     },
     {
       "path": "."
     },
-    {
-      "path": "../"
-    },
     // {
-    //   "path": "../xcode"
+    //   "path": "../"
     // },
   ]
 }
