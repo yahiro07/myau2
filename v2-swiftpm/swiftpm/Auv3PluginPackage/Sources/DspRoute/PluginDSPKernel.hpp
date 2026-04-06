@@ -27,7 +27,7 @@ private:
   double mCurrentTempo = 0.0;
 
   std::unique_ptr<IDspCore> mDspCore =
-      std::unique_ptr<IDspCore>(createDspCore());
+      std::unique_ptr<IDspCore>(createDspCoreInstance());
 
   SpscQueue<RtHostEvent, 256> rtHostEventQueue;
   SpscQueue<RtProcessorEvent, 256> rtProcessorEventQueue;

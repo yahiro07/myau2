@@ -1,3 +1,3 @@
 #include "api.h"
 
-IDspCore *createDspCore();
+IDspCore *createDspCoreInstance();
