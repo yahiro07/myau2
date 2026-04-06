@@ -18,15 +18,15 @@ const windowTyped = window as unknown as {
 };
 
 export function createCoreBridge(): CoreBridge {
-  const webkit = windowTyped.webkit;
-  if (!webkit) {
-    console.warn("incompatible environment");
-  }
+  // const webkit = windowTyped.webkit;
+  // if (!webkit) {
+  //   console.warn("incompatible environment");
+  // }
 
   function sendMessage(msg: MessageFromUi) {
     try {
       logger.log("⇠ui", msg);
-      webkit?.messageHandlers.pluginEditor?.postMessage(msg);
+      windowTyped.webkit?.messageHandlers.pluginEditor?.postMessage(msg);
     } catch (e) {
       console.log(e);
     }

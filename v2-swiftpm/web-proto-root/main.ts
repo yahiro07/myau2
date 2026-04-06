@@ -1,4 +1,4 @@
-import "../frontend/main";
-import "../dsp-dev/dsp-core";
+import "../frontend/src";
 import "./dummy-parent-app";
+import "./tailwind-sources.css";
 

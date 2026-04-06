@@ -41,7 +41,7 @@ function sendLogItemToApp(logItem: LogItem) {
   const globalThisTyped = globalThis as unknown as {
     webkit?: {
       messageHandlers: {
-        putMessageFromUI: {
+        pluginEditor?: {
           postMessage: (msg: {
             type: "putLogItem";
             timeStamp: number;
@@ -52,7 +52,7 @@ function sendLogItemToApp(logItem: LogItem) {
       };
     };
   };
-  globalThisTyped.webkit?.messageHandlers.putMessageFromUI.postMessage({
+  globalThisTyped.webkit?.messageHandlers.pluginEditor?.postMessage({
     type: "putLogItem",
     timeStamp: logItem.timeStamp,
     kind: logItem.kind,

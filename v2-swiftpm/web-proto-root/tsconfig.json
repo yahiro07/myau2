@@ -12,8 +12,15 @@
       "vite/client",
       "audioworklet"
     ],
+    "jsx": "react-jsx",
+    "jsxImportSource": "@emotion/react",
     "strict": true,
     "noEmit": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@/*": [
+        "../frontend/src/*"
+      ]
+    }
   },
 }

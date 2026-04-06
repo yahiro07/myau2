@@ -582,7 +582,7 @@ const App = () => {
   const st = store.useSnapshot();
   return (
     <div className="h-dvh flex-c" css={{ background: "#444" }}>
-      {st.standaloneFlag || 1 ? <StandaloneView /> : <ExtensionView />}
+      {st.standaloneFlag  || 1 ? <StandaloneView /> : <ExtensionView />}
     </div>
   );
 };

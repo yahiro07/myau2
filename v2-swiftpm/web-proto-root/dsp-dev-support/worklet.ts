@@ -1,13 +1,13 @@
-import { DspCore } from "../../dsp-dev/dsp-core";
+import { createDspCoreInstance, IDspCore } from "../../dsp-dev/dsp_core_entry";
 import { WorkletInputMessage } from "./worklet-types";
 
 function createProcessorClass() {
   return class extends AudioWorkletProcessor {
-    private dspCore: DspCore;
+    private dspCore: IDspCore;
     private maxFrameLength = 0;
     constructor() {
       super();
-      this.dspCore = new DspCore();
+      this.dspCore = createDspCoreInstance();
       this.port.onmessage = (event: { data: WorkletInputMessage }) => {
         const { type } = event.data;
         if (type === "setParameter") {

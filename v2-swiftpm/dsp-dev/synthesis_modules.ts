@@ -94,9 +94,9 @@ export function createOscillator(
       const octave = mapUnaryToInt(prOctave, -2, 2);
       const freq = midiToFrequency(
         voiceState.noteNumber +
-          octave * 12 +
-          power2(prDetune) * 1.0 +
-          modRelNote,
+        octave * 12 +
+        power2(prDetune) * 1.0 +
+        modRelNote,
       );
       const phaseInc = freq / voiceState.sampleRate;
 

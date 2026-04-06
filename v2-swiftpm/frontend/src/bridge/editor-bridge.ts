@@ -86,7 +86,7 @@ export function createEditorBridge(coreBridge: CoreBridge): EditorBridge {
           affectParameterToStore(paramKey, value);
         }
       } else if (msg.type === "hostNoteOn") {
-        logger.log(`hostNoteOn: ${msg.noteNumber}, ${msg.velocity}`);
+        logger.log(`hostNoteOn: ${msg.noteNumber}`);
       } else if (msg.type === "hostNoteOff") {
         logger.log(`hostNoteOff: ${msg.noteNumber}`);
       } else if (msg.type === "standaloneAppFlag") {
