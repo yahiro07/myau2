@@ -5,7 +5,7 @@ import {
   mapUnaryFrom,
   mapUnaryTo,
   power2,
-} from "../functions/number_utils";
+} from "../functions/number-utils";
 
 export function calculateShortAttackEgLevel(gateOnUptime: number): number {
   // noteOn直後のクリック抑制用の短いアタック（0→1）

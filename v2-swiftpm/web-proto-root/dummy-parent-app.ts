@@ -1,5 +1,5 @@
 import { MessageFromApp, MessageFromUi } from "@/bridge/message-types";
-import { ParameterId } from "../dsp-dev/definitions/parameter_id";
+import { ParameterId } from "../dsp-dev/definitions/parameter-id";
 import { createDspCoreWorkletWrapper } from "./dsp-dev-support/worklet-wrapper";
 
 const windowTyped = window as unknown as {

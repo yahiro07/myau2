@@ -1,28 +1,28 @@
 import { LfoWave, ModTarget, OscWave } from "./definitions/parameters";
-import { VoiceState } from "./definitions/state_bus";
+import { VoiceState } from "./definitions/state-bus";
 import {
   clampValue,
   invPower2,
   mapUnaryTo,
   mapUnaryToInt,
   power2,
-} from "./functions/number_utils";
-import { createFilterBiquadLp12 } from "./modules/filter_biquad_lp12";
+} from "./functions/number-utils";
+import { createFilterBiquadLp12 } from "./modules/filter-biquad-lp12";
 import { createInterpolator } from "./modules/interpolator";
 import {
   applyUnitParameterModulated,
   getOscModRelNote,
-} from "./modules/modulation_affecter";
+} from "./modules/modulation-affecter";
 import {
   calculateShortAttackEgLevel,
   getEnvelopeLevelADSR,
   getLfoWaveform,
-} from "./modules/modulation_funcs";
+} from "./modules/modulation-funcs";
 import {
   getOscCoreWaveform,
   midiToFrequency,
   mixPitchedNoise,
-} from "./modules/osc_funcs";
+} from "./modules/osc-funcs";
 
 export function createOscillator(
   voiceState: VoiceState,
@@ -94,9 +94,9 @@ export function createOscillator(
       const octave = mapUnaryToInt(prOctave, -2, 2);
       const freq = midiToFrequency(
         voiceState.noteNumber +
-        octave * 12 +
-        power2(prDetune) * 1.0 +
-        modRelNote,
+          octave * 12 +
+          power2(prDetune) * 1.0 +
+          modRelNote,
       );
       const phaseInc = freq / voiceState.sampleRate;
 

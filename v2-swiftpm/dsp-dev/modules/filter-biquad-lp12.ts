@@ -2,9 +2,9 @@
 // Standard cookbook implementation
 
 import { applySoftClipAt } from "../functions/clippers";
-import { clampValue } from "../functions/number_utils";
-import { createFilterOnePoleHighPass } from "./filter_onepole_highpass";
-import { createMultiInterpolator } from "./multi_interpolator";
+import { clampValue } from "../functions/number-utils";
+import { createFilterOnePoleHighPass } from "./filter-onepole-highpass";
+import { createMultiInterpolator } from "./multi-interpolator";
 
 export interface IFilter {
   reset(): void;

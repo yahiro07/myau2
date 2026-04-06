@@ -5,7 +5,7 @@ import {
   mixValue,
   randF,
   tunableSigmoid,
-} from "../functions/number_utils";
+} from "../functions/number-utils";
 
 export function midiToFrequency(midiNote: number): number {
   return 440 * 2 ** ((midiNote - 69) / 12);

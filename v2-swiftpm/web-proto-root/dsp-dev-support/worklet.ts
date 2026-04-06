@@ -1,4 +1,4 @@
-import { createDspCoreInstance, IDspCore } from "../../dsp-dev/dsp_core_entry";
+import { createDspCoreInstance, IDspCore } from "../../dsp-dev/dsp-core-entry";
 import { WorkletInputMessage } from "./worklet-types";
 
 function createProcessorClass() {

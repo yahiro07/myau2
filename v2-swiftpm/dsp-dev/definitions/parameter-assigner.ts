@@ -1,4 +1,4 @@
-import { ParameterId } from "./parameter_id";
+import { ParameterId } from "./parameter-id";
 import { SynthParametersSuit } from "./parameters";
 
 function floatToBool(value: number) {

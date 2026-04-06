@@ -1,17 +1,17 @@
-import { IDspCore } from "./definitions/dsp_core_interface";
-import { assignParameter } from "./definitions/parameter_assigner";
+import { IDspCore } from "./definitions/dsp-core-interface";
+import { assignParameter } from "./definitions/parameter-assigner";
 import {
   defaultSynthParameters,
   SynthParametersSuit,
 } from "./definitions/parameters";
-import { createVoiceState, VoiceState } from "./definitions/state_bus";
-import { seqNumbers } from "./functions/array_utils";
+import { createVoiceState, VoiceState } from "./definitions/state-bus";
+import { seqNumbers } from "./functions/array-utils";
 import {
   applyBufferGain,
   applyBufferGainRms,
   copyBuffer,
   writeBuffer,
-} from "./functions/buffer_functions";
+} from "./functions/buffer-functions";
 import { applyBufferSoftClip } from "./functions/clippers";
 import {
   createAmpEg,
@@ -20,7 +20,7 @@ import {
   createModEg,
   createOscillator,
   createVoicingAmp,
-} from "./synthesis_modules";
+} from "./synthesis-modules";
 
 type SynthesizerVoice = {
   voiceState: VoiceState;
