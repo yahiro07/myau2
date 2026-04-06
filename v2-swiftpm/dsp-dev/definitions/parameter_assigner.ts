@@ -1,4 +1,4 @@
-import { parameterCode } from "./parameter_keys";
+import { parameterCode } from "./parameter_code";
 import { SynthParametersSuit } from "./parameters";
 
 function floatToBool(value: number) {
@@ -7,7 +7,7 @@ function floatToBool(value: number) {
 
 function floatToInt(value: number) {
   return Math.round(value);
-}
+} 
 
 export function assignParameter(
   synthParameters: SynthParametersSuit,

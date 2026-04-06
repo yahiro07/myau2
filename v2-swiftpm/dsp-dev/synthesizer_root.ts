@@ -1,6 +1,5 @@
-import { DSPCore } from "./definitions/dsp_core_interface";
+import { IDspCore } from "./definitions/dsp_core_interface";
 import { assignParameter } from "./definitions/parameter_assigner";
-import { calculateParameterIdentifierHash } from "./definitions/parameter_keys";
 import {
   defaultSynthParameters,
   SynthParametersSuit,
@@ -152,7 +151,7 @@ function findNextVoice(voices: SynthesizerVoice[]) {
   return voices[index];
 }
 
-export function createSynthesizerRoot(): DSPCore {
+export function createSynthesizerRoot(): IDspCore {
   const synthParameters: SynthParametersSuit = { ...defaultSynthParameters };
   const voices = seqNumbers(6).map(() =>
     createSynthesizerVoice(synthParameters),
@@ -162,14 +161,7 @@ export function createSynthesizerRoot(): DSPCore {
   let workBuffer: Float32Array | undefined;
 
   return {
-    setParametersVersion(_version) {},
-    mapParameterCode(identifier) {
-      return calculateParameterIdentifierHash(identifier);
-    },
-    setParameter(code, value) {
-      assignParameter(synthParameters, code, value);
-    },
-    prepare(_sampleRate, maxFrameLength) {
+    prepareProcessing(_sampleRate, maxFrameLength) {
       sampleRate = _sampleRate;
       if (!workBuffer || workBuffer.length < maxFrameLength) {
         workBuffer = new Float32Array(maxFrameLength);
@@ -177,6 +169,9 @@ export function createSynthesizerRoot(): DSPCore {
       for (const voice of voices) {
         voice.prepare(_sampleRate);
       }
+    },
+    setParameter(code, value) {
+      assignParameter(synthParameters, code, value);
     },
     noteOn(noteNumber, _velocity) {
       const nextVoice = findNextVoice(voices);
@@ -191,7 +186,7 @@ export function createSynthesizerRoot(): DSPCore {
         }
       }
     },
-    process(bufferL, bufferR, len) {
+    processAudio(bufferL, bufferR, len) {
       if (!sampleRate || !workBuffer || workBuffer.length < len) return;
       const buffer = bufferL;
       buffer.fill(0);
@@ -208,6 +203,6 @@ export function createSynthesizerRoot(): DSPCore {
   };
 }
 
-export function createDSPCoreInstance(): DSPCore {
+export function createDSPCoreInstance(): IDspCore {
   return createSynthesizerRoot();
 }
