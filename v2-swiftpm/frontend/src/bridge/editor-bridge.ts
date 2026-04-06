@@ -1,4 +1,4 @@
-import { CoreBridge } from "@/bridge/core-bridge-types";
+import { CoreBridge } from "@/bridge/core-bridge";
 import { logger } from "@/bridge/logger";
 import {
   defaultSynthParameters,
@@ -29,13 +29,13 @@ export function createEditorBridge(coreBridge: CoreBridge): EditorBridge {
       if (editTarget !== undefined) {
         if (editTarget !== null) {
           coreBridge.sendMessage({
-            type: "beginParameterEdit",
+            type: "beginEdit",
             paramKey: editTarget,
           });
           editTargetSent = editTarget;
         } else if (editTargetSent) {
           coreBridge.sendMessage({
-            type: "endParameterEdit",
+            type: "endEdit",
             paramKey: editTargetSent,
           });
           editTargetSent = undefined;
@@ -52,7 +52,7 @@ export function createEditorBridge(coreBridge: CoreBridge): EditorBridge {
 
           // logger.log("sending parameter change to app", { key, sendingValue });
           coreBridge.sendMessage({
-            type: "setParameter",
+            type: "performEdit",
             paramKey: key,
             value: sendingValue,
           });
@@ -72,7 +72,7 @@ export function createEditorBridge(coreBridge: CoreBridge): EditorBridge {
       }
     }
 
-    const unsubscribeCoreBridge = coreBridge.assignReceiver((msg) => {
+    const unsubscribeCoreBridge = coreBridge.subscribe((msg) => {
       //本体からパラメタを受け取ってstoreを更新したときにもsubscribeのコールバックが
       //呼ばれるので、そこで値を送り返さないようにフラグを立てて処理を抑制する
       isReceiving = true;
@@ -92,10 +92,11 @@ export function createEditorBridge(coreBridge: CoreBridge): EditorBridge {
       } else if (msg.type === "standaloneAppFlag") {
         // logger.log("Received standalone app flag from host");
         store.mutations.setStandaloneFlag(true);
-      } else if (msg.type === "latestParametersVersion") {
-        // logger.log(`Received latest parameters version: ${msg.version}`);
-        store.mutations.setLatestParametersVersion(msg.version);
       }
+      // else if (msg.type === "latestParametersVersion") {
+      //   // logger.log(`Received latest parameters version: ${msg.version}`);
+      //   store.mutations.setLatestParametersVersion(msg.version);
+      // }
       //snap-storeの状態を更新したあと、別タスクでsubscribeのコールバックが呼ばれるので
       //これが終わった後にisReceivingをfalseにする(queueMicrotaskはFIFO順で処理される)
       queueMicrotask(() => {

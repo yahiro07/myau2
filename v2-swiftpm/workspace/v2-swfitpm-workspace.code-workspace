@@ -5,16 +5,16 @@
     },
     {
       "path": "../frontend"
-    },    
+    },
     {
       "path": "../web-proto-root"
     },
     {
       "path": "."
     },
-    // {
-    //   "path": "../"
-    // },
+    {
+      "path": "../"
+    },
     // {
     //   "path": "../xcode"
     // },

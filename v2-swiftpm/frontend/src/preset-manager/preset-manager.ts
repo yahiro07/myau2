@@ -1,5 +1,4 @@
 import { parametersConverter } from "@/bridge/converter";
-import { CoreBridge } from "@/bridge/core-bridge-types";
 import { logger } from "@/bridge/logger";
 import { createFactoryPresetProvider } from "@/preset-manager/factory-preset-provider";
 import { PresetData } from "@/preset-manager/preset-data-types";
@@ -9,6 +8,7 @@ import { defaultSynthParameters } from "@/store/parameters";
 import { store } from "@/store/store";
 import { filterObjectMembers } from "@/utils/general-utils";
 import { createPresetManagerCore } from "./preset-manager-core";
+import { CoreBridge } from "@/bridge/core-bridge";
 
 export function createPresetManager(
   coreBridge: CoreBridge,
@@ -61,7 +61,6 @@ export function createPresetManager(
           //これを受け取ってストアに値をセットする
           coreBridge.sendMessage({
             type: "loadFullParameters",
-            parametersVersion: presetData.parametersVersion,
             parameters: rawParameters,
           });
           if (presetKey !== store.state.lastLoadedPresetKey) {

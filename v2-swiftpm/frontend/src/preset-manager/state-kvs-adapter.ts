@@ -1,4 +1,5 @@
-import { CoreBridge, MessageFromUI } from "@/bridge/core-bridge-types";
+import { CoreBridge } from "@/bridge/core-bridge";
+import { MessageFromUi } from "@/bridge/message-types";
 import { rpcIdCounter } from "@/preset-manager/rpc-id-counter";
 
 //the data is stored in AudioUnit extension's state object
@@ -17,7 +18,7 @@ function createStateKvsItemsFetcher(coreBridge: CoreBridge) {
   > = {};
 
   function setupReceiver() {
-    return coreBridge.assignReceiver((message) => {
+    return coreBridge.subscribe((message) => {
       if (message.type === "rpcLoadStateKvsItemsResponse") {
         const { rpcId, items } = message;
         const resolver = pendingRpcResolvers[rpcId];
@@ -30,7 +31,7 @@ function createStateKvsItemsFetcher(coreBridge: CoreBridge) {
   }
 
   function executeRpc(
-    msg: MessageFromUI & { rpcId: number },
+    msg: MessageFromUi & { rpcId: number },
   ): Promise<{ items?: Record<string, string> }> {
     coreBridge.sendMessage(msg);
     return new Promise((resolve) => {

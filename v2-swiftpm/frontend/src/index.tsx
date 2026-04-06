@@ -538,7 +538,8 @@ const KeyboardPart = () => {
       </div>
       <div>
         {st.presetItems.map((item) => (
-          <div
+          <button
+            type="button"
             key={item.presetKey}
             css={{
               border: "solid 1px #888",
@@ -547,7 +548,7 @@ const KeyboardPart = () => {
           >
             {item.presetKey} {item.presetName} ({item.presetKind})
             {item.presetKey === st.lastLoadedPresetKey && "<- loaded"}
-          </div>
+          </button>
         ))}
       </div>
     </div>

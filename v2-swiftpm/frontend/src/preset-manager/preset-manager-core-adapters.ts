@@ -1,4 +1,5 @@
-import { CoreBridge, MessageFromUI } from "@/bridge/core-bridge-types";
+import { CoreBridge } from "@/bridge/core-bridge";
+import { MessageFromUi } from "@/bridge/message-types";
 import { PresetFilesIO } from "@/preset-manager/preset-manager-core-port-types";
 import { rpcIdCounter } from "@/preset-manager/rpc-id-counter";
 
@@ -11,7 +12,7 @@ export function createPluginAppPresetFilesIO(
   > = {};
 
   function setupReceiver() {
-    return coreBridge.assignReceiver((message) => {
+    return coreBridge.subscribe((message) => {
       if (
         message.type === "rpcReadFileResponse" ||
         message.type === "rpcWriteFileResponse" ||
@@ -30,7 +31,7 @@ export function createPluginAppPresetFilesIO(
   }
 
   function executeRpc(
-    msg: MessageFromUI & { rpcId: number },
+    msg: MessageFromUi & { rpcId: number },
   ): Promise<{ success: boolean; content?: string }> {
     coreBridge.sendMessage(msg);
     return new Promise((resolve) => {

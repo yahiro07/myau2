@@ -1,15 +1,16 @@
-export type MessageFromUI =
-  | { type: "putLogItem"; timeStamp: number; kind: string; message: string }
+export type MessageFromUi =
+  | { type: "log"; timeStamp: number; logKind: string; message: string }
   | { type: "uiLoaded" }
-  | { type: "beginParameterEdit"; paramKey: string }
-  | { type: "endParameterEdit"; paramKey: string }
-  | { type: "setParameter"; paramKey: string; value: number }
+  | { type: "beginEdit"; paramKey: string }
+  | { type: "performEdit"; paramKey: string; value: number }
+  | { type: "endEdit"; paramKey: string }
+  | { type: "instantEdit"; paramKey: string; value: number }
+  | { type: "noteOnRequest"; noteNumber: number }
+  | { type: "noteOffRequest"; noteNumber: number }
   | {
       type: "loadFullParameters";
-      parametersVersion: number;
       parameters: Record<string, number>;
     }
-  | { type: "noteOnRequest" | "noteOffRequest"; noteNumber: number }
   //
   | {
       type: "rpcReadFileRequest";
@@ -35,7 +36,6 @@ export type MessageFromApp =
   | { type: "hostNoteOn"; noteNumber: number; velocity: number }
   | { type: "hostNoteOff"; noteNumber: number }
   | { type: "standaloneAppFlag" }
-  | { type: "latestParametersVersion"; version: number }
   //
   | {
       type: "rpcReadFileResponse";
@@ -51,9 +51,7 @@ export type MessageFromApp =
       items?: Record<string, string>;
     };
 
-export type CoreBridgeMessageReceiver = (msg: MessageFromApp) => void;
-
 export type CoreBridge = {
-  sendMessage: (msg: MessageFromUI) => void;
-  assignReceiver: (receiver: CoreBridgeMessageReceiver) => () => void;
+  sendMessage: (msg: MessageFromUi) => void;
+  subscribe: (listener: (msg: MessageFromApp) => void) => () => void;
 };

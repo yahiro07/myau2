@@ -1,5 +1,4 @@
-import { createCoreBridgeDev } from "@core-bridge-dev";
-import { createCoreBridge } from "@/bridge/core-bridge-main";
+import { createCoreBridge } from "@/bridge/core-bridge";
 
 import { createEditorBridge } from "@/bridge/editor-bridge";
 import { logger } from "@/bridge/logger";
@@ -8,16 +7,8 @@ import { createPluginAppPresetFilesIO } from "@/preset-manager/preset-manager-co
 import { createSharedKvsAdapter } from "@/preset-manager/shared-kvs-adapter";
 import { createStateKvsAdapter } from "@/preset-manager/state-kvs-adapter";
 
-function createCoreBridgeImpl() {
-  if (location.search.includes("proto=1")) {
-    return createCoreBridgeDev();
-  } else {
-    return createCoreBridge();
-  }
-}
-
 function createAgents() {
-  const coreBridge = createCoreBridgeImpl();
+  const coreBridge = createCoreBridge();
   const editorBridge = createEditorBridge(coreBridge);
   const stateKvs = createStateKvsAdapter(coreBridge);
   const presetFilesIO = createPluginAppPresetFilesIO(coreBridge);

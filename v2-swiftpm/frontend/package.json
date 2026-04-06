@@ -1,9 +1,31 @@
 {
   "name": "frontend",
-  "devDependencies": {
-    "vite": "^8.0.3"
-  },
+  "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "vite"
+    "dev": "vite",
+    "typecheck": "tsc",
+    "build": "tsc && vite build"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "clsx": "^2.1.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "snap-store": "^0.1.5"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.10",
+    "@tailwindcss/vite": "^4.2.2",
+    "@types/audioworklet": "^0.0.97",
+    "@types/node": "^25.5.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "tailwindcss": "^4.2.2",
+    "typescript": "~6.0.2",
+    "vite": "^8.0.4",
+    "vite-tsconfig-paths": "^6.1.1"
   }
 }
