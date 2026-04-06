@@ -1,4 +1,4 @@
-import { ParameterId } from "../dsp-proto/dsp-core";
+import { ParameterId } from "../dsp-dev/dsp-core";
 import { createDspCoreWorkletWrapper } from "./dsp-dev-support/worklet-wrapper";
 
 type MessageFromUi =

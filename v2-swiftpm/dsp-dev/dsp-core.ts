@@ -35,6 +35,7 @@ export class DspCore implements IDspCore {
   phase: number = 0.0;
 
   prepareProcessing(sampleRate: number, maxFrames: number): void {
+    console.log(`prepareProcessing ${sampleRate} ${maxFrames}`);
     this.sampleRate = sampleRate;
   }
   setParameter(id: number, value: number): void {
