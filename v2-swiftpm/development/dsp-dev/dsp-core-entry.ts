@@ -1,7 +1,7 @@
-import type { IDspCore } from "./definitions/api";
+import type { IDspCore } from "./api";
 import { createSynthesizerRoot } from "./synthesizer-root";
 
-export type { IDspCore } from "./definitions/api";
+export type { IDspCore } from "./api";
 
 export function createDspCoreInstance(): IDspCore {
   return createSynthesizerRoot();

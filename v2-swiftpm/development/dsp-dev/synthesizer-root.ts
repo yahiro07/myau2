@@ -1,4 +1,4 @@
-import { IDspCore } from "./definitions/api";
+import { IDspCore } from "./api";
 import { assignParameter } from "./definitions/parameter-assigner";
 import {
   defaultSynthParameters,
