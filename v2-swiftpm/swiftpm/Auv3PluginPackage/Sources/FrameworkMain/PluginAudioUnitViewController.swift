@@ -5,10 +5,9 @@ import os
 
 open class PluginAudioUnitViewController: AUViewController, AUAudioUnitFactory {
   var audioUnit: PluginAudioUnit?
+  let hostingControllerWrapper = HostingControllerWrapper()
 
-  var hostingController: HostingController<PluginMainView>?
-
-  private var observation: NSKeyValueObservation?
+  // private var observation: NSKeyValueObservation?
 
   /* iOS View lifcycle
   public override func viewWillAppear(_ animated: Bool) {
@@ -92,27 +91,9 @@ open class PluginAudioUnitViewController: AUViewController, AUAudioUnitFactory {
   }
 
   private func configureSwiftUIView(audioUnit: PluginAudioUnit) {
-    if let host = hostingController {
-      host.removeFromParent()
-      host.view.removeFromSuperview()
-    }
-
     guard let controllerFacade = audioUnit.controllerFacade else { return }
     let content = PluginMainView(controllerFacade)
-    let host = HostingController(rootView: content)
-    self.addChild(host)
-    host.view.frame = self.view.bounds
-    self.view.addSubview(host.view)
-    hostingController = host
-
-    // Make sure the SwiftUI view fills the full area provided by the view controller
-    host.view.translatesAutoresizingMaskIntoConstraints = false
-    host.view.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
-    host.view.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
-    host.view.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
-    host.view.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
-    self.view.bringSubviewToFront(host.view)
-
+    hostingControllerWrapper.bindView(vc: self, content: AnyView(content))
     audioUnit.viewAdded()
   }
 
