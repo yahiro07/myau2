@@ -10,7 +10,7 @@
 #include <memory>
 #import <span>
 
-#include "../Dsp/dsp-core.h"
+#include "../Dsp/dsp-core-entry.h"
 
 /*
  PluginDSPKernel
