@@ -47,9 +47,8 @@ template <typename EnumType> inline EnumType paramToEnum(float value) {
 
 inline bool paramToBool(float value) { return (value >= 0.5f); }
 
-inline double MIDINoteToFrequency(int note) {
-  constexpr auto kMiddleA = 440.0;
-  return (kMiddleA / 32.0) * std::pow(2, ((note - 9) / 12.0));
+inline float MIDINoteToFrequency(int note) {
+  return 440.0f * std::pow(2, ((note - 69) / 12.0));
 }
 
 typedef struct {
@@ -78,10 +77,12 @@ inline void applySynthesisParameter(SynthesisParameters &sp, uint64_t id,
   }
 }
 
-typedef struct _SynthesizerStateBus {
+struct SynthesizerStateBus {
   SynthesisParameters synthesisParameters;
-  int noteNumber = -1;
-} SynthesizerStateBus;
+  float sampleRate = 0.f;
+  int noteNumber = 60;
+  bool gateOn = false;
+};
 
 class SynthesizerRoot : public IDspCore {
 private:
@@ -89,7 +90,10 @@ private:
   SynthesizerStateBus bus;
 
 public:
-  void prepareProcessing(double sampleRate, uint32_t maxFrameLength) override {}
+  void prepareProcessing(double sampleRate, uint32_t maxFrameLength) override {
+    // printf("⭐️sr 2144\n");
+    bus.sampleRate = static_cast<float>(sampleRate);
+  }
 
   void setParameter(uint64_t id, double value) override {
     applySynthesisParameter(bus.synthesisParameters, id, value);
@@ -97,38 +101,30 @@ public:
 
   void noteOn(int noteNumber, double velocity) override {
     bus.noteNumber = noteNumber;
+    bus.gateOn = true;
   }
   void noteOff(int noteNumber) override {
-    if (bus.noteNumber == noteNumber) {
-      bus.noteNumber = -1;
+    if (noteNumber == bus.noteNumber) {
+      bus.gateOn = false;
     }
   }
 
   void processAudio(float *leftBuffer, float *rightBuffer,
                     uint32_t frames) override {
+    if (bus.sampleRate == 0.f)
+      return;
     auto sp = bus.synthesisParameters;
-    auto noteNumber = bus.noteNumber;
-    if (!sp.oscOn)
-      return;
-
-    if (noteNumber == -1)
-      return;
-
-    auto noteFreq = MIDINoteToFrequency(noteNumber);
-
+    auto ni = bus.noteNumber + ((sp.osc1Octave * 4) - 2) * 12;
+    auto freq = MIDINoteToFrequency(ni);
+    auto delta = freq / bus.sampleRate;
     auto prWave = sp.osc1Wave;
-    auto prPitch = sp.osc1Octave;
-    auto prVolume = sp.osc1Volume;
-
-    auto freqRatio = (1.0f + (prPitch * 2.0f - 1.0f) * 0.5f); // 0.5~1.5
-    auto freq = noteFreq * freqRatio;
-    auto delta = freq / 44100.0f;
+    auto gain = sp.oscOn && bus.gateOn ? sp.osc1Volume : 0.0f;
 
     for (int i = 0; i < frames; ++i) {
       mPhase += delta;
       if (mPhase >= 1.0f)
         mPhase -= 1.0f;
-      auto y = getFormulaicOscWave(prWave, mPhase) * prVolume * prVolume;
+      auto y = getFormulaicOscWave(prWave, mPhase) * gain;
       leftBuffer[i] = y;
       rightBuffer[i] = y;
     }
