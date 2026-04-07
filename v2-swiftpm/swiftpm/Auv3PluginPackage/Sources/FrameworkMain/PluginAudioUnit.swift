@@ -14,6 +14,7 @@ public class PluginAudioUnit: AUAudioUnit, @unchecked Sendable {
   private let parameterStore = ParameterStore()
   private let hostEventService = HostEventService()
   private var parametersService: ParametersService?
+  private let internalNoteService = InternalNoteService()
   private(set) var controllerFacade: ControllerFacade?
 
   private let intervalTimer = IntervalTimer()
@@ -29,6 +30,9 @@ public class PluginAudioUnit: AUAudioUnit, @unchecked Sendable {
     _outputBusses = AUAudioUnitBusArray(
       audioUnit: self, busType: AUAudioUnitBusType.output, busses: [outputBus!])
     processHelper = AUProcessHelper(&kernel)
+    internalNoteService.setDestinationFn { noteNumber, velocity in
+      self.kernel.pushInternalNote(Int32(noteNumber), velocity)
+    }
   }
 
   public override var outputBusses: AUAudioUnitBusArray {
@@ -90,12 +94,12 @@ public class PluginAudioUnit: AUAudioUnit, @unchecked Sendable {
 
   public func setupParameterTree() {
     let parameterTree = buildPluginParameterSpecs().createAUParameterTree()
-
+    let parametersService = ParametersService(parameterTree: parameterTree)
     self.parameterTree = parameterTree
-    self.parametersService = ParametersService(parameterTree: parameterTree)
+    self.parametersService = parametersService
     self.controllerFacade = ControllerFacade(
-      audioUnit: self, parametersService: self.parametersService!,
-      hostEventService: hostEventService)
+      audioUnit: self, parametersService: parametersService,
+      hostEventService: hostEventService, internalNoteService: internalNoteService)
 
     let maxAddress = parameterTree.allParameters.map { $0.address }.max() ?? 0
     let capacity = maxAddress + 1

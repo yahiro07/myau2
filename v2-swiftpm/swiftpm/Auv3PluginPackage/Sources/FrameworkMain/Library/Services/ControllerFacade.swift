@@ -24,13 +24,17 @@ class ControllerFacade: ControllerFacadeProtocol {
   let audioUnit: AUAudioUnit
   let parametersService: ParametersService
   let hostEventService: HostEventService
+  let internalNoteService: InternalNoteService
 
   init(
-    audioUnit: AUAudioUnit, parametersService: ParametersService, hostEventService: HostEventService
+    audioUnit: AUAudioUnit, parametersService: ParametersService,
+    hostEventService: HostEventService,
+    internalNoteService: InternalNoteService
   ) {
     self.audioUnit = audioUnit
     self.parametersService = parametersService
     self.hostEventService = hostEventService
+    self.internalNoteService = internalNoteService
   }
 
   func getAllParameterValues() -> [String: Float] {
@@ -62,12 +66,10 @@ class ControllerFacade: ControllerFacadeProtocol {
   }
 
   func requestNoteOn(_ noteNumber: Int, _ velocity: Float) {
-    let bytes: [UInt8] = [0x90, UInt8(noteNumber), UInt8(velocity * 127)]
-    audioUnit.scheduleMIDIEventBlock?(AUEventSampleTimeImmediate, 0, 3, bytes)
+    internalNoteService.requestNoteOn(noteNumber, velocity)
   }
   func requestNoteOff(_ noteNumber: Int) {
-    let bytes: [UInt8] = [0x80, UInt8(noteNumber), 0]
-    audioUnit.scheduleMIDIEventBlock?(AUEventSampleTimeImmediate, 0, 3, bytes)
+    internalNoteService.requestNoteOff(noteNumber)
   }
 
   func subscribeHostEvents(_ listener: ((_ event: HostEvent) -> Void)?) -> Int {
