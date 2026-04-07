@@ -1,4 +1,4 @@
-import HostApp
+import Auv3HostApp
 import SwiftUI
 
 @main

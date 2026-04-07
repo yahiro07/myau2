@@ -7,7 +7,11 @@ public struct HostApp: App {
 
   public var body: some Scene {
     WindowGroup {
-      ContentView(hostModel: hostModel)
+      #if os(iOS)
+        ContentView2(hostModel: hostModel).ignoresSafeArea()  //fullscreen
+      #else
+        ContentView2(hostModel: hostModel)  //window with title bar
+      #endif
     }
   }
 }

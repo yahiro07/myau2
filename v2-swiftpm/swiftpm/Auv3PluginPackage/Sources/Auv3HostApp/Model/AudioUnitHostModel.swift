@@ -65,6 +65,7 @@ class AudioUnitHostModel {
         type: type, subType: subType, manufacturer: manufacturer)
 
       if false {
+        //do validation
         if let audioUnit = playEngine.avAudioUnit {
           Task { @MainActor in
             let (validationResult, validationData) = await validateAU(audioUnit: audioUnit)
