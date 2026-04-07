@@ -34,6 +34,9 @@ class AudioUnitHostModel {
   var currentValidationData: String?
 
   init(type: String = "aumu", subType: String = "prk3", manufacturer: String = "Myco") {
+    logger.trace("------------------------------------------------")
+    logger.trace("AudioUnitHostModel init")
+
     self.type = type
     self.subType = subType
     self.manufacturer = manufacturer
@@ -68,9 +71,11 @@ class AudioUnitHostModel {
         //do validation
         if let audioUnit = playEngine.avAudioUnit {
           Task { @MainActor in
+            logger.log("--Start validation--")
             let (validationResult, validationData) = await validateAU(audioUnit: audioUnit)
             self.validationResult = validationResult
             self.currentValidationData = validationData
+            logger.log("--End validation--")
           }
         }
       }
@@ -119,7 +124,7 @@ class AudioUnitHostModel {
           formattedOutput = "Validation probably crashed"
         }
 
-        print(formattedOutput)
+        logger.log(formattedOutput)
 
         continuation.resume(returning: (result, formattedOutput))
       }

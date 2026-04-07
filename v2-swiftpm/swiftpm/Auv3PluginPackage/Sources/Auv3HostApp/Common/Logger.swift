@@ -131,7 +131,7 @@ let logKindIcons: [String: String] = [
     }
   }
 
-  nonisolated(unsafe) let logger = LoggerEntry(subsystem: "ext")
+  nonisolated(unsafe) let logger = LoggerEntry(subsystem: "host")
 
 #else
 
