@@ -7,7 +7,7 @@ let package = Package(
   name: "Auv3PluginPackage",
   platforms: [.macOS(.v14), .iOS(.v16)],
   products: [
-    .library(name: "Auv3PluginPackage", targets: ["FrameworkMain", "HostApp"]),
+    .library(name: "Auv3PluginPackage", targets: ["FrameworkMain", "Auv3HostApp"])
   ],
   targets: [
     .target(
@@ -27,7 +27,7 @@ let package = Package(
       ]
     ),
     .target(
-      name: "HostApp",
+      name: "Auv3HostApp",
       resources: [
         .process("Resources/dummy.aif")
       ]
