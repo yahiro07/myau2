@@ -1,4 +1,4 @@
-function calculateParameterIdentifierHash(str: string): number {
+function hash(str: string): number {
   let _hash = 0x811c9dc5;
   for (let i = 0; i < str.length; i++) {
     _hash ^= str.charCodeAt(i);
@@ -7,9 +7,7 @@ function calculateParameterIdentifierHash(str: string): number {
   return _hash >>> 0;
 }
 
-const hash = calculateParameterIdentifierHash;
-
-export const parameterCode__ = {
+export const ParameterId = {
   parametersVersion: hash("parametersVersion"),
   //
   osc1On: hash("osc1On"),
