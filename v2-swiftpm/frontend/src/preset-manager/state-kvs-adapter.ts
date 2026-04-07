@@ -43,7 +43,7 @@ function createStateKvsItemsFetcher(coreBridge: CoreBridge) {
     setupReceiver,
     async fetchStateKvsItems() {
       const res = await executeRpc({
-        type: "rpcLoadStateKvsItems",
+        type: "rpcLoadStateKvsItemsRequest",
         rpcId: rpcIdCounter.count++,
       });
       return res.items ?? {};
