@@ -8,3 +8,5 @@ build:
 run: build
 	$(DERIVED_DATA)/Build/Products/Debug/Project1.app/Contents/MacOS/Project1
 
+build_swift:
+	cd swiftpm/Auv3PluginPackage && swift build
