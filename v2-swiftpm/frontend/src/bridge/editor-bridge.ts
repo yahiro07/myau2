@@ -73,35 +73,39 @@ export function createEditorBridge(coreBridge: CoreBridge): EditorBridge {
     }
 
     const unsubscribeCoreBridge = coreBridge.subscribe((msg) => {
-      //本体からパラメタを受け取ってstoreを更新したときにもsubscribeのコールバックが
-      //呼ばれるので、そこで値を送り返さないようにフラグを立てて処理を抑制する
-      isReceiving = true;
-      // logger.log("message from app", { msg });
-      if (msg.type === "setParameter") {
-        const { paramKey, value } = msg;
-        affectParameterToStore(paramKey, value);
-      } else if (msg.type === "bulkSendParameters") {
-        for (const [paramKey, value] of Object.entries(msg.parameters)) {
-          //store.mutations.*はバッチ化で単一の更新にまとめるので連続で多数呼んでよい
+      try {
+        //本体からパラメタを受け取ってstoreを更新したときにもsubscribeのコールバックが
+        //呼ばれるので、そこで値を送り返さないようにフラグを立てて処理を抑制する
+        isReceiving = true;
+
+        // logger.log("message from app", { msg });
+        if (msg.type === "setParameter") {
+          const { paramKey, value } = msg;
           affectParameterToStore(paramKey, value);
+        } else if (msg.type === "bulkSendParameters") {
+          for (const [paramKey, value] of Object.entries(msg.parameters)) {
+            //store.mutations.*はバッチ化で単一の更新にまとめるので連続で多数呼んでよい
+            affectParameterToStore(paramKey, value);
+          }
+        } else if (msg.type === "hostNoteOn") {
+          logger.log(`hostNoteOn: ${msg.noteNumber}`);
+        } else if (msg.type === "hostNoteOff") {
+          logger.log(`hostNoteOff: ${msg.noteNumber}`);
+        } else if (msg.type === "standaloneAppFlag") {
+          // logger.log("Received standalone app flag from host");
+          store.mutations.setStandaloneFlag(true);
         }
-      } else if (msg.type === "hostNoteOn") {
-        logger.log(`hostNoteOn: ${msg.noteNumber}`);
-      } else if (msg.type === "hostNoteOff") {
-        logger.log(`hostNoteOff: ${msg.noteNumber}`);
-      } else if (msg.type === "standaloneAppFlag") {
-        // logger.log("Received standalone app flag from host");
-        store.mutations.setStandaloneFlag(true);
+        // else if (msg.type === "latestParametersVersion") {
+        //   // logger.log(`Received latest parameters version: ${msg.version}`);
+        //   store.mutations.setLatestParametersVersion(msg.version);
+        // }
+      } finally {
+        //snap-storeの状態を更新したあと、別タスクでsubscribeのコールバックが呼ばれるので
+        //これが終わった後にisReceivingをfalseにする(queueMicrotaskはFIFO順で処理される)
+        queueMicrotask(() => {
+          isReceiving = false;
+        });
       }
-      // else if (msg.type === "latestParametersVersion") {
-      //   // logger.log(`Received latest parameters version: ${msg.version}`);
-      //   store.mutations.setLatestParametersVersion(msg.version);
-      // }
-      //snap-storeの状態を更新したあと、別タスクでsubscribeのコールバックが呼ばれるので
-      //これが終わった後にisReceivingをfalseにする(queueMicrotaskはFIFO順で処理される)
-      queueMicrotask(() => {
-        isReceiving = false;
-      });
     });
     return () => {
       unsubscribeStore();

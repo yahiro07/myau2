@@ -588,7 +588,7 @@ const App = () => {
 };
 
 async function start() {
-  logger.trace("frontend start");
+  logger.trace("frontend start 1805");
   logger.log(`at: ${location.href}`);
   const rootDiv = document.getElementById("app");
   if (!rootDiv) {
