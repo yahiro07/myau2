@@ -36,6 +36,33 @@ class WebViewBridge: ObservableObject {
       controllerFacade.requestNoteOn(noteNumber, 1.0)
     case .noteOffRequest(let noteNumber):
       controllerFacade.requestNoteOff(noteNumber)
+    case .loadFullParameters(let parameters):
+      // controllerFacade.loadFullParameters(parameters: parameters)
+      break
+    case .rpcReadFileRequest(let rpcId, let path, let skipIfNotExists):
+      let content = controllerFacade.readFile(path: path, skipIfNotExist: skipIfNotExists)
+      let msg = mapMessageFromApp_toJsonString(
+        .rpcReadFileResponse(rpcId: rpcId, success: content != nil, content: content ?? ""))
+      webViewIo?.sendMessage(msg)
+    case .rpcWriteFileRequest(let rpcId, let path, let content, let append):
+      let success = controllerFacade.writeFile(path: path, content: content, append: append)
+      let msg = mapMessageFromApp_toJsonString(
+        .rpcWriteFileResponse(rpcId: rpcId, success: success))
+      webViewIo?.sendMessage(msg)
+    case .rpcDeleteFileRequest(let rpcId, let path):
+      let success = controllerFacade.deleteFile(path: path)
+      let msg = mapMessageFromApp_toJsonString(
+        .rpcDeleteFileResponse(rpcId: rpcId, success: success))
+      webViewIo?.sendMessage(msg)
+    case .rpcLoadStateKvsItemsRequest(let rpcId):
+      let items = controllerFacade.getStateKvsItems()
+      let msg = mapMessageFromApp_toJsonString(
+        .rpcLoadStateKvsItemsResponse(rpcId: rpcId, items: items))
+      webViewIo?.sendMessage(msg)
+    case .writeStateKvsItem(let key, let value):
+      controllerFacade.writeStateKvsItem(key: key, value: value)
+    case .deleteStateKvsItem(let key):
+      controllerFacade.deleteStateKvsItem(key: key)
     }
   }
 

@@ -1,5 +1,9 @@
 class StateKvs {
-  private(set) var items: [String: String] = [:]
+  private var items: [String: String] = [:]
+
+  func getItems() -> [String: String] {
+    return items
+  }
 
   func setItems(_ items: [String: String]) {
     self.items = items

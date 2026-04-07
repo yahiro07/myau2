@@ -18,23 +18,34 @@ protocol ControllerFacadeProtocol {
 
   func subscribeHostEvents(_ listener: ((_ event: HostEvent) -> Void)?) -> Int
   func unsubscribeHostEvents(_ token: Int)
+
+  func readFile(path: String, skipIfNotExist: Bool?) -> String?
+  func writeFile(path: String, content: String, append: Bool?) -> Bool
+  func deleteFile(path: String) -> Bool
+  func getStateKvsItems() -> [String: String]
+  func writeStateKvsItem(key: String, value: String)
+  func deleteStateKvsItem(key: String)
 }
 
 class ControllerFacade: ControllerFacadeProtocol {
-  let audioUnit: AUAudioUnit
   let parametersService: ParametersService
   let hostEventService: HostEventService
   let internalNoteService: InternalNoteService
+  let storageFileIo: StorageFileIo
+  let stateKvs: StateKvs
 
   init(
-    audioUnit: AUAudioUnit, parametersService: ParametersService,
+    parametersService: ParametersService,
     hostEventService: HostEventService,
-    internalNoteService: InternalNoteService
+    internalNoteService: InternalNoteService,
+    storageFileIo: StorageFileIo,
+    stateKvs: StateKvs
   ) {
-    self.audioUnit = audioUnit
     self.parametersService = parametersService
     self.hostEventService = hostEventService
     self.internalNoteService = internalNoteService
+    self.storageFileIo = storageFileIo
+    self.stateKvs = stateKvs
   }
 
   func getAllParameterValues() -> [String: Float] {
@@ -78,5 +89,29 @@ class ControllerFacade: ControllerFacadeProtocol {
 
   func unsubscribeHostEvents(_ token: Int) {
     hostEventService.unsubscribe(token)
+  }
+
+  func readFile(path: String, skipIfNotExist: Bool?) -> String? {
+    return storageFileIo.readFile(path: path, skipIfNotExist: skipIfNotExist)
+  }
+
+  func writeFile(path: String, content: String, append: Bool?) -> Bool {
+    return storageFileIo.writeFile(path: path, content: content, append: append)
+  }
+
+  func deleteFile(path: String) -> Bool {
+    return storageFileIo.deleteFile(path: path)
+  }
+
+  func getStateKvsItems() -> [String: String] {
+    return stateKvs.getItems()
+  }
+
+  func writeStateKvsItem(key: String, value: String) {
+    stateKvs.write(key, value)
+  }
+
+  func deleteStateKvsItem(key: String) {
+    stateKvs.delete(key)
   }
 }
