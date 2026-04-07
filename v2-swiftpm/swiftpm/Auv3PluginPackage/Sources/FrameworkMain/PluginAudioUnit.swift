@@ -108,11 +108,7 @@ public class PluginAudioUnit: AUAudioUnit, @unchecked Sendable {
   }
 
   private func setupParameterStore(_ parameterTree: AUParameterTree) {
-
-    let maxAddress = parameterTree.allParameters.map { $0.address }.max() ?? 0
-    let capacity = maxAddress + 1
-
-    let parameterStore = createParameterStore(Int(capacity))
+    let parameterStore = ParameterStore()
 
     for param in parameterTree.allParameters {
       parameterStore.set(param.address, param.value)
