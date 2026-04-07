@@ -1,4 +1,4 @@
-import { IDspCore } from "./definitions/dsp-core-interface";
+import { IDspCore } from "./definitions/api";
 import { assignParameter } from "./definitions/parameter-assigner";
 import {
   defaultSynthParameters,
