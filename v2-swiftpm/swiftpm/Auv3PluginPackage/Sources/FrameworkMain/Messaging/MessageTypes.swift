@@ -1,4 +1,5 @@
 enum MessageFromUI {
+  case log(timestamp: Double, logKind: String, message: String)
   case uiLoaded
   case beginEdit(_ paramKey: String)
   case endEdit(_ paramKey: String)

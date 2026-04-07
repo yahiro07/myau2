@@ -582,13 +582,13 @@ const App = () => {
   const st = store.useSnapshot();
   return (
     <div className="h-dvh flex-c" css={{ background: "#444" }}>
-      {st.standaloneFlag  || 1 ? <StandaloneView /> : <ExtensionView />}
+      {st.standaloneFlag || 1 ? <StandaloneView /> : <ExtensionView />}
     </div>
   );
 };
 
 async function start() {
-  logger.mark("frontend start");
+  logger.trace("frontend start");
   logger.log(`at: ${location.href}`);
   const rootDiv = document.getElementById("app");
   if (!rootDiv) {

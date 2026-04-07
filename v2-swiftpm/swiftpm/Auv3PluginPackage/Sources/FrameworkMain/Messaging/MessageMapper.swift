@@ -7,6 +7,13 @@ func mapMessageFromUI_fromJsonString(_ jsonString: String) -> MessageFromUI? {
   guard let dict = dict else { return nil }
   guard let type = dict["type"] as? String else { return nil }
   switch type {
+  case "log":
+    if let timestamp = dict["timestamp"] as? Double,
+      let logKind = dict["logKind"] as? String,
+      let message = dict["message"] as? String
+    {
+      return .log(timestamp: timestamp, logKind: logKind, message: message)
+    }
   case "uiLoaded":
     return .uiLoaded
   case "beginEdit":

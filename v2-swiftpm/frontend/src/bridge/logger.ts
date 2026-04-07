@@ -1,51 +1,90 @@
 const isDebug = location.search.includes("debug=1");
-const isProto = location.search.includes("proto=1");
+const isDirectLoggingEnabled = location.search.includes("dlog=1");
 
 const loggerOptions = {
-  console: false,
-  sendToApp: false,
-  localHttp: false,
+  outputToConsole: false,
+  sendToWebViewOwner: false,
+  sendToLocalHttpLogServer: false,
 };
 if (isDebug) {
   Object.assign(loggerOptions, {
-    console: true,
-    sendToApp: true, //app routes app and ui logs to stdout and local log server
-    localHttp: isProto, //send to local log server directly
+    outputToConsole: true,
+    sendToWebViewOwner: true,
+    sendToLocalHttpLogServer: isDirectLoggingEnabled,
   });
 }
 
 let postFailed = false;
 
-async function loggingViaLocalHttp(msg: string) {
+type LogKind = "trace" | "info" | "log" | "warn" | "error";
+
+type LogItem = {
+  timestamp: number;
+  subsystem: string;
+  logKind: LogKind;
+  message: string;
+};
+
+function createLogFormatter() {
+  // const subsystemIcons: Record<string, string> = {
+  //   host: "🧊",
+  //   ext: "🔸",
+  //   ui: "🔹",
+  //   dsp: "🔺",
+  // };
+
+  const logKindIcons: Record<string, string> = {
+    trace: "🔽",
+    info: "◻️",
+    log: "▫️",
+    warn: "⚠️",
+    error: "📛",
+  };
+
+  function formatTimestamp(timestamp: number) {
+    const date = new Date(timestamp);
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+    const milliseconds = String(date.getMilliseconds()).padStart(3, "0");
+    //00:00:00.000
+    return `${hours}:${minutes}:${seconds}.${milliseconds}`;
+  }
+
+  function formatLogLine(logItem: LogItem): string {
+    // const ssIcon = subsystemIcons[logItem.subsystem ?? ""] ?? "";
+    const kindIcon = logKindIcons[logItem.logKind ?? ""] ?? "";
+    const ts = formatTimestamp(logItem.timestamp);
+    return `${ts} ${kindIcon} ${logItem.message}`;
+  }
+  return { formatLogLine };
+}
+const logFormatter = createLogFormatter();
+
+async function loggingViaLocalHttp(logItem: LogItem) {
   if (!postFailed) {
     try {
-      await fetch("http://localhost:9003", {
+      await fetch("http://localhost:9002", {
         method: "POST",
-        body: msg,
+        body: JSON.stringify(logItem),
       });
-    } catch (_) {
-      //初回のログ送信で失敗したらそれ以降はログを送らない
+    } catch {
+      //skip sending logs after first failure
       console.log(`failed to post local http log`);
       postFailed = true;
     }
   }
 }
 
-type LogItem = {
-  timeStamp: number;
-  kind: string;
-  message: string;
-};
-
-function sendLogItemToApp(logItem: LogItem) {
+function sendLogItemToWebViewOwner(logItem: LogItem) {
   const globalThisTyped = globalThis as unknown as {
     webkit?: {
       messageHandlers: {
         pluginEditor?: {
           postMessage: (msg: {
-            type: "putLogItem";
-            timeStamp: number;
-            kind: string;
+            type: "log";
+            timestamp: number;
+            logKind: string;
             message: string;
           }) => void;
         };
@@ -53,11 +92,16 @@ function sendLogItemToApp(logItem: LogItem) {
     };
   };
   globalThisTyped.webkit?.messageHandlers.pluginEditor?.postMessage({
-    type: "putLogItem",
-    timeStamp: logItem.timeStamp,
-    kind: logItem.kind,
+    type: "log",
+    timestamp: logItem.timestamp,
+    logKind: logItem.logKind,
     message: logItem.message,
   });
+}
+
+function writeLogItemToConsole(logItem: LogItem) {
+  const logLine = logFormatter.formatLogLine(logItem);
+  console.log(logLine);
 }
 
 type LogArguments = (
@@ -81,39 +125,45 @@ function mapLogArgumentsToString(args: LogArguments) {
 }
 
 function createLoggerEntry() {
-  function pushLog(kind: string, args: LogArguments) {
+  function pushLog(kind: LogKind, args: LogArguments) {
     if (
-      !loggerOptions.console &&
-      !loggerOptions.localHttp &&
-      !loggerOptions.sendToApp
+      !loggerOptions.outputToConsole &&
+      !loggerOptions.sendToLocalHttpLogServer &&
+      !loggerOptions.sendToWebViewOwner
     ) {
       return;
     }
     const msg = mapLogArgumentsToString(args);
 
-    if (loggerOptions.console) {
-      console.log(msg);
+    const logItem: LogItem = {
+      timestamp: Date.now(),
+      subsystem: "ui",
+      logKind: kind,
+      message: msg,
+    };
+
+    if (loggerOptions.outputToConsole) {
+      writeLogItemToConsole(logItem);
     }
 
-    if (loggerOptions.localHttp) {
-      void loggingViaLocalHttp(`(t:${Date.now()}, s:ui, k:${kind}) ${msg}`);
+    if (loggerOptions.sendToLocalHttpLogServer) {
+      void loggingViaLocalHttp(logItem);
     }
 
-    if (loggerOptions.sendToApp) {
-      sendLogItemToApp({
-        timeStamp: Date.now(),
-        kind: kind,
-        message: msg,
-      });
+    if (loggerOptions.sendToWebViewOwner) {
+      sendLogItemToWebViewOwner(logItem);
     }
   }
 
   return {
+    trace(...args: LogArguments) {
+      pushLog("trace", args);
+    },
+    info(...args: LogArguments) {
+      pushLog("info", args);
+    },
     log(...args: LogArguments) {
       pushLog("log", args);
-    },
-    mark(...args: LogArguments) {
-      pushLog("mark", args);
     },
     warn(...args: LogArguments) {
       pushLog("warn", args);

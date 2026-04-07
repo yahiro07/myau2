@@ -14,8 +14,11 @@ class WebViewBridge: ObservableObject {
 
   @MainActor
   private func handleMessageFromUI(msg: MessageFromUI) {
-    logger.log("handleMessageFromUI: \(msg)")
+    // logger.log("handleMessageFromUI: \(msg)")
     switch msg {
+    case .log(let timestamp, let logKind, let message):
+      logger.pushLogItem(
+        LogItem(timestamp: timestamp, subsystem: "ui", logKind: logKind, message: message))
     case .uiLoaded:
       logger.log("ui loaded")
       let allParameters = controllerFacade.getAllParameterValues()
