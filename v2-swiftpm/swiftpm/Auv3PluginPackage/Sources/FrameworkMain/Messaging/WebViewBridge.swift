@@ -37,8 +37,7 @@ class WebViewBridge: ObservableObject {
     case .noteOffRequest(let noteNumber):
       controllerFacade.requestNoteOff(noteNumber)
     case .loadFullParameters(let parameters):
-      // controllerFacade.loadFullParameters(parameters: parameters)
-      break
+      controllerFacade.loadFullParametersSuit(parameters)
     case .rpcReadFileRequest(let rpcId, let path, let skipIfNotExists):
       let content = controllerFacade.readFile(path: path, skipIfNotExist: skipIfNotExists)
       let msg = mapMessageFromApp_toJsonString(

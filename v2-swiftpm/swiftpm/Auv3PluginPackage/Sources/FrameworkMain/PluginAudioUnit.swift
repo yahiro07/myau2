@@ -143,11 +143,7 @@ public class PluginAudioUnit: AUAudioUnit, @unchecked Sendable {
         "version": baseState?["version"] as? Int ?? 0,
       ]
       state["kvsItems"] = stateKvsService.getItems()
-
-      var parameters: [String: Float] = [:]
-      parameterTree?.allParameters.forEach { param in
-        parameters[param.identifier] = param.value
-      }
+      let parameters = parametersService!.getAllParameterValues()
       state["parameters"] = parameters
       return state
     }
@@ -158,13 +154,8 @@ public class PluginAudioUnit: AUAudioUnit, @unchecked Sendable {
       // if let flag = state["MySynth1.hostedInStandaloneApp"] as? Bool {
       //   self.isHostedInStandaloneApp = flag
       // }
-      if var parameters = state["parameters"] as? [String: Float] {
-        migrateParametersIfNeeded(parameters: &parameters)
-        parameterTree?.allParameters.forEach { param in
-          if let value = parameters[param.identifier] {
-            param.value = value
-          }
-        }
+      if let parameters = state["parameters"] as? [String: Float] {
+        parametersService!.loadFullParametersSuit(parameters)
       }
       if let kvsItems = state["kvsItems"] as? [String: String] {
         stateKvsService.setItems(kvsItems)

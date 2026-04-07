@@ -13,6 +13,8 @@ protocol ControllerFacadeProtocol {
     -> Int
   func unsubscribeParameterChanges(_ token: Int)
   func applyParameterEditFromUi(_ paramKey: String, _ value: Float, _ state: ParameterEditState)
+  func loadFullParameters(parameters: [String: Float])
+
   func requestNoteOn(_ noteNumber: Int, _ velocity: Float)
   func requestNoteOff(_ noteNumber: Int)
 
@@ -25,6 +27,7 @@ protocol ControllerFacadeProtocol {
   func getStateKvsItems() -> [String: String]
   func writeStateKvsItem(key: String, value: String)
   func deleteStateKvsItem(key: String)
+
 }
 
 class ControllerFacade: ControllerFacadeProtocol {
@@ -74,6 +77,10 @@ class ControllerFacade: ControllerFacadeProtocol {
       parametersService.setParameterEditValue(paramKey, value)
       parametersService.setParameterEditState(paramKey, false)
     }
+  }
+
+  func loadFullParameters(parameters: [String: Float]) {
+    parametersService.loadFullParametersSuit(parameters)
   }
 
   func requestNoteOn(_ noteNumber: Int, _ velocity: Float) {

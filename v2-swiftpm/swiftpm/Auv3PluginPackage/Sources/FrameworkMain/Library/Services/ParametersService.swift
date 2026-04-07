@@ -9,6 +9,8 @@ protocol ParameterServiceProtocol {
   func setParameterEditState(_ paramKey: String, _ editing: Bool)
   func setParameterEditValue(_ paramKey: String, _ value: Float)
   func getAllParameterValues() -> [String: Float]
+
+  func loadFullParametersSuit(_ parameters: [String: Float])
 }
 
 class ParametersService: ParameterServiceProtocol {
@@ -86,6 +88,16 @@ class ParametersService: ParameterServiceProtocol {
   func getAllParameterValues() -> [String: Float] {
     return parameterTree.allParameters.reduce(into: [:]) { dict, parameter in
       dict[parameter.identifier] = parameter.value
+    }
+  }
+
+  func loadFullParametersSuit(_ inputParameters: [String: Float]) {
+    var parameters = inputParameters
+    migrateParametersIfNeeded(parameters: &parameters)
+    parameterTree.allParameters.forEach { param in
+      if let value = parameters[param.identifier] {
+        param.value = value
+      }
     }
   }
 }
