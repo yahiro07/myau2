@@ -75,7 +75,8 @@ open class PluginAudioUnitViewController: AUViewController, AUAudioUnitFactory {
         }
       }
 
-      audioUnit.setupParameterTree(Project1ExtensionParameterSpecs.createAUParameterTree())
+      let parameterSpecs = buildPluginParameterSpecs()
+      audioUnit.setupParameterTree(parameterSpecs.createAUParameterTree())
 
       self.observation = audioUnit.observe(\.allParameterValues, options: [.new]) {
         object, change in
