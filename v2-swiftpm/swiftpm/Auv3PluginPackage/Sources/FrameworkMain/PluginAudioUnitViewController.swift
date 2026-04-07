@@ -3,10 +3,6 @@ import CoreAudioKit
 import SwiftUI
 import os
 
-private let log = Logger(
-  subsystem: "com.example.sonic.proto-kit-auv3.Project1Extension",
-  category: "AudioUnitViewController")
-
 func osTypeString(_ value: Int) -> String {
   let n = Int(value)
   var s = ""
@@ -86,7 +82,7 @@ open class PluginAudioUnitViewController: AUViewController, AUAudioUnitFactory {
         componentDescription: componentDescription, options: [])
 
       guard let audioUnit = self.audioUnit else {
-        log.error("Unable to create Project1ExtensionAudioUnit")
+        logger.error("Unable to create Project1ExtensionAudioUnit")
         return audioUnit!
       }
 
@@ -110,7 +106,7 @@ open class PluginAudioUnitViewController: AUViewController, AUAudioUnitFactory {
       }
 
       guard audioUnit.parameterTree != nil else {
-        log.error("Unable to access AU ParameterTree")
+        logger.error("Unable to access AU ParameterTree")
         return audioUnit
       }
 
