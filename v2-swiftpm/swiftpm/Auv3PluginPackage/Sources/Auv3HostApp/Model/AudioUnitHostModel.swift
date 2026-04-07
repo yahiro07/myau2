@@ -33,7 +33,7 @@ class AudioUnitHostModel {
   var validationResult: AudioComponentValidationResult?
   var currentValidationData: String?
 
-  init(type: String = "aumu", subType: String = "prk3", manufacturer: String = "Myco") {
+  init(type: String, subType: String, manufacturer: String) {
     logger.trace("------------------------------------------------")
     logger.trace("AudioUnitHostModel init")
 

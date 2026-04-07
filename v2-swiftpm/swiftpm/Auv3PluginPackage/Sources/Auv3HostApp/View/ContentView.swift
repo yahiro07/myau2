@@ -55,7 +55,3 @@ struct ContentView: View {
     }
   }
 }
-
-#Preview {
-  ContentView(hostModel: AudioUnitHostModel())
-}
