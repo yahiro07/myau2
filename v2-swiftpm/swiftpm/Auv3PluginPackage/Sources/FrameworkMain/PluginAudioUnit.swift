@@ -35,6 +35,7 @@ public class PluginAudioUnit: AUAudioUnit, @unchecked Sendable {
     internalNoteService.setDestinationFn { noteNumber, velocity in
       self.kernel.pushInternalNote(Int32(noteNumber), velocity)
     }
+    self.setupParameterTree()
   }
 
   public override var outputBusses: AUAudioUnitBusArray {

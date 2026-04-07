@@ -71,9 +71,6 @@ open class PluginAudioUnitViewController: AUViewController, AUAudioUnitFactory {
           self.configureSwiftUIView(audioUnit: audioUnit)
         }
       }
-
-      audioUnit.setupParameterTree()
-
       // self.observation = audioUnit.observe(\.allParameterValues, options: [.new]) {
       //   object, change in
       //   guard let tree = audioUnit.parameterTree else { return }

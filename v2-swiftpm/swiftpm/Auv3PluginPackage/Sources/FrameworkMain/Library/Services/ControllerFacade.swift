@@ -13,7 +13,7 @@ protocol ControllerFacadeProtocol {
     -> Int
   func unsubscribeParameterChanges(_ token: Int)
   func applyParameterEditFromUi(_ paramKey: String, _ value: Float, _ state: ParameterEditState)
-  func loadFullParameters(parameters: [String: Float])
+  func loadFullParametersSuit(_ parameters: [String: Float])
 
   func requestNoteOn(_ noteNumber: Int, _ velocity: Float)
   func requestNoteOff(_ noteNumber: Int)
@@ -79,7 +79,7 @@ class ControllerFacade: ControllerFacadeProtocol {
     }
   }
 
-  func loadFullParameters(parameters: [String: Float]) {
+  func loadFullParametersSuit(_ parameters: [String: Float]) {
     parametersService.loadFullParametersSuit(parameters)
   }
 
