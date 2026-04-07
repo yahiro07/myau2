@@ -72,21 +72,20 @@ open class PluginAudioUnitViewController: AUViewController, AUAudioUnitFactory {
         }
       }
 
-      let parameterSpecs = buildPluginParameterSpecs()
-      audioUnit.setupParameterTree(parameterSpecs.createAUParameterTree())
+      audioUnit.setupParameterTree()
 
-      self.observation = audioUnit.observe(\.allParameterValues, options: [.new]) {
-        object, change in
-        guard let tree = audioUnit.parameterTree else { return }
+      // self.observation = audioUnit.observe(\.allParameterValues, options: [.new]) {
+      //   object, change in
+      //   guard let tree = audioUnit.parameterTree else { return }
 
-        // This insures the Audio Unit gets initial values from the host.
-        for param in tree.allParameters { param.value = param.value }
-      }
+      //   // This insures the Audio Unit gets initial values from the host.
+      //   for param in tree.allParameters { param.value = param.value }
+      // }
 
-      guard audioUnit.parameterTree != nil else {
-        logger.error("Unable to access AU ParameterTree")
-        return audioUnit
-      }
+      // guard audioUnit.parameterTree != nil else {
+      //   logger.error("Unable to access AU ParameterTree")
+      //   return audioUnit
+      // }
 
       return audioUnit
     }

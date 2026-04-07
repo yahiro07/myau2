@@ -88,7 +88,9 @@ public class PluginAudioUnit: AUAudioUnit, @unchecked Sendable {
     super.deallocateRenderResources()
   }
 
-  public func setupParameterTree(_ parameterTree: AUParameterTree) {
+  public func setupParameterTree() {
+    let parameterTree = buildPluginParameterSpecs().createAUParameterTree()
+
     self.parameterTree = parameterTree
     self.parametersService = ParametersService(parameterTree: parameterTree)
     self.controllerFacade = ControllerFacade(
