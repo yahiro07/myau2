@@ -22,6 +22,9 @@ let package = Package(
     .target(
       name: "FrameworkMain",
       dependencies: ["DspRoute"],
+      resources: [
+        .copy("Resources/pages")
+      ],
       swiftSettings: [
         .interoperabilityMode(.Cxx)
       ]

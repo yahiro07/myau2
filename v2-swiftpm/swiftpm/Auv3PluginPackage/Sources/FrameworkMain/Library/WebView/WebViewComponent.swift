@@ -123,6 +123,16 @@ class WebViewCoordinator: NSObject, WebViewIoProtocol, WKNavigationDelegate {
 
 }
 
+func mapAppSchemeUrlToFileUrl(url: URL) -> URL? {
+  guard url.scheme == "app" else { return nil }
+  // let resourceURL = Bundle.main.resourceURL!
+  let resourceURL = Bundle.module.resourceURL!
+  let fileURL = resourceURL.appendingPathComponent("pages")
+    .appendingPathComponent(url.host ?? "")
+    .appendingPathComponent(url.path)
+  return fileURL
+}
+
 class MySchemeHandler: NSObject, WKURLSchemeHandler {
 
   func webView(
@@ -136,10 +146,11 @@ class MySchemeHandler: NSObject, WKURLSchemeHandler {
     // print("request url:", url.absoluteString)
     // print("url.path:", url.path)
 
-    let resourceURL = Bundle.main.resourceURL!
-    let fileURL = resourceURL.appendingPathComponent("pages")
-      .appendingPathComponent(url.host ?? "")
-      .appendingPathComponent(url.path)
+    guard let fileURL = mapAppSchemeUrlToFileUrl(url: url) else {
+      logger.error("Failed to resolve file URL for URL: \(url)")
+      urlSchemeTask.didFailWithError(NSError(domain: "file", code: 404))
+      return
+    }
 
     // print("Loading: \(fileURL.path)")
 

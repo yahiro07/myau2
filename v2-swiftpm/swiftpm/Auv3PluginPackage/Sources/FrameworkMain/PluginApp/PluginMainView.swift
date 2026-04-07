@@ -10,8 +10,8 @@ struct PluginMainView: View {
   var body: some View {
     VStack {
       WebViewComponent { webViewIo in
-        webViewIo.loadURL("http://localhost:3000?debug=1")
-        // webViewIo.loadURL("app://www-bundles/index.html")
+        // webViewIo.loadURL("http://localhost:3000?debug=1")
+        webViewIo.loadURL("app://www-bundles/index.html")
         webViewBridge.bindWebView(webViewIo)
       }.onDisappear {
         webViewBridge.unbindWebView()

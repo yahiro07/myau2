@@ -8,7 +8,8 @@ export default defineConfig({
     tsconfigPaths: true,
   },
   build: {
-    outDir: "../pages/www-bundles",
+    outDir:
+      "../swiftpm/Auv3PluginPackage/Sources/FrameworkMain/Resources/pages/www-bundles",
     emptyOutDir: true,
   },
   server: {
