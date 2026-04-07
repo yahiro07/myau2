@@ -11,7 +11,6 @@ public class PluginAudioUnit: AUAudioUnit, @unchecked Sendable {
 
   private var format: AVAudioFormat
 
-  private let parameterStore = ParameterStore()
   private let hostEventService = HostEventService()
   private var parametersService: ParametersService?
   private let internalNoteService = InternalNoteService()
@@ -95,7 +94,7 @@ public class PluginAudioUnit: AUAudioUnit, @unchecked Sendable {
     super.deallocateRenderResources()
   }
 
-  public func setupParameterTree() {
+  private func setupParameterTree() {
     let parameterTree = buildPluginParameterSpecs().createAUParameterTree()
     let parametersService = ParametersService(parameterTree: parameterTree)
     self.parameterTree = parameterTree
@@ -105,27 +104,30 @@ public class PluginAudioUnit: AUAudioUnit, @unchecked Sendable {
       hostEventService: hostEventService, internalNoteService: internalNoteService,
       storageFileIoService: storageFileIoService, stateKvsService: stateKvsService)
 
-    let maxAddress = parameterTree.allParameters.map { $0.address }.max() ?? 0
-    let capacity = maxAddress + 1
-    parameterStore.setParameterCapacity(UInt32(capacity))
-
-    for param in parameterTree.allParameters {
-      parameterStore.setParameter(param.address, param.value)
-      kernel.setParameter(param.address, param.value)
-    }
-
-    setupParameterCallbacks()
+    setupParameterStore(parameterTree)
   }
 
-  private func setupParameterCallbacks() {
-    parameterTree?.implementorValueObserver = { [weak self] param, value -> Void in
-      self?.parameterStore.setParameter(param.address, value)
+  private func setupParameterStore(_ parameterTree: AUParameterTree) {
+
+    let maxAddress = parameterTree.allParameters.map { $0.address }.max() ?? 0
+    let capacity = maxAddress + 1
+
+    let parameterStore = createParameterStore(Int(capacity))
+
+    for param in parameterTree.allParameters {
+      parameterStore.set(param.address, param.value)
+      kernel.setParameter(param.address, param.value)
+    }
+    parameterStore.stateKnownKeysInserted()
+
+    parameterTree.implementorValueObserver = { [weak self] param, value -> Void in
+      parameterStore.set(param.address, value)
       self?.kernel.pushParameterChange(param.address, value)
     }
-    parameterTree?.implementorValueProvider = { [weak self] param in
-      return self?.parameterStore.getParameter(param.address) ?? 0.0
+    parameterTree.implementorValueProvider = { param in
+      parameterStore.get(param.address)
     }
-    parameterTree?.implementorStringFromValueCallback = { param, valuePtr in
+    parameterTree.implementorStringFromValueCallback = { param, valuePtr in
       guard let value = valuePtr?.pointee else {
         return "-"
       }
