@@ -2,6 +2,7 @@
 #include "./definitions/api.h"
 #include "parameter-id.h"
 #include <cmath>
+// #include <cstdio>
 
 enum class OscWave : int {
   Saw = 0,
@@ -63,6 +64,7 @@ typedef ParameterId PK;
 
 inline void applySynthesisParameter(SynthesisParameters &sp, uint64_t id,
                                     float value) {
+  // printf("applySynthesisParameter %llu %f\n", id, value);
   if (id == PK::parametersVersion) {
     sp.parametersVersion = static_cast<int>(std::lround(value));
   } else if (id == PK::osc1On) {

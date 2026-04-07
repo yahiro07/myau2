@@ -117,6 +117,7 @@ public class PluginAudioUnit: AUAudioUnit, @unchecked Sendable {
     parameterStore.stateKnownKeysInserted()
 
     parameterTree.implementorValueObserver = { [weak self] param, value -> Void in
+      // logger.log("parameter changed: \(param.address) \(value)")
       parameterStore.set(param.address, value)
       self?.kernel.pushParameterChange(param.address, value)
     }
