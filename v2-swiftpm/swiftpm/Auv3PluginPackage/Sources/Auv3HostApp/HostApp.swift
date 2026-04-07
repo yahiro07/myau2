@@ -14,4 +14,8 @@ public struct HostApp: App {
       #endif
     }
   }
+
+  public func saveState() {
+    hostModel.saveState()
+  }
 }
