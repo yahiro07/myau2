@@ -70,6 +70,7 @@ export const VoicingModeOptions = createEnumOptions<VoicingMode>([
 ]);
 
 export type SynthParametersSuit = {
+  parametersVersion: number;
   osc1On: boolean;
   osc1Wave: OscWave;
   osc1Octave: number;
@@ -113,6 +114,8 @@ export type SynthParametersSuit = {
 };
 
 export const defaultSynthParameters: SynthParametersSuit = {
+  parametersVersion: 1,
+  //
   osc1On: true,
   osc1Wave: OscWave.Saw,
   osc1Octave: 0.5,
