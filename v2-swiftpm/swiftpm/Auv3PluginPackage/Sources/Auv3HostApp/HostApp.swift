@@ -1,7 +1,7 @@
 import SwiftUI
 
 public struct HostApp: App {
-  private let hostModel = AudioUnitHostModel(type: "aumu", subType: "prk3", manufacturer: "Myco")
+  private let hostModel = AudioUnitHostModel(type: "aumu", subType: "prk4", manufacturer: "Myco")
 
   public init() {}
 
