@@ -1,4 +1,4 @@
-class StateKvs {
+class StateKvsService {
   private var items: [String: String] = [:]
 
   func getItems() -> [String: String] {

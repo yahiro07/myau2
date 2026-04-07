@@ -31,21 +31,21 @@ class ControllerFacade: ControllerFacadeProtocol {
   let parametersService: ParametersService
   let hostEventService: HostEventService
   let internalNoteService: InternalNoteService
-  let storageFileIo: StorageFileIo
-  let stateKvs: StateKvs
+  let storageFileIoService: StorageFileIoService
+  let stateKvsService: StateKvsService
 
   init(
     parametersService: ParametersService,
     hostEventService: HostEventService,
     internalNoteService: InternalNoteService,
-    storageFileIo: StorageFileIo,
-    stateKvs: StateKvs
+    storageFileIoService: StorageFileIoService,
+    stateKvsService: StateKvsService
   ) {
     self.parametersService = parametersService
     self.hostEventService = hostEventService
     self.internalNoteService = internalNoteService
-    self.storageFileIo = storageFileIo
-    self.stateKvs = stateKvs
+    self.storageFileIoService = storageFileIoService
+    self.stateKvsService = stateKvsService
   }
 
   func getAllParameterValues() -> [String: Float] {
@@ -92,26 +92,26 @@ class ControllerFacade: ControllerFacadeProtocol {
   }
 
   func readFile(path: String, skipIfNotExist: Bool?) -> String? {
-    return storageFileIo.readFile(path: path, skipIfNotExist: skipIfNotExist)
+    return storageFileIoService.readFile(path: path, skipIfNotExist: skipIfNotExist)
   }
 
   func writeFile(path: String, content: String, append: Bool?) -> Bool {
-    return storageFileIo.writeFile(path: path, content: content, append: append)
+    return storageFileIoService.writeFile(path: path, content: content, append: append)
   }
 
   func deleteFile(path: String) -> Bool {
-    return storageFileIo.deleteFile(path: path)
+    return storageFileIoService.deleteFile(path: path)
   }
 
   func getStateKvsItems() -> [String: String] {
-    return stateKvs.getItems()
+    return stateKvsService.getItems()
   }
 
   func writeStateKvsItem(key: String, value: String) {
-    stateKvs.write(key, value)
+    stateKvsService.write(key, value)
   }
 
   func deleteStateKvsItem(key: String) {
-    stateKvs.delete(key)
+    stateKvsService.delete(key)
   }
 }

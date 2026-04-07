@@ -1,9 +1,9 @@
 import Foundation
 
 protocol StorageFileIoProtocol {
-  func readFile(path: String, skipIfNotExist: Bool?) -> String?
-  func writeFile(path: String, content: String, append: Bool?) -> Bool
-  func deleteFile(path: String) -> Bool
+  func readFile(path: String, skipIfNotExist: Bool?) throws -> String
+  func writeFile(path: String, content: String, append: Bool?) throws
+  func deleteFile(path: String) throws
 }
 
 class SharedContainer {
@@ -78,57 +78,39 @@ class StorageFileIo: StorageFileIoProtocol {
     }
   }
 
-  func readFile(path: String, skipIfNotExist: Bool? = false) -> String? {
-    do {
-      let fileURL = try SharedContainer.getRelativePathFileURL(path)
-      if FileManager.default.fileExists(atPath: fileURL.path) {
-        let content = try String(contentsOf: fileURL, encoding: .utf8)
-        // logger.log("PresetFilesIO readFile path: \(path) content: \(content)")
-        return content
-      } else if skipIfNotExist == true {
-        return ""
-      } else {
-        throw NSError(
-          domain: "PresetFilesIo", code: 404,
-          userInfo: [NSLocalizedDescriptionKey: "file not found"])
-      }
-    } catch {
-      logger.error("readFile failed: \(error)")
-      return nil
+  func readFile(path: String, skipIfNotExist: Bool? = false) throws -> String {
+    let fileURL = try SharedContainer.getRelativePathFileURL(path)
+    if FileManager.default.fileExists(atPath: fileURL.path) {
+      let content = try String(contentsOf: fileURL, encoding: .utf8)
+      // logger.log("PresetFilesIO readFile path: \(path) content: \(content)")
+      return content
+    } else if skipIfNotExist == true {
+      return ""
+    } else {
+      throw NSError(
+        domain: "PresetFilesIo", code: 404, userInfo: [NSLocalizedDescriptionKey: "file not found"])
     }
   }
 
-  func writeFile(path: String, content: String, append: Bool? = false) -> Bool {
-    do {
-      let fileURL = try SharedContainer.getRelativePathFileURL(path)
-      let fm = FileManager.default
+  func writeFile(path: String, content: String, append: Bool? = false) throws {
+    let fileURL = try SharedContainer.getRelativePathFileURL(path)
+    let fm = FileManager.default
 
-      if append == true && fm.fileExists(atPath: fileURL.path) {
-        let data = Data(content.utf8)
-        let handle = try FileHandle(forWritingTo: fileURL)
-        handle.seekToEndOfFile()
-        handle.write(data)
-        handle.closeFile()
-        return true
-      }
-      try content.write(to: fileURL, atomically: true, encoding: .utf8)
-      // logger.log("PresetFilesIO writeFile path: \(path) content: \(content)")
-      return true
-    } catch {
-      logger.error("writeFile failed: \(error)")
-      return false
+    if append == true && fm.fileExists(atPath: fileURL.path) {
+      let data = Data(content.utf8)
+      let handle = try FileHandle(forWritingTo: fileURL)
+      handle.seekToEndOfFile()
+      handle.write(data)
+      handle.closeFile()
+      return
     }
+    try content.write(to: fileURL, atomically: true, encoding: .utf8)
+    // logger.log("PresetFilesIO writeFile path: \(path) content: \(content)")
   }
 
-  func deleteFile(path: String) -> Bool {
-    do {
-      let fileURL = try SharedContainer.getRelativePathFileURL(path)
-      try FileManager.default.removeItem(at: fileURL)
-      // logger.log("PresetFilesIO deleteFile path: \(path)")
-      return true
-    } catch {
-      logger.error("deleteFile failed: \(error)")
-      return false
-    }
+  func deleteFile(path: String) throws {
+    let fileURL = try SharedContainer.getRelativePathFileURL(path)
+    try FileManager.default.removeItem(at: fileURL)
+    // logger.log("PresetFilesIO deleteFile path: \(path)")
   }
 }

@@ -15,8 +15,8 @@ public class PluginAudioUnit: AUAudioUnit, @unchecked Sendable {
   private let hostEventService = HostEventService()
   private var parametersService: ParametersService?
   private let internalNoteService = InternalNoteService()
-  private let storageFileIo = StorageFileIo()
-  private let stateKvs = StateKvs()
+  private let storageFileIoService = StorageFileIoService()
+  private let stateKvsService = StateKvsService()
   private(set) var controllerFacade: ControllerFacade?
 
   private let intervalTimer = IntervalTimer()
@@ -102,7 +102,7 @@ public class PluginAudioUnit: AUAudioUnit, @unchecked Sendable {
     self.controllerFacade = ControllerFacade(
       parametersService: parametersService,
       hostEventService: hostEventService, internalNoteService: internalNoteService,
-      storageFileIo: storageFileIo, stateKvs: stateKvs)
+      storageFileIoService: storageFileIoService, stateKvsService: stateKvsService)
 
     let maxAddress = parameterTree.allParameters.map { $0.address }.max() ?? 0
     let capacity = maxAddress + 1
