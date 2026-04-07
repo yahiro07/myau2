@@ -21,8 +21,8 @@ class WebViewBridge: ObservableObject {
         LogItem(timestamp: timestamp, subsystem: "ui", logKind: logKind, message: message))
     case .uiLoaded:
       logger.log("ui loaded")
-      let allParameters = controllerFacade.getAllParameterValues()
-      let msg = mapMessageFromApp_toJsonString(.bulkSendParameters(params: allParameters))
+      let parameters = controllerFacade.getAllParameterValues()
+      let msg = mapMessageFromApp_toJsonString(.bulkSendParameters(parameters: parameters))
       webViewIo?.sendMessage(msg)
     case .beginEdit(let paramKey):
       controllerFacade.applyParameterEditFromUi(paramKey, 0, ParameterEditState.Begin)

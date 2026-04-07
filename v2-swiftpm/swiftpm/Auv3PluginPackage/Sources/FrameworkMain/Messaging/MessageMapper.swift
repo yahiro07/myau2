@@ -105,7 +105,7 @@ func mapMessageFromApp_toJsonString(_ msg: MessageFromApp) -> String {
   case .bulkSendParameters(let params):
     return toJson([
       "type": "bulkSendParameters",
-      "params": params,
+      "parameters": params,
     ])
   case .hostNoteOn(let noteNumber):
     return toJson([
