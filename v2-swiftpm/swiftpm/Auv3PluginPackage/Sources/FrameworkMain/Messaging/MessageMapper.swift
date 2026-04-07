@@ -61,11 +61,10 @@ func mapMessageFromApp_toJsonString(_ msg: MessageFromApp) -> String {
       "type": "bulkSendParameters",
       "params": params,
     ])
-  case .hostNoteOn(let noteNumber, let velocity):
+  case .hostNoteOn(let noteNumber):
     return toJson([
       "type": "hostNoteOn",
       "noteNumber": noteNumber,
-      "velocity": velocity,
     ])
   case .hostNoteOff(let noteNumber):
     return toJson([
@@ -87,8 +86,8 @@ func mapMessageFromApp_toJsonString(_ msg: MessageFromApp) -> String {
 
 func mapHostEventToMessage(_ event: HostEvent) -> MessageFromApp {
   switch event {
-  case .hostNoteOn(let noteNumber, let velocity):
-    return .hostNoteOn(noteNumber: noteNumber, velocity: velocity)
+  case .hostNoteOn(let noteNumber):
+    return .hostNoteOn(noteNumber: noteNumber)
   case .hostNoteOff(let noteNumber):
     return .hostNoteOff(noteNumber: noteNumber)
   case .hostTempo(let tempo):
