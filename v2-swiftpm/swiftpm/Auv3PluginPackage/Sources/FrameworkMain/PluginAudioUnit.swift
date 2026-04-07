@@ -117,23 +117,60 @@ public class PluginAudioUnit: AUAudioUnit, @unchecked Sendable {
   }
 
   private func setupParameterCallbacks() {
-    // implementorValueObserver is called when a parameter changes value.
     parameterTree?.implementorValueObserver = { [weak self] param, value -> Void in
       self?.parameterStore.setParameter(param.address, value)
       self?.kernel.pushParameterChange(param.address, value)
     }
-
-    // implementorValueProvider is called when the value needs to be refreshed.
     parameterTree?.implementorValueProvider = { [weak self] param in
       return self?.parameterStore.getParameter(param.address) ?? 0.0
     }
-
-    // A function to provide string representations of parameter values.
     parameterTree?.implementorStringFromValueCallback = { param, valuePtr in
       guard let value = valuePtr?.pointee else {
         return "-"
       }
       return NSString.localizedStringWithFormat("%.f", value) as String
+    }
+  }
+
+  public override var fullState: [String: Any]? {
+    get {
+      logger.log("fullState saving")
+      let baseState = super.fullState
+      var state: [String: Any] = [
+        "type": componentDescription.componentType,
+        "subtype": componentDescription.componentSubType,
+        "manufacturer": componentDescription.componentManufacturer,
+        "version": baseState?["version"] as? Int ?? 0,
+      ]
+      state["kvsItems"] = stateKvsService.getItems()
+
+      var parameters: [String: Float] = [:]
+      parameterTree?.allParameters.forEach { param in
+        parameters[param.identifier] = param.value
+      }
+      state["parameters"] = parameters
+      return state
+    }
+
+    set(newValue) {
+      logger.log("fullState restoration")
+      guard let state = newValue else { return }
+      // if let flag = state["MySynth1.hostedInStandaloneApp"] as? Bool {
+      //   self.isHostedInStandaloneApp = flag
+      // }
+      if var parameters = state["parameters"] as? [String: Float] {
+        migrateParametersIfNeeded(parameters: &parameters)
+        parameterTree?.allParameters.forEach { param in
+          if let value = parameters[param.identifier] {
+            param.value = value
+          }
+        }
+      }
+      if let kvsItems = state["kvsItems"] as? [String: String] {
+        stateKvsService.setItems(kvsItems)
+      }
+      //skipping super.fullState to avoid overwriting our custom restoration results.
+      // super.fullState = state
     }
   }
 

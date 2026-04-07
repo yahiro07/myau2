@@ -116,3 +116,5 @@ func buildPluginParameterSpecs() -> ParameterTreeSpec {
     }
   }
 }
+
+func migrateParametersIfNeeded(parameters: inout [String: Float]) {}
